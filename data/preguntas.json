@@ -1,0 +1,76 @@
+{
+    "niveles": [
+        {
+            "id": 1,
+            "nombre": "Identificación de Grupos Funcionales",
+            "subniveles": [
+                {
+                    "id": 1,
+                    "nombre": "Alcoholes",
+                    "pregunta": "¿Cuál es el grupo funcional de esta molécula?",
+                    "opciones": [
+                        { "texto": "Alcohol", "explicacion": "Correcto, los alcoholes tienen un grupo hidroxilo (-OH)." },
+                        { "texto": "Aldehído", "explicacion": "Incorrecto, los aldehídos tienen un grupo carbonilo (C=O) en el extremo de la cadena." },
+                        { "texto": "Cetona", "explicacion": "Incorrecto, las cetonas tienen un grupo carbonilo entre átomos de carbono." },
+                        { "texto": "Ácido carboxílico", "explicacion": "Incorrecto, los ácidos carboxílicos tienen un grupo carboxilo (COOH)." }
+                    ],
+                    "respuestaCorrecta": "Alcohol"
+                },
+                {
+                    "id": 2,
+                    "nombre": "Aldehídos",
+                    "pregunta": "¿Qué grupo funcional está presente en esta molécula?",
+                    "opciones": [
+                        { "texto": "Alcohol", "explicacion": "Incorrecto, los alcoholes tienen un grupo hidroxilo (-OH)." },
+                        { "texto": "Aldehído", "explicacion": "Correcto, los aldehídos tienen un grupo carbonilo (C=O) en el extremo de la cadena de carbono." },
+                        { "texto": "Cetona", "explicacion": "Incorrecto, las cetonas tienen un grupo carbonilo entre átomos de carbono." },
+                        { "texto": "Éter", "explicacion": "Incorrecto, los éteres tienen un átomo de oxígeno enlazado a dos grupos alquilo o arilo." }
+                    ],
+                    "respuestaCorrecta": "Aldehído"
+                },
+                {
+                    "id": 3,
+                    "nombre": "Cetonas",
+                    "pregunta": "Identifica el grupo funcional de esta molécula:",
+                    "opciones": [
+                        { "texto": "Aldehído", "explicacion": "Incorrecto, los aldehídos tienen un grupo carbonilo en el extremo de la cadena." },
+                        { "texto": "Cetona", "explicacion": "Correcto, las cetonas tienen un grupo carbonilo (C=O) entre átomos de carbono." },
+                        { "texto": "Ácido carboxílico", "explicacion": "Incorrecto, los ácidos carboxílicos tienen un grupo carboxilo (COOH)." },
+                        { "texto": "Éster", "explicacion": "Incorrecto, los ésteres contienen un grupo éster (COO) entre dos grupos alquilo o arilo." }
+                    ],
+                    "respuestaCorrecta": "Cetona"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "nombre": "Características de Grupos Funcionales",
+            "subniveles": [
+                {
+                    "id": 1,
+                    "nombre": "Alcoholes",
+                    "pregunta": "¿Cuál es una característica clave de los alcoholes?",
+                    "opciones": [
+                        { "texto": "Grupo carbonilo", "explicacion": "Incorrecto, el grupo carbonilo se encuentra en cetonas y aldehídos." },
+                        { "texto": "Grupo hidroxilo", "explicacion": "Correcto, los alcoholes contienen un grupo hidroxilo (-OH) unido a un carbono saturado." },
+                        { "texto": "Grupo amino", "explicacion": "Incorrecto, el grupo amino se encuentra en las aminas." },
+                        { "texto": "Grupo carboxilo", "explicacion": "Incorrecto, el grupo carboxilo se encuentra en los ácidos carboxílicos." }
+                    ],
+                    "respuestaCorrecta": "Grupo hidroxilo"
+                },
+                {
+                    "id": 2,
+                    "nombre": "Aldehídos",
+                    "pregunta": "¿Qué grupo funcional caracteriza a los aldehídos?",
+                    "opciones": [
+                        { "texto": "Grupo éter", "explicacion": "Incorrecto, los éteres contienen un átomo de oxígeno entre dos grupos alquilo o arilo." },
+                        { "texto": "Grupo amino", "explicacion": "Incorrecto, el grupo amino es característico de las aminas." },
+                        { "texto": "Grupo carbonilo", "explicacion": "Correcto, los aldehídos tienen un grupo carbonilo (C=O) en el extremo de la cadena de carbono." },
+                        { "texto": "Grupo hidroxilo", "explicacion": "Incorrecto, el grupo hidroxilo es característico de los alcoholes." }
+                    ],
+                    "respuestaCorrecta": "Grupo carbonilo"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identificación de Grupos Funcionales</title>
+    <link rel="stylesheet" href="../../../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../css/styles.css">
+</head>
+<body>
+    <header class="text-center py-4">
+        <h1>Identificación de Grupos Funcionales</h1>
+        <p>Puntuación: <span id="puntuacion">0</span></p>
+    </header>
+    <main class="container text-center">
+        <section class="my-5">
+            <!-- Contenedor de la pregunta -->
+            <h2 id="pregunta">Pregunta aquí</h2>
+
+            <!-- Contenedor de las opciones de respuesta -->
+            <div id="opciones" class="options"></div>
+
+            <!-- Elemento para mostrar la retroalimentación -->
+            <div id="feedback" class="mt-4"></div>
+        </section>
+    </main>
+    <footer class="text-center py-4">
+        <button id="btnSiguiente" class="btn btn-primary" onclick="siguientePregunta()" disabled>Avanzar a la siguiente pregunta</button>
+    </footer>
+
+    <!-- Script para cargar y mostrar las preguntas -->
+    <script src="../../../js/preguntas.js"></script>
+</body>
+</html>
