@@ -17,6 +17,9 @@
             <!-- Contenedor de la pregunta -->
             <h2 id="pregunta">Pregunta aquí</h2>
 
+            <!-- Contenedor para el modelo 3D -->
+            <div id="molecule-viewer" style="width: 300px; height: 300px; margin: 0 auto;"></div>
+
             <!-- Contenedor de las opciones de respuesta -->
             <div id="opciones" class="options"></div>
 
@@ -28,7 +31,10 @@
         <button id="btnSiguiente" class="btn btn-primary" onclick="siguientePregunta()" disabled>Avanzar a la siguiente pregunta</button>
     </footer>
 
-    <!-- Script para cargar y mostrar las preguntas -->
-    <script src="../../../js/preguntas.js"></script>
+    <!-- Scripts de Three.js y la lógica de preguntas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script> <!-- Enlace a Three.js -->
+    <script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/js/loaders/GLTFLoader.js"></script> <!-- Enlace al cargador de modelos GLTF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script> <!-- Enlace a OrbitControls -->
+    <script src="../../../js/preguntas.js"></script> <!-- Lógica para cargar preguntas y modelos 3D -->
 </body>
 </html>
