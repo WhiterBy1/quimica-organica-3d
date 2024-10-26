@@ -5,11 +5,13 @@ let puntosPorPregunta = 100;
 let intentos = 0;
 
 // Modelos en formato PDB usados
+// Cambia la ruta de modelos para usar .mol2 en lugar de .pdb
 const modelos = {
-    "Alcoholes": "../../../assets/modelos3D/alcohol.pdb",
-    "Aldehídos": "../../../assets/modelos3D/aldehido.pdb",
-    "Cetonas": "../../../assets/modelos3D/cetona.pdb"
+    "Alcoholes": "../../../assets/modelos3D/alcohol.mol2",
+    "Aldehídos": "../../../assets/modelos3D/aldehido.mol2",
+    "Cetonas": "../../../assets/modelos3D/cetona.mol2"
 };
+
 
 // Configuración inicial de JSmol
 const jsmolInfo = {
