@@ -4,13 +4,30 @@ let subnivelActual = 1;
 let puntosPorPregunta = 100;
 let intentos = 0;
 
-// Modelos glb usados
+// Modelos en formato PDB usados
 const modelos = {
-    "Alcoholes": "../../../assets/modelos3D/alcohol.glb",
-    "Aldehídos": "../../../assets/modelos3D/aldehido.glb",
-    "Cetonas": "../../../assets/modelos3D/cetona.glb"
+    "Alcoholes": "../../../assets/modelos3D/alcohol.pdb",
+    "Aldehídos": "../../../assets/modelos3D/aldehido.pdb",
+    "Cetonas": "../../../assets/modelos3D/cetona.pdb"
 };
 
+// Configuración inicial de JSmol
+const jsmolInfo = {
+    width: 300,
+    height: 300,
+    use: "HTML5",
+    j2sPath: "../../../js/JSmol/j2s", // Ruta a la carpeta `j2s` dentro de `JSmol`
+    script: "",
+    debug: false
+};
+
+// Inicializar JSmol
+function inicializarJSmol() {
+    if (!window.jmolApplet) {
+        window.jmolApplet = Jmol.getApplet("jmolApplet", jsmolInfo);
+        document.getElementById("molecule-viewer").innerHTML = Jmol.getAppletHtml(jmolApplet);
+    }
+}
 
 // Cargar preguntas desde el archivo JSON
 async function cargarPreguntas() {
@@ -61,7 +78,7 @@ function mostrarPregunta(nivelId, subnivelId) {
         const urlModelo = modelos[subnivel.nombre];
         if (urlModelo) {
             console.log("Cargando modelo desde URL:", urlModelo);
-            cargarModelo3D(urlModelo);
+            cargarModeloJSmol(urlModelo);
         } else {
             console.error(`Modelo no encontrado para el subnivel: ${subnivel.nombre}`);
         }
@@ -70,73 +87,21 @@ function mostrarPregunta(nivelId, subnivelId) {
         subnivel.opciones.forEach((opcion) => {
             const button = document.createElement("button");
             button.className = "btn btn-secondary option";
-            button.textContent = opcion.texto;  // Usar `texto` para el contenido del botón
-            button.onclick = () => verificarRespuesta(opcion, subnivel.respuestaCorrecta, subnivel.explicacion); // Pasar el objeto `opcion` completo
+            button.textContent = opcion.texto;
+            button.onclick = () => verificarRespuesta(opcion, subnivel.respuestaCorrecta, subnivel.explicacion);
             opcionesContainer.appendChild(button);
         });
     });
 }
 
-// Función para cargar y mostrar el modelo 3D
-function cargarModelo3D(urlModelo) {
-    console.log("Intentando cargar el modelo 3D desde la URL:", urlModelo);
-    
-    if (!THREE) {
-        console.error("THREE.js no está definido.");
-        return;
-    }
-    if (!GLTFLoader) {
-        console.error("GLTFLoader no está definido.");
-        return;
-    }
+// Función para cargar y mostrar el modelo 3D usando JSmol
+function cargarModeloJSmol(urlModelo) {
+    console.log("Intentando cargar el modelo molecular desde la URL:", urlModelo);
+    inicializarJSmol(); // Asegura que JSmol esté inicializado
 
-    const viewer = document.getElementById("molecule-viewer");
-    viewer.innerHTML = ""; // Limpiar el contenedor antes de cargar un nuevo modelo
-
-    // Configuración de la escena, cámara y renderizador
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, viewer.clientWidth / viewer.clientHeight, 0.1, 1000);
-    camera.position.z = 3;
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(viewer.clientWidth, viewer.clientHeight);
-    viewer.appendChild(renderer.domElement);
-
-    // Crear la luz para la escena
-    const light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5, 5, 5).normalize();
-    scene.add(light);
-
-    // Agregar controles orbitales para interacción sin prefijo THREE
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = true;  // Permitir zoom
-    controls.enablePan = true;   // Permitir paneo
-    controls.enableRotate = true; // Permitir rotación
-    controls.update();
-
-    // Cargar el modelo 3D usando GLTFLoader
-    const loader = new THREE.GLTFLoader();
-    loader.load(
-        urlModelo,
-        function (gltf) {
-            scene.add(gltf.scene);
-            animate();
-        },
-        undefined,
-        function (error) {
-            console.error("Error al cargar el modelo 3D:", error);
-        }
-    );
-
-    // Animar la escena
-    function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-    }
+    // Cargar el modelo en el applet JSmol
+    Jmol.script(jmolApplet, `load ${urlModelo}`);
 }
-
-
 
 // Verificar respuesta
 function verificarRespuesta(opcionSeleccionada, respuestaCorrecta, explicacion) {
@@ -150,7 +115,6 @@ function verificarRespuesta(opcionSeleccionada, respuestaCorrecta, explicacion) 
         puntuacion += puntosPorPregunta;
         puntuacionElement.textContent = puntuacion;
         
-        // Desactiva todos los botones y habilita el botón de siguiente
         botones.forEach(boton => boton.disabled = true);
         btnSiguiente.disabled = false;
 
@@ -160,12 +124,11 @@ function verificarRespuesta(opcionSeleccionada, respuestaCorrecta, explicacion) 
             puntosPorPregunta = 0;
             feedbackElement.innerHTML = `<span style='color: red;'>Incorrecto</span>. ${opcionSeleccionada.explicacion} <br> No hay más puntos para esta pregunta.`;
         } else {
-            puntosPorPregunta -= 25; // Disminuye los puntos en cada intento
+            puntosPorPregunta -= 25;
             feedbackElement.innerHTML = `<span style='color: red;'>Incorrecto</span>. ${opcionSeleccionada.explicacion} <br> Inténtalo de nuevo. Puntos restantes: ${puntosPorPregunta}`;
         }
     }
 }
-
 
 // Avanzar a la siguiente pregunta
 function siguientePregunta() {
