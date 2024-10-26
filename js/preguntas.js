@@ -3,14 +3,23 @@ let nivelActual = 1;
 let subnivelActual = 1;
 let puntosPorPregunta = 100;
 let intentos = 0;
+let vistaActual = "3D";
 
-// Modelos en formato PDB usados
-// Cambia la ruta de modelos para usar .mol2 en lugar de .pdb
-const modelos = {
-    "Alcoholes": "../../../assets/modelos3D/alcohol.mol2",
-    "Aldehídos": "../../../assets/modelos3D/aldehido.mol2",
-    "Cetonas": "../../../assets/modelos3D/cetona.mol2"
-};
+
+// Función para obtener una ruta aleatoria de un modelo 3D o 2D de un grupo funcional// Función para obtener una ruta de un modelo 3D o 2D de un grupo funcional en singular
+function obtenerModeloAleatorio(grupoFuncional, tipo, numeroAleatorio = null) {
+    const cantidadModelos = 3; // Número de modelos disponibles (ajusta según el grupo funcional)
+    
+    // Si no se proporciona un número, se genera uno aleatorio
+    const numero = numeroAleatorio !== null ? numeroAleatorio : Math.floor(Math.random() * cantidadModelos) + 1;
+    
+    // Selecciona el formato de archivo en función del tipo
+    const extension = tipo === "3D" ? "mol2" : "png";
+    
+    // Retorna la ruta al archivo en `modelos3D`
+    return `../../../assets/modelos3D/${grupoFuncional.toLowerCase()}${numero}.${extension}`;
+}
+
 
 
 // Configuración inicial de JSmol
@@ -30,6 +39,37 @@ function inicializarJSmol() {
         document.getElementById("molecule-viewer").innerHTML = Jmol.getAppletHtml(jmolApplet);
     }
 }
+// Función para cargar y mostrar el modelo 3D usando JSmol
+function cargarModeloJSmol(urlModelo) {
+    console.log("Intentando cargar el modelo molecular desde la URL:", urlModelo);
+    inicializarJSmol(); // Asegura que JSmol esté inicializado
+
+    // Cargar el modelo en el applet JSmol
+    Jmol.script(jmolApplet, `load ${urlModelo}`);
+}
+
+// Función para mostrar la imagen 2D en un elemento <img>
+function cargarImagen2D(urlImagen) {
+    const viewer2D = document.getElementById("molecule-viewer-2D");
+    viewer2D.src = urlImagen;
+    viewer2D.alt = "Vista 2D de la molécula";
+}
+function alternarVista() {
+    const flipCardInner = document.querySelector(".flip-card-inner");
+    const toggleButton = document.getElementById("toggle-view-button");
+
+    // Alternar la clase para girar la tarjeta
+    flipCardInner.classList.toggle("flipped");
+
+    // Cambiar el texto del botón según la vista
+    if (vistaActual === "3D") {
+        toggleButton.textContent = "Cambiar a 3D";
+        vistaActual = "2D";
+    } else {
+        toggleButton.textContent = "Cambiar a 2D";
+        vistaActual = "3D";
+    }
+}
 
 // Cargar preguntas desde el archivo JSON
 async function cargarPreguntas() {
@@ -46,7 +86,7 @@ async function cargarPreguntas() {
     }
 }
 
-// Mostrar la pregunta y las opciones para un nivel y subnivel específico
+// Función para ajustar las imágenes 2D y 3D a los modelos específicos
 function mostrarPregunta(nivelId, subnivelId) {
     cargarPreguntas().then(niveles => {
         if (!niveles) {
@@ -57,10 +97,7 @@ function mostrarPregunta(nivelId, subnivelId) {
         const nivel = niveles.find(n => n.id === nivelId);
         const subnivel = nivel ? nivel.subniveles.find(s => s.id === subnivelId) : null;
 
-        if (!nivel || !subnivel) {
-            console.error("Nivel o subnivel no encontrado");
-            return;
-        }
+        if (!nivel || !subnivel) return;
 
         console.log(`Mostrando pregunta del nivel ${nivelId}, subnivel ${subnivelId}`);
         const pregunta = document.getElementById("pregunta");
@@ -68,7 +105,6 @@ function mostrarPregunta(nivelId, subnivelId) {
         const feedbackElement = document.getElementById("feedback");
         const btnSiguiente = document.getElementById("btnSiguiente");
 
-        // Configuración inicial de la pregunta
         pregunta.textContent = subnivel.pregunta;
         opcionesContainer.innerHTML = "";
         feedbackElement.innerHTML = "";
@@ -76,17 +112,13 @@ function mostrarPregunta(nivelId, subnivelId) {
         intentos = 0;
         puntosPorPregunta = 100;
 
-        // Cargar el modelo 3D correspondiente al subnivel
-        const urlModelo = modelos[subnivel.nombre];
-        if (urlModelo) {
-            console.log("Cargando modelo desde URL:", urlModelo);
-            cargarModeloJSmol(urlModelo);
-        } else {
-            console.error(`Modelo no encontrado para el subnivel: ${subnivel.nombre}`);
-        }
+        const modelo3D = obtenerModeloAleatorio(subnivel.nombre, "3D");
+        const modelo2D = obtenerModeloAleatorio(subnivel.nombre, "2D");
 
-        // Crear los botones de opciones
-        subnivel.opciones.forEach((opcion) => {
+        cargarModeloJSmol(modelo3D);
+        document.getElementById("molecule-viewer-2D").src = modelo2D;
+
+        subnivel.opciones.forEach(opcion => {
             const button = document.createElement("button");
             button.className = "btn btn-secondary option";
             button.textContent = opcion.texto;
@@ -95,16 +127,6 @@ function mostrarPregunta(nivelId, subnivelId) {
         });
     });
 }
-
-// Función para cargar y mostrar el modelo 3D usando JSmol
-function cargarModeloJSmol(urlModelo) {
-    console.log("Intentando cargar el modelo molecular desde la URL:", urlModelo);
-    inicializarJSmol(); // Asegura que JSmol esté inicializado
-
-    // Cargar el modelo en el applet JSmol
-    Jmol.script(jmolApplet, `load ${urlModelo}`);
-}
-
 // Verificar respuesta
 function verificarRespuesta(opcionSeleccionada, respuestaCorrecta, explicacion) {
     const feedbackElement = document.getElementById("feedback");
