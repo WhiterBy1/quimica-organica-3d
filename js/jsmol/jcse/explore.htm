@@ -1,0 +1,113 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Jmol Crystal Symmetry Explorer</title>
+<script type="text/javascript" src="../JSmol.min.js"></script>
+<script type="text/javascript" src="../js/Jmol2.js"></script>
+<script type="text/javascript" src=jcse.js></script>
+</head>
+<body onload="document.getElementById('modelselect').selectedIndex=0">
+
+<table><tr>
+<td align=center valign=top style="width:170px">
+<h3>Jmol Crystal Symmetry Explorer</h3>
+
+<div id=loading style="display:none">
+
+<script type="text/javascript">
+jmolHtml("<h3>load options</h3>")
+jmolSetButtonCssClass('" style="width:160px')
+jmolButton("load \"\" 1 FILTER 'MOLECULAR'","molecular units")
+jmolBr()
+jmolButton("load \"\" {1 1 1}", "unpacked cell")
+jmolBr()
+jmolButton("load \"\" 1 packed","packed cell")
+jmolBr()
+jmolButton("load \"\" 1 {455 655 1}","3x1x1 set")
+jmolBr()
+jmolButton("load \"\" 1 {545 565 1}","1x3x1 set")
+jmolBr()
+jmolButton("load \"\" 1 {554 556 1}","1x1x3 set")
+jmolBr()
+jmolButton("load \"\" 1 {445 665 1}","3x3x1 plane")
+jmolBr()
+jmolButton("load \"\" 1 {454 656 1}","3x1x3 plane")
+jmolBr()
+jmolButton("load \"\" 1 {544 566 1}","1x3x3 plane")
+jmolBr()
+jmolButton("load \"\" 1 {444 666 1}","3x3x3 cube")
+jmolBr()
+jmolButton("load \"\" 1 fill 20","20-Angstrom cube")
+jmolHtml("<h3>display options</h3>")
+jmolButton("backgroundcolor = (backgroundcolor = '[x000000]' ? 'white' : 'black')","switch background")
+jmolButton("if (show('state/axes').find('axes on')){axes off;unitcell off}else{axes on;axes unitcell;unitcell on}","toggle unitcell")
+jmolButton("var n = 0+prompt('Select a molecule from 1 to ' + {*}.molecule.all.max, 1);display molecule=n","molecule by number")
+jmolButton("info=getProperty('moleculeInfo');nmax=getProperty(info,'nAtoms').max;m=getProperty(info,'[select (number) where nAtoms = nmax]')[1];display molecule=m","largest molecule")
+jmolButton("display *","all molecules")
+jmolButton("center visible;zoom 0","center displayed")
+
+
+</script>
+</div>
+</td>
+<td align=center  valign=top>
+
+<script type="text/javascript">
+jmolApplet(["600","600"],';background white;set errorCallback "errorCallback";set loadstructcallback "loadstructCallback";set pickCallback "pickCallback";set zoomlarge false;set antialiasdisplay;' + defaultScript)
+jmolSetButtonCssClass('" style="width:100px')
+jmolBr()
+jmolButton("console")
+jmolCommandInput()
+
+</script>
+</td><td  valign=top>
+<script type="text/javascript">
+jmolHtml("<h3>model options</h3>")
+document.write(modelSelectHtml)
+</script>
+<div id='syminfo'></div>
+
+<div id=note style="display:none;width:250px">
+<!-- 
+<br>
+<br>
+
+Note that all symmetry operations relating to this model are also accessible from the <a href=sympop.png target=_blank>pop-up menu</a> (click on the "JSmol" logo).
+<br>
+</div>
+ -->
+<br>
+ <script type="text/javascript">
+jmolSetButtonCssClass('" style="width:160px')
+jmolButton("if (!cod) { cod = ''};var x = prompt('Enter a Crystallographic Open Database id',cod);if (x=='null') { quit }; cod = x; load @{'=cod/'+cod} 1","Load COD")
+jmolBr()
+jmolButton("if (!url) { url = ''};var x = prompt('Enter a URL for a structure file',url);if (x=='null') { quit }; url = x; load @url 1","Load URL")
+jmolBr()
+jmolButton("load file \"?\" 1","Load FILE")
+jmolBr()
+jmolButton("script ?.spt","Load SCRIPT")
+jmolBr()
+jmolBr()
+jmolButton("var f = '?' + _modelName + '.cif';write FILE @f","Save FILE")
+jmolBr()
+jmolButton("var f = '?' + _modelName + '.spt';write STATE @f","Save STATE")
+jmolBr()
+jmolButton("var f = '?' + _modelName + '.png';write IMAGE @f","Save PNG")
+jmolBr()
+jmolButton("var f = '?' + _modelName + '.png';write @f as PNGJ","Save PNG+Jmol")
+jmolHtml("<h3>3D printing options</h3>")
+jmolButton("var scale = 0+prompt('What scale would  you like?',(exportScale == 0 ? '10.0' : exportScale));if (scale)set exportScale @scale;","Set Scale")
+jmolBr()
+jmolButton("save state o; set echo off;axes labels '' '' '';refresh;var f = '?' + _modelName + '.wrl';write @f;restore state o","Save VRML")
+jmolBr()
+jmolButton("save state o; set echo off;axes labels '' '' '';refresh;var f = '?' + _modelName + '.x3d';write @f;restore state o","Save X3D")
+jmolBr()
+jmolButton("var f = '?' + _modelName + '.stl';write @f","Save STL")
+</script>
+
+</td></tr>
+</table>
+
+
+</body>
+</html>

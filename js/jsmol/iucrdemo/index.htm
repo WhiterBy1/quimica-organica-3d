@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>JSmol/Jmol IUCr 2023 Workshop Demo</title>
+<script type="text/javascript" src="../JSmol.min.js"></script>
+<script type="text/javascript" src="code.js"></script>
+
+<script type="text/javascript">
+	Jmol._isAsync = false;
+
+	// last update 2/18/2014 2:10:06 PM
+
+	var jmolApplet0; // set up in HTML table, below
+
+	// logic is set by indicating order of USE -- default is HTML5 for this test page, though
+
+	var s = document.location.search;
+
+	// Developers: The _debugCode flag is checked in j2s/core/core.z.js, 
+	// and, if TRUE, skips loading the core methods, forcing those
+	// to be read from their individual directories. Set this
+	// true if you want to do some code debugging by inserting
+	// System.out.println, document.title, or alert commands
+	// anywhere in the Java or Jmol code.
+
+	Jmol._debugCode = (s.indexOf("debugcode") >= 0);
+
+	jmol_isReady = function(applet) {
+		document.title = (applet._id + " - Jmol " + Jmol.___JmolVersion)
+		Jmol._getElement(applet, "appletdiv").style.border = "1px solid blue"
+
+	$("#demodiv").html(Demo.sections.join(""))
+	$("#cmddiv").html(Jmol.jmolCommandInput(jmolApplet0));
+
+	}
+
+	var Info = {
+		width : 420,
+		height : 300,
+		debug : false,
+		color : "0xFFFFFF",
+		addSelectionOptions : true,
+		use : "HTML5", // JAVA HTML5 WEBGL are all options
+		j2sPath : "../j2s", // this needs to point to where the j2s directory is.
+		jarPath : "../java",// this needs to point to where the java directory is.
+		jarFile : "JmolAppletSigned.jar",
+		isSigned : true,
+		script : "set zoomlarge false;set antialiasDisplay;load ../data/rabe.spt",
+		serverURL : "https://chemapps.stolaf.edu/jmol/jsmol/php/jsmol.php",
+		readyFunction : jmol_isReady,
+		disableJ2SLoadMonitor : true,
+		disableInitialConsole : true,
+		allowJavaScript : true
+	//defaultModel: "$dopamine",
+	//console: "none", // default will be jmolApplet0_infodiv, but you can designate another div here or "none"
+	}
+
+	$(document).ready(function() {
+		$("#appdiv").html(Jmol.getAppletHtml("jmolApplet0", Info))
+	})
+	var lastPrompt = 0;
+</script>
+</head>
+<body>
+	<table width=1000 cellpadding=10>
+		<tr>
+			<td colspan=2 style="font-size: 12pt"><b><a
+					href="http://jsmol.sourceforge.net">JSmol</a> is an
+					HTML5 version of <a
+					href="http://jmol.sourceforge.net">Jmol</a>.</b> 
+
+This page was written to accompany the article <a target=_blank href=https://doi.org/10.1107/S1600576724007659>Free tools for crystallographic symmetry handling and
+visualization</a>. It demonstrates all of the Jmol scripting commands described in that paper. Drag the molecule around using the left mouse button. Scroll and click on 
+various links on the right, below. They are designed to be clicked sequentially from top to bottom, starting 
+at any link that is <b>in bold</b>. But you can try them in any order! Experiment!
+
+			</td>	
+		</tr>
+		<tr>
+			<td valign="top">
+				<div id="appdiv"></div> <br> <a
+				href="javascript:Jmol.loadFileFromDialog(jmolApplet0)">open...</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'console')">console</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'image')">image</a> display
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'set antialiasDisplay false')">faster</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'set antialiasDisplay true')">sharper</a>
+				<a href="javascript:Jmol.script(jmolApplet0,'set window 610 450')">large</a>
+				<a href="javascript:Jmol.script(jmolApplet0,'set window 420 300')">small</a>
+				<br> platformSpeed: <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 8')"
+				title='all features'>8</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 7')"
+				title='no antialiasing'>7</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 6')"
+				title='no translucency'>6</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 5')"
+				title='surfaces dotted'>5</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 4')"
+				title='cartoons as trace'>4</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 3')"
+				title='geosurfaces as dots'>3</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 2')"
+				title='ellipsoids as dots'>2</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'set platformSpeed 1')"
+				title='wireframe only'>1</a> <br> info <a
+				href="javascript:Jmol.showInfo(jmolApplet0, true)">show</a> <a
+				href="javascript:Jmol.clearConsole(jmolApplet0)">clear</a> <a
+				href="javascript:Jmol.showInfo(jmolApplet0, false)">hide</a> <br>
+			<a
+				href="javascript:Jmol.script(jmolApplet0,'select *;cartoons off;spacefill only')">spacefill</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'select *;cartoons off;wireframe -0.1')">wire</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'select *;cartoons off;spacefill 23%;wireframe 0.15')">ball&amp;stick</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'select protein or nucleic;cartoons only')">cartoons</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'set cartoonFancy true')">fancy</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'set cartoonFancy false')">not</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'set cartoonFancy false;set hermitelevel 0')">flat</a>
+
+				<br>
+			<a href="javascript:Jmol.script(jmolApplet0,'color property atomno')">color
+					atomno</a> <a href="javascript:Jmol.script(jmolApplet0,'color cpk')">color
+					cpk</a> <a href="javascript:Jmol.script(jmolApplet0,'color structure')">color
+					structure</a> <br> <a
+				href="javascript:Jmol.script(jmolApplet0,'select *;isosurface vdw')">isosurface
+					vdw</a> <a
+				href="javascript:Jmol.script(jmolApplet0,'isosurface delete')">off</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'if ({atomno < 10}.partialcharge == 0){calculate partialcharge};isosurface vdw map mep')">mep</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'isosurface translucent')">translucent</a>
+				<a href="javascript:Jmol.script(jmolApplet0,'isosurface opaque')">opaque</a>
+
+
+				<br> labels <a
+				href="javascript:Jmol.script(jmolApplet0,'if (_fileType == &quot;Pdb&quot;){select *.CA;label %n%r}else{select *;label %a};select *;')">on</a>
+				<a href="javascript:Jmol.script(jmolApplet0,'select *;labels off')">off</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'font echo 20 serif;fsize=20;set echo top center;echo echo test')">echo</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'if (!fsize){fsize=20};fsize += 4;font echo @fsize serif;')">larger</a>
+				<a
+				href="javascript:Jmol.script(jmolApplet0,'if (!fsize){fsize=20};fsize -= 4;if (fsize < 10){fsize = 10};font echo @fsize serif')">smaller</a>
+
+			</td>
+			<td valign=top><div id=demodiv style="background:beige;width:800px;height:500px;overflow:auto">
+
+				</div></td>
+		</tr>
+<tr><td></td><td><div id=cmddiv></div>
+</td></tr>
+	</table>
+</body>
+
+
+</html>

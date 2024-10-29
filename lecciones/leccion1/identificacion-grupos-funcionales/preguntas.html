@@ -14,18 +14,40 @@
     </header>
     <main class="container text-center">
         <section class="my-5">
-            <!-- Contenedor de la pregunta -->
             <h2 id="pregunta">Pregunta aquí</h2>
-
-            <!-- Contenedor para el modelo 3D -->
-            <div id="molecule-viewer" style="width: 300px; height: 300px; margin: 0 auto;"></div>
-
-            <!-- Contenedor de las opciones de respuesta -->
+        
+            <!-- Contenedor para el flip card -->
+            <div class="flip-card-container">
+                <div class="flip-card-inner">
+                    <!-- Vista 3D -->
+                    <div class="flip-card-front">
+                        <div id="molecule-viewer" style="width: 300px; height: 300px;"></div>
+                    </div>
+                    <!-- Vista 2D -->
+                    <div class="flip-card-back">
+                        <img id="molecule-viewer-2D" src="" alt="Modelo 2D" />
+                    </div>
+                </div>
+            </div>
+            <!-- Leyenda de colores para identificación de átomos -->
+        <div id="color-legend" class="color-legend">
+            <h3>Identificación de Átomos</h3>
+            <ul>
+                <li><span class="legend-color" style="background-color: red;"></span>Oxígeno</li>
+                <li><span class="legend-color" style="background-color: gray;"></span>Carbono</li>
+                <li><span class="legend-color" style="background-color: white; border: 1px solid #ccc;"></span>Hidrógeno</li>
+            </ul>
+        </div>
+        
+            <!-- Botón para alternar vista -->
+            <button id="toggle-view-button" class="toggle-view-btn" onclick="alternarVista()">Cambiar a 2D</button>
+        
+            <!-- Contenedor de opciones y feedback -->
             <div id="opciones" class="options"></div>
-
-            <!-- Elemento para mostrar la retroalimentación -->
             <div id="feedback" class="mt-4"></div>
         </section>
+        
+        
     </main>
     <footer class="text-center py-4">
         <button id="btnSiguiente" class="btn btn-primary" onclick="siguientePregunta()" disabled>Avanzar a la siguiente pregunta</button>
@@ -34,5 +56,6 @@
     <!-- Cargar JSmol -->
     <script src="../../../js/jsmol/JSmol.min.js"></script>
     <script src="../../../js/preguntas.js"></script> <!-- Lógica para cargar preguntas y modelos 3D -->
+    <link rel="stylesheet" href="../../../css/styles.css">
 </body>
 </html>

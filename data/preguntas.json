@@ -6,7 +6,7 @@
             "subniveles": [
                 {
                     "id": 1,
-                    "nombre": "Alcoholes",
+                    "nombre": "Alcohol",
                     "pregunta": "¿Cuál es el grupo funcional de esta molécula?",
                     "opciones": [
                         { "texto": "Alcohol", "explicacion": "Correcto, los alcoholes tienen un grupo hidroxilo (-OH)." },
@@ -18,7 +18,7 @@
                 },
                 {
                     "id": 2,
-                    "nombre": "Aldehídos",
+                    "nombre": "Aldehido",
                     "pregunta": "¿Qué grupo funcional está presente en esta molécula?",
                     "opciones": [
                         { "texto": "Alcohol", "explicacion": "Incorrecto, los alcoholes tienen un grupo hidroxilo (-OH)." },
@@ -30,7 +30,7 @@
                 },
                 {
                     "id": 3,
-                    "nombre": "Cetonas",
+                    "nombre": "Cetona",
                     "pregunta": "Identifica el grupo funcional de esta molécula:",
                     "opciones": [
                         { "texto": "Aldehído", "explicacion": "Incorrecto, los aldehídos tienen un grupo carbonilo en el extremo de la cadena." },
@@ -48,7 +48,7 @@
             "subniveles": [
                 {
                     "id": 1,
-                    "nombre": "Alcoholes",
+                    "nombre": "Alcohol",
                     "pregunta": "¿Cuál es una característica clave de los alcoholes?",
                     "opciones": [
                         { "texto": "Grupo carbonilo", "explicacion": "Incorrecto, el grupo carbonilo se encuentra en cetonas y aldehídos." },
@@ -60,7 +60,7 @@
                 },
                 {
                     "id": 2,
-                    "nombre": "Aldehídos",
+                    "nombre": "Aldehido",
                     "pregunta": "¿Qué grupo funcional caracteriza a los aldehídos?",
                     "opciones": [
                         { "texto": "Grupo éter", "explicacion": "Incorrecto, los éteres contienen un átomo de oxígeno entre dos grupos alquilo o arilo." },
