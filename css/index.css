@@ -17,17 +17,6 @@ a {
     color: inherit;
 }
 
-/* Particle Background */
-.particle-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    z-index: -1;
-}
-
 /* Header Styles */
 .header {
     text-align: center;
@@ -60,29 +49,30 @@ a {
     color: #009688;
 }
 
-/* Lesson Card with Hover Effect */
+/* Lesson Card */
 .lesson-card {
     background: #fff;
-    padding: 1.5rem;
     margin: 1rem 0;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, background-color 0.3s ease;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    animation: fadeIn 1.2s ease forwards; /* Animación de entrada */
+    transition: transform 0.3s ease, background-color 0.3s ease;
 }
 .lesson-card:hover {
-    transform: scale(1.05); /* Efecto de escala en hover */
+    transform: translateY(-5px);
     background-color: #e0f7fa;
 }
 .lesson-card a {
+    display: flex; /* Hace que el enlace llene toda la tarjeta */
+    align-items: center;
+    justify-content: center;
     font-size: 1.2rem;
     color: #00796b;
     font-weight: bold;
-    transition: color 0.3s;
+    height: 100%;
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 .lesson-card a:hover {
     color: #004d40;
@@ -99,6 +89,7 @@ a {
     bottom: 0;
     width: 100%;
 }
+
 
 /* Animations */
 @keyframes fadeIn {
