@@ -11,6 +11,8 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     position: relative;
+    opacity: 0;
+    animation: fadeInPage 1s ease forwards;
 }
 a {
     text-decoration: none;
@@ -29,6 +31,9 @@ a {
     font-size: 2rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
+}
+.header p {
+    color: #e0f7fa;
 }
 
 /* Main Content Styles */
@@ -56,11 +61,12 @@ a {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: transform 0.3s ease, background-color 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
 }
 .lesson-card:hover {
     transform: translateY(-5px);
     background-color: #e0f7fa;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Añade una sombra suave en hover */
 }
 .lesson-card a {
     display: flex; /* Hace que el enlace llene toda la tarjeta */
@@ -90,19 +96,17 @@ a {
     width: 100%;
 }
 
-
-/* Animations */
-@keyframes fadeIn {
+/* Page Fade-in Animation */
+@keyframes fadeInPage {
     from {
         opacity: 0;
-        transform: translateY(20px);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
+/* Particle Styles */
 .particle {
     position: absolute;
     bottom: 0;
@@ -122,4 +126,3 @@ a {
         opacity: 0;
     }
 }
-
