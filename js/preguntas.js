@@ -8,7 +8,7 @@ let vistaActual = "3D";
 
 // Función para obtener una ruta aleatoria de un modelo 3D o 2D de un grupo funcional// Función para obtener una ruta de un modelo 3D o 2D de un grupo funcional en singular
 function obtenerModeloAleatorio(grupoFuncional, tipo, numeroAleatorio = null) {
-    const cantidadModelos = 3; // Número de modelos disponibles (ajusta según el grupo funcional)
+    const cantidadModelos = 5; // Número de modelos disponibles (ajusta según el grupo funcional)
     
     // Si no se proporciona un número, se genera uno aleatorio
     const numero = numeroAleatorio !== null ? numeroAleatorio : Math.floor(Math.random() * cantidadModelos) + 1;
