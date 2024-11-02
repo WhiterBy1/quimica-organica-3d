@@ -1,0 +1,134 @@
+/* General Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+body {
+    background: #f0f0f0;
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden;
+    position: relative;
+}
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Particle Background */
+.particle-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: -1;
+}
+
+/* Header Styles */
+.header {
+    text-align: center;
+    padding: 2rem;
+    background: #009688;
+    color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.header h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+/* Main Content Styles */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1rem;
+}
+.lessons {
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+.lessons h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #009688;
+}
+
+/* Lesson Card with Hover Effect */
+.lesson-card {
+    background: #fff;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 1.2s ease forwards; /* Animación de entrada */
+}
+.lesson-card:hover {
+    transform: scale(1.05); /* Efecto de escala en hover */
+    background-color: #e0f7fa;
+}
+.lesson-card a {
+    font-size: 1.2rem;
+    color: #00796b;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+.lesson-card a:hover {
+    color: #004d40;
+}
+
+/* Footer Styles */
+.footer {
+    text-align: center;
+    padding: 1rem;
+    background: #00796b;
+    color: #fff;
+    font-size: 0.9rem;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.particle {
+    position: absolute;
+    bottom: 0;
+    background-color: rgba(0, 150, 136, 0.6);
+    border-radius: 50%;
+    opacity: 0;
+    animation: floatUp ease-in forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh);
+        opacity: 0;
+    }
+}
+
