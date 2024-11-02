@@ -1,13 +1,20 @@
+/* Estilos Generales */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f9;
     color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 header {
-    background-color: #007bff;
+    background-color: #009688;
     color: white;
     padding: 20px;
+    text-align: center;
     border-radius: 8px;
     margin-bottom: 20px;
 }
@@ -16,30 +23,170 @@ h1, h2 {
     font-weight: bold;
 }
 
-.molecule-placeholder {
-    width: 200px;
-    height: 200px;
-    margin: 20px auto;
-    background-color: #ccc;
+/* Main Content */
+main.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.section-content {
+    width: 100%;
+    text-align: center;
+}
+
+/* Contenedor principal para organizar los elementos */
+.content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px; /* Espaciado entre elementos */
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor para la tarjeta flip */
+.flip-card-container {
+    perspective: 1000px;
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+}
+.flip-card-inner {
+    width: 300px;
+    height: 300px;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    position: relative;
+}
+.flip-card-front, .flip-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.flip-card-front {
+    background-color: #f0f0f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+}
+.flip-card-back {
+    background-color: #e0f7fa;
+    transform: rotateY(180deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.options button {
-    width: 45%;
-    margin: 5px;
+/* Botón para alternar vista */
+.toggle-view-btn {
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.toggle-view-btn:hover {
+    background-color: #45a049;
 }
 
-#feedback {
+/* Leyenda de colores */
+.color-legend {
+    text-align: center;
+}
+.color-legend h3 {
     font-size: 1.2em;
-    font-weight: bold;
+    margin-bottom: 10px;
+    color: #009688;
+}
+.color-legend ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+.color-legend li {
+    font-size: 1em;
+    color: #333;
+}
+.legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    vertical-align: middle;
+    border-radius: 50%;
 }
 
+/* Contenedor de opciones */
+.options {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.options button {
+    padding: 8px 16px;
+    background-color: #00796b;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 1rem;
+}
+.options button:hover {
+    background-color: #004d40;
+}
+
+/* Botón de avanzar a la siguiente pregunta */
+.next-btn {
+    padding: 10px 20px;
+    background-color: #00796b;
+    color: #fff;
+    font-size: 1rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.next-btn:hover {
+    background-color: #004d40;
+}
+.next-btn:disabled {
+    background-color: #b0b0b0;
+    cursor: not-allowed;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #00796b;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+
+/* Estilos para la tarjeta flip */
+/* Contenedor para la tarjeta flip */
 .flip-card-container {
     perspective: 1000px;
-    display: inline-block;
+    display: flex;
+    justify-content: center;
     margin: 0 auto;
 }
 
@@ -51,87 +198,31 @@ h1, h2 {
     position: relative;
 }
 
-.flip-card-front,
-.flip-card-back {
+.flip-card-inner.flipped {
+    transform: rotateY(180deg);
+}
+
+.flip-card-front, .flip-card-back {
     position: absolute;
     width: 100%;
     height: 100%;
     backface-visibility: hidden;
     border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .flip-card-front {
     background-color: #f0f0f0;
-}
-
-.flip-card-back {
-    background-color: #f9f9f9;
-    transform: rotateY(180deg);
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-#toggle-view-button {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    border: none;
-    background-color: #4caf50;
-    color: white;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#toggle-view-button:hover {
-    background-color: #45a049;
-}
-
-#toggle-view-button:active {
-    background-color: #3d8b3d;
-}
-
-.flip-card-inner.flipped {
+.flip-card-back {
+    background-color: #e0f7fa;
     transform: rotateY(180deg);
-}
-
-#molecule-viewer-2D {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-}
-
-.color-legend {
-    margin-top: 20px;
-    text-align: center;
-    font-family: Arial, sans-serif;
-}
-
-.color-legend h3 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
-}
-
-.color-legend ul {
-    list-style: none;
-    padding: 0;
-}
-
-.color-legend li {
-    display: inline-block;
-    margin-right: 15px;
-    font-size: 1em;
-    color: #333;
-}
-
-.legend-color {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    margin-right: 5px;
-    vertical-align: middle;
-    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
