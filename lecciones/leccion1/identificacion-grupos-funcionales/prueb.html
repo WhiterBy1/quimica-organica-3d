@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Química del Monstruo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .monster {
+            font-size: 80px;
+            text-align: center;
+            margin: 20px 0;
+            transition: transform 0.3s ease;
+        }
+
+        .monster.happy {
+            transform: scale(1.1);
+            color: #4CAF50;
+        }
+
+        .message {
+            text-align: center;
+            margin: 10px 0;
+            min-height: 24px;
+            color: #666;
+        }
+
+        .target-molecule {
+            text-align: center;
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .current-molecule {
+            min-height: 60px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 15px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .atom {
+            background-color: #e3f2fd;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+            margin: 2px;
+        }
+
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .element-btn {
+            padding: 10px;
+            border: none;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .element-btn:hover {
+            background-color: #1976D2;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .check-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .check-btn:hover {
+            background-color: #388E3C;
+        }
+
+        .clear-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .clear-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .placeholder {
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Química del Monstruo</h1>
+            <div class="score">Puntuación: <span id="score">0</span></div>
+        </div>
+
+        <div class="monster" id="monster">👾</div>
+        <div class="message" id="message">¡Alimenta al monstruo con la molécula correcta!</div>
+
+        <div class="target-molecule">
+            <h3>Molécula objetivo: <span id="target-name">Agua (H₂O)</span></h3>
+        </div>
+
+        <div class="current-molecule" id="current-molecule">
+            <span class="placeholder">Construye tu molécula aquí</span>
+        </div>
+
+        <div class="elements-grid" id="elements-grid"></div>
+
+        <div class="controls">
+            <button class="control-btn clear-btn" id="clear-btn">Limpiar</button>
+            <button class="control-btn check-btn" id="check-btn">Alimentar al monstruo</button>
+        </div>
+    </div>
+
+    <script>
+        const elements = [
+            { symbol: "H", name: "Hidrógeno" },
+            { symbol: "O", name: "Oxígeno" },
+            { symbol: "C", name: "Carbono" },
+            { symbol: "N", name: "Nitrógeno" }
+        ];
+
+        const targetMolecules = [
+            { formula: ["H", "H", "O"], name: "Agua (H₂O)" },
+            { formula: ["C", "O", "O"], name: "Dióxido de carbono (CO₂)" },
+            { formula: ["N", "H", "H", "H"], name: "Amoníaco (NH₃)" }
+        ];
+
+        let currentMolecule = [];
+        let score = 0;
+        let currentTargetIndex = 0;
+
+        const moleculeContainer = document.getElementById("current-molecule");
+        const elementsGrid = document.getElementById("elements-grid");
+        const clearBtn = document.getElementById("clear-btn");
+        const checkBtn = document.getElementById("check-btn");
+        const scoreElement = document.getElementById("score");
+        const messageElement = document.getElementById("message");
+        const monsterElement = document.getElementById("monster");
+        const targetNameElement = document.getElementById("target-name");
+
+        elements.forEach(function(element) {
+            const button = document.createElement("button");
+            button.className = "element-btn";
+            button.textContent = element.symbol + " - " + element.name;
+            button.onclick = function() {
+                addElement(element.symbol);
+            };
+            elementsGrid.appendChild(button);
+        });
+
+        function addElement(symbol) {
+            currentMolecule.push(symbol);
+            updateMoleculeDisplay();
+        }
+
+        function updateMoleculeDisplay() {
+            moleculeContainer.innerHTML = "";
+            if (currentMolecule.length === 0) {
+                moleculeContainer.innerHTML = "<span class='placeholder'>Construye tu molécula aquí</span>";
+            } else {
+                currentMolecule.forEach(function(symbol) {
+                    const atom = document.createElement("span");
+                    atom.className = "atom";
+                    atom.textContent = symbol;
+                    moleculeContainer.appendChild(atom);
+                });
+            }
+        }
+
+        function clearMolecule() {
+            currentMolecule = [];
+            updateMoleculeDisplay();
+            messageElement.textContent = "¡Alimenta al monstruo con la molécula correcta!";
+            monsterElement.classList.remove("happy");
+        }
+
+        function checkMolecule() {
+            const currentTarget = targetMolecules[currentTargetIndex];
+            const sortedCurrent = [...currentMolecule].sort();
+            const sortedTarget = [...currentTarget.formula].sort();
+            const isCorrect = JSON.stringify(sortedCurrent) === JSON.stringify(sortedTarget);
+
+            if (isCorrect) {
+                score++;
+                scoreElement.textContent = score;
+                messageElement.textContent = "¡Correcto! ¡Al monstruo le encanta!";
+                monsterElement.classList.add("happy");
+                
+                currentTargetIndex = (currentTargetIndex + 1) % targetMolecules.length;
+                targetNameElement.textContent = targetMolecules[currentTargetIndex].name;
+
+                setTimeout(function() {
+                    clearMolecule();
+                    monsterElement.classList.remove("happy");
+                }, 2000);
+            } else {
+                messageElement.textContent = "¡Ups! El monstruo no puede comer esa molécula";
+                monsterElement.classList.remove("happy");
+            }
+        }
+
+        clearBtn.onclick = clearMolecule;
+        checkBtn.onclick = checkMolecule;
+    </script>
+</body>
+</html>
