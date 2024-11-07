@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chemistry Racer Pro</title>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #e74c3c;
+            --background: #1a1a2e;
+            --surface: #16213e;
+            --accent: #0f3460;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--background);
+            color: white;
+            min-height: 100vh;
+        }
+
+        #gameContainer {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: var(--surface);
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #raceTrack {
+            height: 400px;
+            background: var(--accent);
+            position: relative;
+            border-radius: 15px;
+            margin: 20px 0;
+            overflow: hidden;
+            border: 2px solid #2c3e50;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.3);
+        }
+
+        .lane-divider {
+            position: absolute;
+            width: 100%;
+            height: 4px;
+            background: repeating-linear-gradient(90deg, #fff, #fff 20px, transparent 20px, transparent 40px);
+            opacity: 0.3;
+        }
+
+        .molecule {
+            position: absolute;
+            width: 120px;
+            height: 70px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 14px;
+            transition: left 0.1s linear;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        #playerMolecule {
+            bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), #27ae60);
+            border: 2px solid #2ecc71;
+        }
+
+        #computerMolecule {
+            top: 20px;
+            background: linear-gradient(135deg, var(--secondary), #c0392b);
+            border: 2px solid #e74c3c;
+        }
+
+        .molecule::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 10px solid currentColor;
+            opacity: 0.7;
+        }
+
+        #inputArea {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #userInput {
+            padding: 12px 20px;
+            font-size: 16px;
+            width: 300px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 25px;
+            background: #2c3e50;
+            color: white;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        #userInput:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--accent);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #bdc3c7;
+        }
+
+        .structure {
+            font-family: 'Courier New', monospace;
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            white-space: pre;
+            text-align: center;
+            font-size: 18px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            border: 1px solid #34495e;
+        }
+
+        #feedback {
+            margin-top: 15px;
+            min-height: 20px;
+            color: #bdc3c7;
+        }
+
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            background: white;
+            border-radius: 50%;
+            animation: particle-animation 1s ease-out forwards;
+        }
+
+        @keyframes particle-animation {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(0);
+                opacity: 0;
+            }
+        }
+
+        .bonus-text {
+            position: absolute;
+            color: #2ecc71;
+            font-weight: bold;
+            animation: bonus-animation 1s ease-out forwards;
+        }
+
+        @keyframes bonus-animation {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        #levelIndicator {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #34495e;
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <div class="header">
+            <h1>Chemistry Racer Pro</h1>
+            <div id="levelIndicator">Nivel 1</div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="scoreValue">0</div>
+                <div class="stat-label">Puntuación</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streakValue">0</div>
+                <div class="stat-label">Racha</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="accuracyValue">0%</div>
+                <div class="stat-label">Precisión</div>
+            </div>
+        </div>
+
+        <div id="raceTrack">
+            <div class="lane-divider" style="top: 33%"></div>
+            <div class="lane-divider" style="top: 66%"></div>
+            <div id="computerMolecule" class="molecule">CPU</div>
+            <div id="playerMolecule" class="molecule">TÚ</div>
+        </div>
+
+        <div class="structure" id="structureDisplay"></div>
+
+        <div id="inputArea">
+            <input type="text" id="userInput" placeholder="Escribe el nombre IUPAC..." autocomplete="off">
+            <div id="feedback"></div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <script>
+        const molecules = [
+            {
+                structure: `CH3-CH2-CH3`,
+                name: "propano",
+                difficulty: 1,
+                hint: "Alcano de 3 carbonos"
+            },
+            {
+                structure: `CH3-CH2-OH`,
+                name: "etanol",
+                difficulty: 1,
+                hint: "Alcohol de 2 carbonos"
+            },
+            {
+                structure: `CH3-COOH`,
+                name: "acido acetico",
+                difficulty: 2,
+                hint: "Ácido carboxílico de 2 carbonos"
+            },
+            {
+                structure: `CH3-CH2-CHO`,
+                name: "propanal",
+                difficulty: 2,
+                hint: "Aldehído de 3 carbonos"
+            },
+            {
+                structure: `CH3-CO-CH3`,
+                name: "propanona",
+                difficulty: 2,
+                hint: "Cetona de 3 carbonos"
+            },
+            {
+                structure: `CH3-CH2-CH2-CH2-OH`,
+                name: "butanol",
+                difficulty: 3,
+                hint: "Alcohol de 4 carbonos"
+            }
+        ];
+
+        let currentMolecule;
+        let score = 0;
+        let streak = 0;
+        let attempts = 0;
+        let correct = 0;
+        let gameActive = true;
+        let level = 1;
+        let hintUsed = false;
+
+        const playerMolecule = document.getElementById('playerMolecule');
+        const computerMolecule = document.getElementById('computerMolecule');
+        const userInput = document.getElementById('userInput');
+        const structureDisplay = document.getElementById('structureDisplay');
+        const scoreDisplay = document.getElementById('scoreValue');
+        const streakDisplay = document.getElementById('streakValue');
+        const accuracyDisplay = document.getElementById('accuracyValue');
+        const progressFill = document.getElementById('progressFill');
+        const feedback = document.getElementById('feedback');
+
+        function createParticles(x, y, color) {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.background = color;
+                document.getElementById('raceTrack').appendChild(particle);
+                setTimeout(() => particle.remove(), 1000);
+            }
+        }
+
+        function showBonus(x, y, text) {
+            const bonus = document.createElement('div');
+            bonus.className = 'bonus-text';
+            bonus.style.left = x + 'px';
+            bonus.style.top = y + 'px';
+            bonus.textContent = text;
+            document.getElementById('raceTrack').appendChild(bonus);
+            setTimeout(() => bonus.remove(), 1000);
+        }
+
+        function resetPositions() {
+            playerMolecule.style.left = '0px';
+            computerMolecule.style.left = '0px';
+        }
+
+        function selectNewMolecule() {
+            const availableMolecules = molecules.filter(m => m.difficulty <= level);
+            currentMolecule = availableMolecules[Math.floor(Math.random() * availableMolecules.length)];
+            structureDisplay.textContent = currentMolecule.structure;
+            hintUsed = false;
+            resetPositions();
+        }
+
+        function updateStats(points) {
+            score += points;
+            scoreDisplay.textContent = score;
+            streakDisplay.textContent = streak;
+            accuracyDisplay.textContent = Math.round((correct / attempts) * 100) + '%';
+            progressFill.style.width = ((score % 100) / 100 * 100) + '%';
+
+            if (score > 0 && score % 100 === 0) {
+                level = Math.min(5, Math.floor(score / 100) + 1);
+                document.getElementById('levelIndicator').textContent = `Nivel ${level}`;
+            }
+        }
+
+        function moveComputer() {
+            if (!gameActive) return;
+            const currentLeft = parseInt(computerMolecule.style.left || 0);
+            if (currentLeft < 760) {
+                computerMolecule.style.left = (currentLeft + 2) + 'px';
+                setTimeout(moveComputer, 50);
+            } else {
+                endRound(false);
+            }
+        }
+
+        function checkAnswer(input) {
+            return input.toLowerCase().trim() === currentMolecule.name;
+        }
+
+        function endRound(playerWon) {
+            gameActive = false;
+            attempts++;
+            
+            if (playerWon) {
+                correct++;
+                streak++;
+                const points = 10 + (streak * 2) + (level * 5) - (hintUsed ? 5 : 0);
+                createParticles(parseInt(playerMolecule.style.left), 300, '#2ecc71');
+                showBonus(parseInt(playerMolecule.style.left), 250, `+${points}`);
+                updateStats(points);
+                feedback.textContent = '¡Correcto! ' + (hintUsed ? '(con pista)' : '');
+                feedback.style.color = '#2ecc71';
+            } else {
+                streak = 0;
+                updateStats(-5);
+                feedback.textContent = `Incorrecto. La respuesta era: ${currentMolecule.name}`;
+                feedback.style.color = '#e74c3c';
+            }
+
+            userInput.value = '';
+            setTimeout(() => {
+                gameActive = true;
+                selectNewMolecule();
+                moveComputer();
+            }, 2000);
+        }
+
+        userInput.addEventListener('input', (e) => {
+            if (!gameActive) return;
+            const input = e.target.value;
+            const currentLeft = parseInt(playerMolecule.style.left || 0);
+            
+            if (checkAnswer(input)) {
+                playerMolecule.style.left = '760px';
+                endRound(true);
+            } else if (input.length > 0) {
+                const progress = Math.min(input.length * 40, 760);
+                playerMolecule.style.left = progress + 'px';
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'h' && !hintUsed && gameActive) {
+                hintUsed = true;
+                feedback.textContent = 'Pista: ' + currentMolecule.hint;
+                feedback.style.color = '#f1c40f';
+            }
+        });
+
+        // Iniciar juego
+        selectNewMolecule();
+        moveComputer();
+    </script>
+</body>
+</html>
