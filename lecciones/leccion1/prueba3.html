@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Química Orgánica</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .game-area {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .moleculas, .grupos {
+            width: 45%;
+        }
+        .molecula, .grupo {
+            padding: 10px;
+            margin: 5px 0;
+            background-color: #e0e0e0;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            cursor: move;
+            transition: all 0.3s ease;
+        }
+        .molecula {
+            background-color: #d4edda;
+        }
+        .grupo {
+            background-color: #cce5ff;
+        }
+        .molecula:hover, .grupo:hover {
+            transform: scale(1.05);
+        }
+        .grupo.over {
+            border-color: #007bff;
+            background-color: #b8daff;
+        }
+        .grupo.correct {
+            background-color: #28a745;
+            color: white;
+        }
+        .grupo.incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+        #puntuacion {
+            text-align: center;
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        #reiniciar {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #reiniciar:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Juego de Química Orgánica</h1>
+        <p>Arrastra las estructuras moleculares a los nombres de los grupos funcionales correspondientes.</p>
+        <div class="game-area">
+            <div class="moleculas">
+                <h2>Estructuras Moleculares</h2>
+                <div id="moleculas-container"></div>
+            </div>
+            <div class="grupos">
+                <h2>Grupos Funcionales</h2>
+                <div id="grupos-container"></div>
+            </div>
+        </div>
+        <div id="puntuacion">Puntuación: 0 / 6</div>
+        <button id="reiniciar">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        const gruposFuncionales = [
+            { id: 1, nombre: 'Alcohol', estructura: 'R-OH' },
+            { id: 2, nombre: 'Aldehído', estructura: 'R-CHO' },
+            { id: 3, nombre: 'Cetona', estructura: 'R-CO-R' },
+            { id: 4, nombre: 'Ácido Carboxílico', estructura: 'R-COOH' },
+            { id: 5, nombre: 'Éster', estructura: 'R-COO-R' },
+            { id: 6, nombre: 'Amina', estructura: 'R-NH2' }
+        ];
+
+        let puntuacion = 0;
+
+        function mezclarArray(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function crearElemento(tipo, texto, id) {
+            const elemento = document.createElement('div');
+            elemento.textContent = texto;
+            elemento.className = tipo;
+            elemento.setAttribute('draggable', 'true');
+            elemento.id = `${tipo}-${id}`;
+            return elemento;
+        }
+
+        function inicializarJuego() {
+            const moleculasContainer = document.getElementById('moleculas-container');
+            const gruposContainer = document.getElementById('grupos-container');
+            
+            moleculasContainer.innerHTML = '';
+            gruposContainer.innerHTML = '';
+            puntuacion = 0;
+            actualizarPuntuacion();
+
+            const gruposMezclados = mezclarArray([...gruposFuncionales]);
+
+            gruposMezclados.forEach(grupo => {
+                const molecula = crearElemento('molecula', grupo.estructura, grupo.id);
+                const grupoFuncional = crearElemento('grupo', grupo.nombre, grupo.id);
+
+                moleculasContainer.appendChild(molecula);
+                gruposContainer.appendChild(grupoFuncional);
+
+                molecula.addEventListener('dragstart', iniciarArrastre);
+                grupoFuncional.addEventListener('dragover', permitirSoltar);
+                grupoFuncional.addEventListener('drop', soltarElemento);
+                grupoFuncional.addEventListener('dragleave', finalizarArrastre);
+            });
+        }
+
+        function iniciarArrastre(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+        }
+
+        function permitirSoltar(e) {
+            e.preventDefault();
+            e.target.classList.add('over');
+        }
+
+        function finalizarArrastre(e) {
+            e.target.classList.remove('over');
+        }
+
+        function soltarElemento(e) {
+            e.preventDefault();
+            const idMolecula = e.dataTransfer.getData('text');
+            const molecula = document.getElementById(idMolecula);
+            const grupo = e.target;
+
+            grupo.classList.remove('over');
+
+            if (molecula.id.split('-')[1] === grupo.id.split('-')[1]) {
+                grupo.classList.add('correct');
+                molecula.style.display = 'none';
+                puntuacion++;
+                actualizarPuntuacion();
+            } else {
+                grupo.classList.add('incorrect');
+                setTimeout(() => grupo.classList.remove('incorrect'), 1000);
+            }
+        }
+
+        function actualizarPuntuacion() {
+            document.getElementById('puntuacion').textContent = `Puntuación: ${puntuacion} / ${gruposFuncionales.length}`;
+        }
+
+        document.getElementById('reiniciar').addEventListener('click', inicializarJuego);
+
+        // Inicializar el juego al cargar la página
+        inicializarJuego();
+    </script>
+</body>
+</html>
