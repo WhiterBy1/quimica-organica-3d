@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -102,7 +103,8 @@
             transform: scale(1.1);
         }
 
-        #startScreen, #endScreen {
+        #startScreen,
+        #endScreen {
             position: fixed;
             top: 0;
             left: 0;
@@ -128,8 +130,13 @@
         }
 
         @keyframes fall {
-            from { top: -100px; }
-            to { top: 100vh; }
+            from {
+                top: -100px;
+            }
+
+            to {
+                top: 100vh;
+            }
         }
 
         .explosion {
@@ -139,8 +146,15 @@
         }
 
         @keyframes explode {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2); opacity: 0; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
         }
 
         .score-popup {
@@ -152,15 +166,22 @@
         }
 
         @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-50px); opacity: 0; }
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
         }
 
         @media (max-width: 768px) {
             .game-content {
                 grid-template-columns: 1fr;
             }
-            
+
             .options-container {
                 position: fixed;
                 right: 0;
@@ -177,6 +198,7 @@
         }
     </style>
 </head>
+
 <body>
     <div id="startScreen">
         <div class="screen-content">
@@ -203,7 +225,7 @@
                 <div class="stat-item">Vidas: <span id="lives">3</span></div>
             </div>
         </div>
-        
+
         <div class="game-content">
             <div id="gameArea"></div>
             <div class="options-container" id="options"></div>
@@ -231,7 +253,7 @@
         let molecules = [];
         let activeOptions = [];
         let selectedEnding = null;
-        let gameSpeed = 5000;
+        let gameSpeed = 7000; // Cambiado a 7000ms
         let isGameActive = false;
 
         function getRandomGroups(count) {
@@ -242,10 +264,10 @@
         function updateOptions() {
             // Obtener grupos actualmente en pantalla
             const fallingGroups = molecules.map(m => m.ending);
-            
+
             // Asegurarse de que las opciones incluyan los grupos que están cayendo
             let newOptions = [...new Set([...fallingGroups])];
-            
+
             // Añadir grupos aleatorios hasta tener 4 opciones
             while (newOptions.length < 4) {
                 const randomGroup = IUPAC_GROUPS[Math.floor(Math.random() * IUPAC_GROUPS.length)];
@@ -256,11 +278,11 @@
 
             // Mezclar las opciones
             newOptions = newOptions.sort(() => 0.5 - Math.random());
-            
+
             // Actualizar los botones
             const optionsContainer = document.getElementById('options');
             optionsContainer.innerHTML = '';
-            
+
             newOptions.forEach(ending => {
                 const button = document.createElement('button');
                 button.className = 'option-button';
@@ -288,7 +310,7 @@
             score = 0;
             level = 1;
             lives = 3;
-            gameSpeed = 5000;
+            gameSpeed = 7000; // Actualizado a 7000ms
             molecules = [];
             selectedEnding = null;
             clearInterval(gameInterval);
@@ -309,9 +331,12 @@
         function spawnMolecule() {
             if (!isGameActive) return;
 
+            // Limitar el número de moléculas en pantalla
+            if (molecules.length >= 4) return;
+
             const gameArea = document.getElementById('gameArea');
             const availableWidth = gameArea.clientWidth - 100;
-            
+
             // Elegir un grupo que coincida con una de las opciones activas o actualizar opciones
             let randomGroup;
             do {
@@ -325,7 +350,7 @@
             molecule.style.animationDuration = `${gameSpeed}ms`;
             molecule.dataset.ending = randomGroup.ending;
             molecule.onclick = () => checkMolecule(molecule, randomGroup);
-            
+
             gameArea.appendChild(molecule);
             molecules.push({
                 element: molecule,
@@ -344,7 +369,8 @@
                 }
             });
 
-            setTimeout(spawnMolecule, Math.random() * 1000 + 1000);
+            // Aumentar el intervalo entre spawns y añadir más variación
+            setTimeout(spawnMolecule, Math.random() * 2000 + 2000);
         }
 
         function checkMolecule(moleculeElement, group) {
@@ -386,7 +412,7 @@
 
         function levelUp() {
             level++;
-            gameSpeed = Math.max(2000, gameSpeed - 500);
+            gameSpeed = Math.max(3000, gameSpeed - 300); // Reducción más gradual y límite mínimo aumentado
             molecules.forEach(molecule => {
                 molecule.element.style.animationDuration = `${gameSpeed}ms`;
             });
@@ -431,4 +457,5 @@
         });
     </script>
 </body>
+
 </html>
