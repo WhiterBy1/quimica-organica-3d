@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUPAC Blaster</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .game-header {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stats {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-size: 1.2rem;
+        }
+
+        #gameArea {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .molecule {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .molecule:hover {
+            transform: scale(1.1);
+        }
+
+        .options-container {
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .option-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .option-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .option-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .option-button.selected {
+            background: #2196F3;
+        }
+
+        #startScreen, #endScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .screen-content {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #4CAF50;
+        }
+
+        .start-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .start-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .explosion {
+            position: absolute;
+            pointer-events: none;
+            animation: explode 0.5s forwards;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        .falling {
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            from { top: -100px; }
+            to { top: 100vh; }
+        }
+
+        .score-popup {
+            position: absolute;
+            animation: floatUp 1s forwards;
+            color: #4CAF50;
+            font-weight: bold;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen">
+        <div class="screen-content">
+            <h1>IUPAC Blaster</h1>
+            <p>¡Destruye los grupos funcionales seleccionando la terminación IUPAC correcta!</p>
+            <button class="start-button" onclick="startGame()">Iniciar Juego</button>
+        </div>
+    </div>
+
+    <div id="endScreen" style="display: none;">
+        <div class="screen-content">
+            <h1>¡Juego Terminado!</h1>
+            <p>Puntuación Final: <span id="finalScore">0</span></p>
+            <p>Nivel Alcanzado: <span id="finalLevel">1</span></p>
+            <button class="start-button" onclick="restartGame()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="game-header">
+            <div class="stats">
+                <div class="stat-item">Nivel: <span id="level">1</span></div>
+                <div class="stat-item">Puntos: <span id="score">0</span></div>
+                <div class="stat-item">Vidas: <span id="lives">3</span></div>
+            </div>
+        </div>
+        
+        <div id="gameArea"></div>
+        
+        <div class="options-container" id="options"></div>
+    </div>
+
+    <script>
+        const IUPAC_GROUPS = [
+            { group: 'CH3-CH2-OH', ending: '-ol', name: 'Alcohol' },
+            { group: 'CH3-C=O', ending: '-al', name: 'Aldehído' },
+            { group: 'CH3-C(=O)-OH', ending: '-oico', name: 'Ácido carboxílico' },
+            { group: 'CH3-C(=O)-O-CH3', ending: '-oato', name: 'Éster' },
+            { group: 'CH3-NH2', ending: '-amina', name: 'Amina' },
+            { group: 'CH3-C≡N', ending: '-nitrilo', name: 'Nitrilo' },
+            { group: 'CH2=CH2', ending: '-eno', name: 'Alqueno' },
+            { group: 'CH≡CH', ending: '-ino', name: 'Alquino' },
+            { group: 'CH3-C(=O)-CH3', ending: '-ona', name: 'Cetona' },
+            { group: 'CH3-O-CH3', ending: '-éter', name: 'Éter' }
+        ];
+
+        let score = 0;
+        let level = 1;
+        let lives = 3;
+        let gameInterval;
+        let molecules = [];
+        let availableGroups;
+        let selectedEnding = null;
+        let gameSpeed = 5000; // Velocidad inicial de caída en ms
+        let isGameActive = false;
+
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            resetGame();
+            isGameActive = true;
+            spawnMolecule();
+            updateDisplay();
+            createOptions();
+        }
+
+        function resetGame() {
+            score = 0;
+            level = 1;
+            lives = 3;
+            gameSpeed = 5000;
+            molecules = [];
+            availableGroups = [...IUPAC_GROUPS];
+            clearInterval(gameInterval);
+            document.getElementById('gameArea').innerHTML = '';
+            updateDisplay();
+        }
+
+        function createOptions() {
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            IUPAC_GROUPS.forEach(group => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = group.ending;
+                button.onclick = () => selectEnding(group.ending);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectEnding(ending) {
+            selectedEnding = selectedEnding === ending ? null : ending;
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.classList.remove('selected');
+                if (button.textContent === ending && selectedEnding === ending) {
+                    button.classList.add('selected');
+                }
+            });
+        }
+
+        function spawnMolecule() {
+            if (!isGameActive) return;
+
+            const gameArea = document.getElementById('gameArea');
+            const availableWidth = gameArea.clientWidth - 100;
+            
+            // Filtrar grupos que no están actualmente en pantalla
+            const currentGroups = molecules.map(m => m.group);
+            const availableForSpawn = availableGroups.filter(g => !currentGroups.includes(g.group));
+            
+            if (availableForSpawn.length === 0) return;
+
+            const randomGroup = availableForSpawn[Math.floor(Math.random() * availableForSpawn.length)];
+            const molecule = document.createElement('div');
+            molecule.className = 'molecule falling';
+            molecule.innerHTML = `${randomGroup.group}<br>${randomGroup.name}`;
+            molecule.style.left = Math.random() * availableWidth + 'px';
+            molecule.style.animationDuration = `${gameSpeed}ms`;
+            molecule.dataset.ending = randomGroup.ending;
+            molecule.onclick = () => checkMolecule(molecule, randomGroup);
+            
+            gameArea.appendChild(molecule);
+            molecules.push({
+                element: molecule,
+                group: randomGroup.group,
+                ending: randomGroup.ending
+            });
+
+            molecule.addEventListener('animationend', () => {
+                if (gameArea.contains(molecule)) {
+                    gameArea.removeChild(molecule);
+                    molecules = molecules.filter(m => m.element !== molecule);
+                    loseLife();
+                }
+            });
+
+            // Programar siguiente molécula
+            setTimeout(spawnMolecule, Math.random() * 1000 + 1000);
+        }
+
+        function checkMolecule(moleculeElement, group) {
+            if (selectedEnding === group.ending) {
+                // Correcto
+                createExplosion(moleculeElement);
+                moleculeElement.remove();
+                molecules = molecules.filter(m => m.element !== moleculeElement);
+                addPoints(10);
+                playCorrectSound();
+            } else if (selectedEnding !== null) {
+                // Incorrecto
+                shake(moleculeElement);
+                loseLife();
+                playIncorrectSound();
+            }
+        }
+
+        function createExplosion(element) {
+            const explosion = document.createElement('div');
+            explosion.className = 'explosion';
+            explosion.style.left = element.style.left;
+            explosion.style.top = element.style.top;
+            explosion.innerHTML = '🎯';
+            document.getElementById('gameArea').appendChild(explosion);
+            
+            setTimeout(() => explosion.remove(), 500);
+        }
+
+        function shake(element) {
+            element.style.animation = 'none';
+            element.offsetHeight; // Trigger reflow
+            element.style.animation = null;
+        }
+
+        function addPoints(points) {
+            score += points;
+            
+            // Mostrar popup de puntos
+            const popup = document.createElement('div');
+            popup.className = 'score-popup';
+            popup.textContent = `+${points}`;
+            popup.style.left = '50%';
+            popup.style.top = '50%';
+            document.getElementById('gameArea').appendChild(popup);
+            
+            setTimeout(() => popup.remove(), 1000);
+
+            // Aumentar nivel cada 100 puntos
+            if (score % 100 === 0) {
+                levelUp();
+            }
+            
+            updateDisplay();
+        }
+
+        function levelUp() {
+            level++;
+            gameSpeed = Math.max(2000, gameSpeed - 500);
+            // Actualizar velocidad de las moléculas existentes
+            molecules.forEach(molecule => {
+                molecule.element.style.animationDuration = `${gameSpeed}ms`;
+            });
+        }
+
+        function loseLife() {
+            lives--;
+            updateDisplay();
+            
+            if (lives <= 0) {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            isGameActive = false;
+            clearInterval(gameInterval);
+            document.getElementById('endScreen').style.display = 'flex';
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalLevel').textContent = level;
+        }
+
+        function restartGame() {
+            document.getElementById('endScreen').style.display = 'none';
+            startGame();
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('level').textContent = level;
+            document.getElementById('lives').textContent = lives;
+        }
+
+        function playCorrectSound() {
+            // Aquí podrías añadir efectos de sonido
+        }
+
+        function playIncorrectSound() {
+            // Aquí podrías añadir efectos de sonido
+        }
+
+        // Ajustar tamaño del área de juego cuando cambia el tamaño de la ventana
+        window.addEventListener('resize', () => {
+            // Actualizar posiciones de moléculas si es necesario
+        });
+    </script>
+</body>
+</html>
