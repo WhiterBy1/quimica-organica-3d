@@ -27,7 +27,7 @@ const jsmolInfo = {
     width: 300,
     height: 300,
     use: "HTML5",
-    j2sPath:"/quimica-organica-3d/js/JSmol/j2s", // Ruta a la carpeta `j2s` dentro de `JSmol`
+    j2sPath:"/../../js/JSmol/j2s", // Ruta a la carpeta `j2s` dentro de `JSmol`
     script: "",
     debug: false
 };
