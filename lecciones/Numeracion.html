@@ -156,11 +156,13 @@
             transition: all 0.3s ease;
             margin-top: 1rem;
         }
+
         .number-display[data-tipo]::after {
-    content: attr(data-tipo);
-    font-size: 0.5em;
-    vertical-align: super;
-    }
+            content: attr(data-tipo);
+            font-size: 0.5em;
+            vertical-align: super;
+        }
+
         .start-button:hover {
             background: #059669;
             transform: scale(1.05);
@@ -302,10 +304,10 @@
 
     <script>
         const PREFIJOS = {
-            1: 'mono',
-            2: 'di',
-            3: 'tri',
-            4: 'tetra',
+            1: 'met',
+            2: 'et',
+            3: 'prop',
+            4: 'but',
             5: 'penta',
             6: 'hexa',
             7: 'hepta',
@@ -314,10 +316,38 @@
             10: 'deca'
         };
 
+        const CADENAS_CARBONO = {
+            1: 'met',
+            2: 'et',
+            3: 'prop',
+            4: 'but',
+            5: 'pent',
+            6: 'hex',
+            7: 'hept',
+            8: 'oct',
+            9: 'non',
+            10: 'dec'
+        };
+
         const NIVELES = {
-            facil: { tiempo: 10, numeros: [1, 2, 3], puntosPorAcierto: 10 },
-            medio: { tiempo: 8, numeros: [1, 2, 3, 4, 5], puntosPorAcierto: 20 },
-            dificil: { tiempo: 5, numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], puntosPorAcierto: 30 }
+            facil: {
+                tiempo: 10,
+                numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                puntosPorAcierto: 10,
+                tipoPrefijo: 'numerico' // solo prefijos numéricos
+            },
+            medio: {
+                tiempo: 8,
+                numeros: [1, 2, 3, 4, 5, 6],
+                puntosPorAcierto: 20,
+                tipoPrefijo: 'mixto' // mezcla de prefijos numéricos y cadenas de carbono
+            },
+            dificil: {
+                tiempo: 5,
+                numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                puntosPorAcierto: 30,
+                tipoPrefijo: 'carbono' // solo cadenas de carbono
+            }
         };
 
         class PrefijoRapido {
@@ -330,6 +360,7 @@
                 this.mejorPuntaje = localStorage.getItem('mejorPuntaje') || 0;
                 this.juegoActivo = false;
                 this.temporizador = null;
+                this.tipoActual = 'numerico'; // tipo de prefijo actual
                 this.setupEventListeners();
                 this.actualizarMejorPuntaje();
             }
@@ -351,13 +382,27 @@
                 return numerosNivel[Math.floor(Math.random() * numerosNivel.length)];
             }
 
+            determinarTipoPrefijo() {
+                const nivelActual = NIVELES[this.nivel];
+                if (nivelActual.tipoPrefijo === 'numerico') {
+                    return 'numerico';
+                } else if (nivelActual.tipoPrefijo === 'carbono') {
+                    return 'carbono';
+                } else {
+                    // Para el nivel mixto, alternar aleatoriamente
+                    return Math.random() < 0.5 ? 'numerico' : 'carbono';
+                }
+            }
+
             generarPrefijosAleatorios(numeroCorrect) {
-                const prefijosCopia = { ...PREFIJOS };
+                this.tipoActual = this.determinarTipoPrefijo();
+                const prefijosDiccionario = this.tipoActual === 'numerico' ? PREFIJOS : CADENAS_CARBONO;
+                const prefijosCopia = { ...prefijosDiccionario };
                 delete prefijosCopia[numeroCorrect];
                 const prefijosArray = Object.values(prefijosCopia);
                 const prefijosSeleccionados = [];
 
-                prefijosSeleccionados.push(PREFIJOS[numeroCorrect]);
+                prefijosSeleccionados.push(prefijosDiccionario[numeroCorrect]);
 
                 for (let i = 0; i < 3; i++) {
                     const randomIndex = Math.floor(Math.random() * prefijosArray.length);
@@ -373,6 +418,9 @@
                 document.getElementById('scoreDisplay').textContent = this.puntos;
                 document.getElementById('livesDisplay').textContent = this.vidas;
                 document.getElementById('numberDisplay').textContent = this.numeroActual;
+                // Añadir indicador de tipo de prefijo
+                const tipoTexto = this.tipoActual === 'numerico' ? '' : 'ano';
+                document.getElementById('numberDisplay').setAttribute('data-tipo', tipoTexto);
                 document.getElementById('progressBar').style.width = `${(this.tiempo / NIVELES[this.nivel].tiempo) * 100}%`;
             }
 
@@ -383,16 +431,20 @@
                 prefijos.forEach(prefijo => {
                     const button = document.createElement('button');
                     button.className = 'option-button';
-                    button.textContent = `${prefijo}-`;
+                    // Añadir sufijo según el tipo de prefijo
+                    const sufijo = this.tipoActual === 'numerico' ? '-' : 'ano';
+                    button.textContent = `${prefijo}${sufijo}`;
                     button.addEventListener('click', () => this.verificarRespuesta(prefijo));
                     optionsGrid.appendChild(button);
                 });
             }
 
             verificarRespuesta(prefijoSeleccionado) {
-                const esCorrecta = prefijoSeleccionado === PREFIJOS[this.numeroActual];
+                const prefijosDiccionario = this.tipoActual === 'numerico' ? PREFIJOS : CADENAS_CARBONO;
+                const esCorrecta = prefijoSeleccionado === prefijosDiccionario[this.numeroActual];
+                const sufijo = this.tipoActual === 'numerico' ? '-' : 'ano';
                 const botonSeleccionado = [...document.getElementsByClassName('option-button')]
-                    .find(button => button.textContent === `${prefijoSeleccionado}-`);
+                    .find(button => button.textContent === `${prefijoSeleccionado}${sufijo}`);
 
                 if (esCorrecta) {
                     botonSeleccionado.classList.add('correct');
