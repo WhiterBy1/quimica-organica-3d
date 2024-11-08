@@ -3,92 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego de Química Orgánica</title>
+    <title>Química Orgánica Arcade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            font-family: 'Press Start 2P', cursive;
             margin: 0;
-            background-color: #f0f0f0;
+            padding: 20px;
+            background-color: #000;
+            color: #fff;
+            line-height: 1.6;
         }
         .container {
-            background-color: white;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #0f0f0f;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            max-width: 800px;
-            width: 100%;
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
         }
         h1, h2 {
             text-align: center;
+            text-shadow: 3px 3px #00ff00;
         }
         .game-area {
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
             margin-top: 20px;
         }
         .moleculas, .grupos {
-            width: 45%;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        @media (min-width: 768px) {
+            .moleculas, .grupos {
+                width: 48%;
+            }
         }
         .molecula, .grupo {
             padding: 10px;
             margin: 5px 0;
-            background-color: #e0e0e0;
-            border: 2px solid #ccc;
+            background-color: #222;
+            border: 2px solid #00ff00;
             border-radius: 5px;
-            cursor: move;
+            cursor: pointer;
             transition: all 0.3s ease;
+            color: #00ff00;
+            text-shadow: 1px 1px #000;
         }
         .molecula {
-            background-color: #d4edda;
+            background-color: #001100;
         }
         .grupo {
-            background-color: #cce5ff;
+            background-color: #000033;
         }
-        .molecula:hover, .grupo:hover {
+        .molecula:hover, .grupo:hover, .molecula:focus, .grupo:focus {
             transform: scale(1.05);
+            outline: none;
+            box-shadow: 0 0 10px #00ff00;
         }
-        .grupo.over {
-            border-color: #007bff;
-            background-color: #b8daff;
+        .selected {
+            border-color: #ff00ff;
+            box-shadow: 0 0 15px #ff00ff;
         }
-        .grupo.correct {
-            background-color: #28a745;
-            color: white;
+        .correct {
+            background-color: #006400;
+            color: #ffffff;
+            border-color: #00ff00;
         }
-        .grupo.incorrect {
-            background-color: #dc3545;
-            color: white;
+        .incorrect {
+            background-color: #8b0000;
+            color: #ffffff;
+            border-color: #ff0000;
         }
         #puntuacion {
             text-align: center;
             font-size: 1.2em;
             margin-top: 20px;
+            color: #00ff00;
         }
         #reiniciar {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
             font-size: 1em;
-            background-color: #007bff;
-            color: white;
+            background-color: #4169e1;
+            color: #ffffff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            font-family: 'Press Start 2P', cursive;
         }
-        #reiniciar:hover {
-            background-color: #0056b3;
+        #reiniciar:hover, #reiniciar:focus {
+            background-color: #0000ff;
+            outline: none;
+            box-shadow: 0 0 15px #0000ff;
+        }
+        .dragging {
+            opacity: 0.5;
+        }
+        @keyframes neon {
+            0% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #00ff00, 0 0 35px #00ff00, 0 0 40px #00ff00, 0 0 50px #00ff00, 0 0 75px #00ff00;
+            }
+            100% {
+                text-shadow: 0 0 2.5px #fff, 0 0 5px #fff, 0 0 7.5px #fff, 0 0 10px #00ff00, 0 0 17.5px #00ff00, 0 0 20px #00ff00, 0 0 25px #00ff00, 0 0 37.5px #00ff00;
+            }
+        }
+        h1 {
+            animation: neon 1.5s ease-in-out infinite alternate;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Juego de Química Orgánica</h1>
-        <p>Arrastra las estructuras moleculares a los nombres de los grupos funcionales correspondientes.</p>
+        <h1>Química Orgánica Arcade</h1>
+        <p>Arrastra o selecciona una estructura molecular y emparéjala con su grupo funcional correspondiente.</p>
         <div class="game-area">
             <div class="moleculas">
                 <h2>Estructuras Moleculares</h2>
@@ -114,6 +146,7 @@
         ];
 
         let puntuacion = 0;
+        let seleccionado = null;
 
         function mezclarArray(array) {
             return array.sort(() => Math.random() - 0.5);
@@ -123,8 +156,17 @@
             const elemento = document.createElement('div');
             elemento.textContent = texto;
             elemento.className = tipo;
-            elemento.setAttribute('draggable', 'true');
+            elemento.setAttribute('tabindex', '0');
             elemento.id = `${tipo}-${id}`;
+            elemento.draggable = true;
+            elemento.addEventListener('click', manejarSeleccion);
+            elemento.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    manejarSeleccion(e);
+                }
+            });
+            elemento.addEventListener('dragstart', iniciarArrastre);
+            elemento.addEventListener('dragend', finalizarArrastre);
             return elemento;
         }
 
@@ -135,6 +177,7 @@
             moleculasContainer.innerHTML = '';
             gruposContainer.innerHTML = '';
             puntuacion = 0;
+            seleccionado = null;
             actualizarPuntuacion();
 
             const gruposMezclados = mezclarArray([...gruposFuncionales]);
@@ -146,47 +189,92 @@
                 moleculasContainer.appendChild(molecula);
                 gruposContainer.appendChild(grupoFuncional);
 
-                molecula.addEventListener('dragstart', iniciarArrastre);
                 grupoFuncional.addEventListener('dragover', permitirSoltar);
                 grupoFuncional.addEventListener('drop', soltarElemento);
-                grupoFuncional.addEventListener('dragleave', finalizarArrastre);
             });
+        }
+
+        function manejarSeleccion(e) {
+            const elemento = e.target;
+            
+            if (elemento.classList.contains('molecula')) {
+                if (seleccionado && seleccionado.classList.contains('molecula')) {
+                    seleccionado.classList.remove('selected');
+                }
+                seleccionado = elemento;
+                elemento.classList.add('selected');
+            } else if (elemento.classList.contains('grupo')) {
+                if (seleccionado && seleccionado.classList.contains('molecula')) {
+                    verificarEmparejamiento(seleccionado, elemento);
+                }
+            }
         }
 
         function iniciarArrastre(e) {
             e.dataTransfer.setData('text/plain', e.target.id);
+            e.target.classList.add('dragging');
+        }
+
+        function finalizarArrastre(e) {
+            e.target.classList.remove('dragging');
         }
 
         function permitirSoltar(e) {
             e.preventDefault();
-            e.target.classList.add('over');
-        }
-
-        function finalizarArrastre(e) {
-            e.target.classList.remove('over');
         }
 
         function soltarElemento(e) {
             e.preventDefault();
             const idMolecula = e.dataTransfer.getData('text');
             const molecula = document.getElementById(idMolecula);
-            const grupo = e.target;
+            verificarEmparejamiento(molecula, e.target);
+        }
 
-            grupo.classList.remove('over');
-
+        function verificarEmparejamiento(molecula, grupo) {
             if (molecula.id.split('-')[1] === grupo.id.split('-')[1]) {
+                molecula.classList.add('correct');
                 grupo.classList.add('correct');
-                molecula.style.display = 'none';
+                molecula.style.pointerEvents = 'none';
+                grupo.style.pointerEvents = 'none';
+                molecula.setAttribute('draggable', 'false');
+                grupo.setAttribute('draggable', 'false');
                 puntuacion++;
                 actualizarPuntuacion();
+                reproducirSonido('correcto');
             } else {
+                molecula.classList.add('incorrect');
                 grupo.classList.add('incorrect');
-                setTimeout(() => grupo.classList.remove('incorrect'), 1000);
+                setTimeout(() => {
+                    molecula.classList.remove('incorrect', 'selected');
+                    grupo.classList.remove('incorrect');
+                }, 1000);
+                reproducirSonido('incorrecto');
             }
+            seleccionado = null;
         }
 
         function actualizarPuntuacion() {
             document.getElementById('puntuacion').textContent = `Puntuación: ${puntuacion} / ${gruposFuncionales.length}`;
+            if (puntuacion === gruposFuncionales.length) {
+                alert('¡Felicidades! Has completado el juego.');
+                reproducirSonido('victoria');
+            }
+        }
+
+        function reproducirSonido(tipo) {
+            const audio = new Audio();
+            switch(tipo) {
+                case 'correcto':
+                    audio.src = 'https://example.com/sonido-correcto.mp3';
+                    break;
+                case 'incorrecto':
+                    audio.src = 'https://example.com/sonido-incorrecto.mp3';
+                    break;
+                case 'victoria':
+                    audio.src = 'https://example.com/sonido-victoria.mp3';
+                    break;
+            }
+            audio.play().catch(e => console.log("Error al reproducir el sonido:", e));
         }
 
         document.getElementById('reiniciar').addEventListener('click', inicializarJuego);
