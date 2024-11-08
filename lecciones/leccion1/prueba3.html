@@ -3,28 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Química Orgánica Arcade</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>Química Orgánica Interactiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #1a5f7a;
+            --secondary-color: #57c84d;
+            --background-color: #e8f5e9;
+            --text-color: #1b5e20;
+            --highlight-color: #b71c1c;
+        }
         body {
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #000;
-            color: #fff;
+            background-color: var(--background-color);
+            color: var(--text-color);
             line-height: 1.6;
         }
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background-color: #0f0f0f;
+            background-color: #ffffff;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
         h1, h2 {
             text-align: center;
-            text-shadow: 3px 3px #00ff00;
+            font-family: 'Space Mono', monospace;
+            color: var(--primary-color);
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         .game-area {
             display: flex;
@@ -42,85 +56,113 @@
             }
         }
         .molecula, .grupo {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #222;
-            border: 2px solid #00ff00;
-            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            background-color: #fff;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: #00ff00;
-            text-shadow: 1px 1px #000;
+            font-family: 'Space Mono', monospace;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .molecula {
-            background-color: #001100;
+        .molecula::before, .grupo::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(26, 95, 122, 0.2), rgba(26, 95, 122, 0));
+            transition: top 0.3s ease;
         }
-        .grupo {
-            background-color: #000033;
+        .molecula:hover::before, .grupo:hover::before,
+        .molecula:focus::before, .grupo:focus::before {
+            top: 0;
         }
-        .molecula:hover, .grupo:hover, .molecula:focus, .grupo:focus {
-            transform: scale(1.05);
+        .molecula:hover, .grupo:hover,
+        .molecula:focus, .grupo:focus {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             outline: none;
-            box-shadow: 0 0 10px #00ff00;
         }
         .selected {
-            border-color: #ff00ff;
-            box-shadow: 0 0 15px #ff00ff;
+            border-color: var(--highlight-color);
+            box-shadow: 0 0 15px rgba(183, 28, 28, 0.5);
         }
         .correct {
-            background-color: #006400;
+            background-color: var(--secondary-color);
             color: #ffffff;
-            border-color: #00ff00;
+            border-color: var(--secondary-color);
         }
         .incorrect {
-            background-color: #8b0000;
-            color: #ffffff;
-            border-color: #ff0000;
+            animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
         }
         #puntuacion {
             text-align: center;
             font-size: 1.2em;
             margin-top: 20px;
-            color: #00ff00;
+            color: var(--primary-color);
+            font-weight: bold;
         }
         #reiniciar {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
             font-size: 1em;
-            background-color: #4169e1;
+            background-color: var(--primary-color);
             color: #ffffff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Roboto', sans-serif;
         }
         #reiniciar:hover, #reiniciar:focus {
-            background-color: #0000ff;
+            background-color: #12435a;
+            transform: scale(1.05);
             outline: none;
-            box-shadow: 0 0 15px #0000ff;
         }
         .dragging {
             opacity: 0.5;
+            transform: scale(1.05);
         }
-        @keyframes neon {
-            0% {
-                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff, 0 0 20px #00ff00, 0 0 35px #00ff00, 0 0 40px #00ff00, 0 0 50px #00ff00, 0 0 75px #00ff00;
-            }
-            100% {
-                text-shadow: 0 0 2.5px #fff, 0 0 5px #fff, 0 0 7.5px #fff, 0 0 10px #00ff00, 0 0 17.5px #00ff00, 0 0 20px #00ff00, 0 0 25px #00ff00, 0 0 37.5px #00ff00;
-            }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
-        h1 {
-            animation: neon 1.5s ease-in-out infinite alternate;
+        .pulse {
+            animation: pulse 0.5s;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background-color: var(--secondary-color);
+            transition: width 0.5s ease;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Química Orgánica Arcade</h1>
-        <p>Arrastra o selecciona una estructura molecular y emparéjala con su grupo funcional correspondiente.</p>
+        <h1>Química Orgánica Interactiva</h1>
+        <p>Empareje las estructuras moleculares con sus grupos funcionales correspondientes mediante arrastre o selección.</p>
         <div class="game-area">
             <div class="moleculas">
                 <h2>Estructuras Moleculares</h2>
@@ -132,6 +174,9 @@
             </div>
         </div>
         <div id="puntuacion">Puntuación: 0 / 6</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
         <button id="reiniciar">Reiniciar Juego</button>
     </div>
 
@@ -149,7 +194,11 @@
         let seleccionado = null;
 
         function mezclarArray(array) {
-            return array.sort(() => Math.random() - 0.5);
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
         }
 
         function crearElemento(tipo, texto, id) {
@@ -181,21 +230,23 @@
             actualizarPuntuacion();
 
             const gruposMezclados = mezclarArray([...gruposFuncionales]);
+            const estructurasMezcladas = mezclarArray([...gruposFuncionales]);
 
             gruposMezclados.forEach(grupo => {
-                const molecula = crearElemento('molecula', grupo.estructura, grupo.id);
                 const grupoFuncional = crearElemento('grupo', grupo.nombre, grupo.id);
-
-                moleculasContainer.appendChild(molecula);
                 gruposContainer.appendChild(grupoFuncional);
-
                 grupoFuncional.addEventListener('dragover', permitirSoltar);
                 grupoFuncional.addEventListener('drop', soltarElemento);
+            });
+
+            estructurasMezcladas.forEach(grupo => {
+                const molecula = crearElemento('molecula', grupo.estructura, grupo.id);
+                moleculasContainer.appendChild(molecula);
             });
         }
 
         function manejarSeleccion(e) {
-            const elemento = e.target;
+            const elemento = e.currentTarget;
             
             if (elemento.classList.contains('molecula')) {
                 if (seleccionado && seleccionado.classList.contains('molecula')) {
@@ -240,7 +291,12 @@
                 grupo.setAttribute('draggable', 'false');
                 puntuacion++;
                 actualizarPuntuacion();
-                reproducirSonido('correcto');
+                molecula.classList.add('pulse');
+                grupo.classList.add('pulse');
+                setTimeout(() => {
+                    molecula.classList.remove('pulse');
+                    grupo.classList.remove('pulse');
+                }, 500);
             } else {
                 molecula.classList.add('incorrect');
                 grupo.classList.add('incorrect');
@@ -248,33 +304,19 @@
                     molecula.classList.remove('incorrect', 'selected');
                     grupo.classList.remove('incorrect');
                 }, 1000);
-                reproducirSonido('incorrecto');
             }
             seleccionado = null;
         }
 
         function actualizarPuntuacion() {
             document.getElementById('puntuacion').textContent = `Puntuación: ${puntuacion} / ${gruposFuncionales.length}`;
+            const progreso = (puntuacion / gruposFuncionales.length) * 100;
+            document.getElementById('progress').style.width = `${progreso}%`;
             if (puntuacion === gruposFuncionales.length) {
-                alert('¡Felicidades! Has completado el juego.');
-                reproducirSonido('victoria');
+                setTimeout(() => {
+                    alert('¡Felicitaciones! Ha completado con éxito el ejercicio de Química Orgánica.');
+                }, 500);
             }
-        }
-
-        function reproducirSonido(tipo) {
-            const audio = new Audio();
-            switch(tipo) {
-                case 'correcto':
-                    audio.src = 'https://example.com/sonido-correcto.mp3';
-                    break;
-                case 'incorrecto':
-                    audio.src = 'https://example.com/sonido-incorrecto.mp3';
-                    break;
-                case 'victoria':
-                    audio.src = 'https://example.com/sonido-victoria.mp3';
-                    break;
-            }
-            audio.play().catch(e => console.log("Error al reproducir el sonido:", e));
         }
 
         document.getElementById('reiniciar').addEventListener('click', inicializarJuego);
