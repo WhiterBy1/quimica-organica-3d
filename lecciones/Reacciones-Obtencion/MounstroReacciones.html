@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +25,7 @@
         .game-container {
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             padding: 20px;
             max-width: 600px;
             width: 100%;
@@ -147,6 +148,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="game-container">
         <div class="header">
@@ -181,12 +183,89 @@
             { symbol: "N", name: "Nitrógeno" }
         ];
 
-        const targetMolecules = [
-            { formula: ["H", "H", "O"], name: "Agua (H₂O)" },
-            { formula: ["C", "O", "O"], name: "Dióxido de carbono (CO₂)" },
-            { formula: ["N", "H", "H", "H"], name: "Amoníaco (NH₃)" },
-            { formula: ["C", "H", "H","H", "H"], name: "Metanol (CH4)" }
+        const targetReagents = [
+            {
+                formula: ["Cu", "S", "O", "H", "Na"],
+                name: "Reactivo de Benedict",
+                description: "Utilizado para detectar azúcares reductores. Al calentar, cambia de azul a rojo anaranjado si hay presencia de glucosa."
+            },
+            {
+                formula: ["Ag", "N", "O", "H", "N", "H", "3"],
+                name: "Reactivo de Tollens",
+                description: "Usado para identificar aldehídos. Reacciona con aldehídos y produce un espejo de plata en el tubo de ensayo."
+            },
+            {
+                formula: ["Cu", "S", "O", "K", "N", "H", "H"],
+                name: "Reactivo de Fehling",
+                description: "Se utiliza para detectar azúcares reductores y aldehídos. Cambia de azul a rojo ladrillo al calentar si el compuesto es positivo."
+            },
+            {
+                formula: ["H", "C", "l"],
+                name: "Ácido Clorhídrico (HCl)",
+                description: "Reacciona con carbonatos para liberar dióxido de carbono y es utilizado en muchas reacciones de neutralización."
+            },
+            {
+                formula: ["H", "N", "O", "3"],
+                name: "Ácido Nítrico (HNO₃)",
+                description: "Reactivo fuerte utilizado para la nitración de compuestos aromáticos y en pruebas para proteínas (xantoproteica)."
+            },
+            {
+                formula: ["C", "H", "I", "3"],
+                name: "Reactivo de Yodoformo (CHI₃)",
+                description: "Usado para identificar compuestos que contienen un grupo metil cetona. Forma un precipitado amarillo (yodoformo)."
+            },
+            {
+                formula: ["B", "r", "2"],
+                name: "Reactivo de Bromo",
+                description: "Utilizado para pruebas de insaturación. Reacciona con dobles enlaces (alquenos) y cambia de color marrón a incoloro."
+            },
+            {
+                formula: ["I", "2", "K", "I"],
+                name: "Reactivo de Lugol (Solución de Yodo)",
+                description: "Utilizado para detectar almidones. Cambia de marrón a azul oscuro o negro en presencia de almidón."
+            },
+            {
+                formula: ["F", "e", "C", "l", "3"],
+                name: "Cloruro Férrico (FeCl₃)",
+                description: "Usado para la prueba de fenoles. Produce un color púrpura intenso al reaccionar con fenoles."
+            },
+            {
+                formula: ["N", "H", "3", "H", "2", "O"],
+                name: "Amoníaco (NH₃)",
+                description: "Utilizado como reactivo para preparar complejos de cobre y en pruebas de identificación de cationes."
+            },
+            {
+                formula: ["C", "H", "3", "C", "O", "H"],
+                name: "Acetaldehído (CH₃CHO)",
+                description: "Puede actuar como reactivo y sustrato en reacciones orgánicas, como la prueba de iodoformo."
+            },
+            {
+                formula: ["K", "M", "n", "O", "4"],
+                name: "Permanganato de Potasio (KMnO₄)",
+                description: "Utilizado como reactivo oxidante. Se decolora al reaccionar con compuestos insaturados (alquenos y alquinos)."
+            },
+            {
+                formula: ["C", "r", "O", "3"],
+                name: "Óxido de Cromo (VI) (CrO₃)",
+                description: "Reactivo fuerte utilizado en la oxidación de alcoholes a cetonas y aldehídos."
+            },
+            {
+                formula: ["H", "2", "S", "O", "4"],
+                name: "Ácido Sulfúrico (H₂SO₄)",
+                description: "Reactivo común en reacciones de deshidratación y como catalizador en reacciones de esterificación."
+            },
+            {
+                formula: ["N", "a", "O", "H"],
+                name: "Hidróxido de Sodio (NaOH)",
+                description: "Base fuerte utilizada en saponificación y neutralización de ácidos."
+            },
+            {
+                formula: ["Z", "n", "H", "C", "l"],
+                name: "Reactivo de Lucas",
+                description: "Usado para diferenciar alcoholes primarios, secundarios y terciarios. Reacciona rápidamente con alcoholes terciarios."
+            }
         ];
+
 
         let currentMolecule = [];
         let score = 0;
@@ -201,11 +280,11 @@
         const monsterElement = document.getElementById("monster");
         const targetNameElement = document.getElementById("target-name");
 
-        elements.forEach(function(element) {
+        elements.forEach(function (element) {
             const button = document.createElement("button");
             button.className = "element-btn";
             button.textContent = element.symbol + " - " + element.name;
-            button.onclick = function() {
+            button.onclick = function () {
                 addElement(element.symbol);
             };
             elementsGrid.appendChild(button);
@@ -221,7 +300,7 @@
             if (currentMolecule.length === 0) {
                 moleculeContainer.innerHTML = "<span class='placeholder'>Construye tu molécula aquí</span>";
             } else {
-                currentMolecule.forEach(function(symbol) {
+                currentMolecule.forEach(function (symbol) {
                     const atom = document.createElement("span");
                     atom.className = "atom";
                     atom.textContent = symbol;
@@ -248,11 +327,11 @@
                 scoreElement.textContent = score;
                 messageElement.textContent = "¡Correcto! ¡Al monstruo le encanta!";
                 monsterElement.classList.add("happy");
-                
+
                 currentTargetIndex = (currentTargetIndex + 1) % targetMolecules.length;
                 targetNameElement.textContent = targetMolecules[currentTargetIndex].name;
 
-                setTimeout(function() {
+                setTimeout(function () {
                     clearMolecule();
                     monsterElement.classList.remove("happy");
                 }, 2000);
@@ -266,4 +345,5 @@
         checkBtn.onclick = checkMolecule;
     </script>
 </body>
+
 </html>
