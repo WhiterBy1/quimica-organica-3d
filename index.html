@@ -2,36 +2,528 @@
 <html lang="es">
 
 <head>
-     <base href="/quimica-organica-3d/">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Química Orgánica 3D</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/index.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .learning-path {
+            position: relative;
+            padding: 2rem;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: grid;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .learning-path {
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(4, auto);
+                padding: 4rem;
+                max-width: 1800px;
+            }
+        }
+
+        #pathCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .lesson-node {
+            position: relative;
+            opacity: 0;
+            z-index: 2;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (min-width: 1024px) {
+
+            /* Posicionamiento específico para desktop */
+            .lesson-node:nth-child(1) {
+                grid-column: 1;
+                grid-row: 1 / 3;
+                transform: translateY(40px);
+            }
+
+            .lesson-node:nth-child(2) {
+                grid-column: 2;
+                grid-row: 2 / 4;
+                transform: translateY(-20px);
+            }
+
+            .lesson-node:nth-child(3) {
+                grid-column: 3;
+                grid-row: 1 / 3;
+                transform: translateY(60px);
+            }
+
+            .lesson-node:nth-child(4) {
+                grid-column: 1;
+                grid-row: 3 / 5;
+                transform: translateY(-40px);
+            }
+
+            .lesson-node:nth-child(5) {
+                grid-column: 3;
+                grid-row: 3 / 5;
+                transform: translateY(-60px);
+            }
+        }
+
+        /* Diseño móvil con perspectiva 3D */
+        @media (max-width: 1023px) {
+            .learning-path {
+                perspective: 1000px;
+                transform-style: preserve-3d;
+            }
+
+            .lesson-node {
+                transform: translateZ(0) rotateX(0);
+                margin: 2rem auto;
+                max-width: 90%;
+                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .lesson-node.in-view {
+                transform: translateZ(50px) rotateX(0);
+            }
+
+            .lesson-node:not(.in-view) {
+                transform: translateZ(-100px) rotateX(10deg);
+                opacity: 0.6;
+            }
+        }
+
+        .node-point {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #fff;
+            border: 4px solid;
+            border-radius: 50%;
+            z-index: 3;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .lesson-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lesson-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: 0.5s;
+        }
+
+        .lesson-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Colores específicos para cada nodo */
+        .lesson-node:nth-child(1) .node-point {
+            border-color: #4CAF50;
+        }
+
+        .lesson-node:nth-child(2) .node-point {
+            border-color: #FFB300;
+        }
+
+        .lesson-node:nth-child(3) .node-point {
+            border-color: #2196F3;
+        }
+
+        .lesson-node:nth-child(4) .node-point {
+            border-color: #9C27B0;
+        }
+
+        .lesson-node:nth-child(5) .node-point {
+            border-color: #F44336;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+    </style>
 </head>
 
-<body>
-    <!-- <canvas> -->
-        <div class="particle-background"></div> <!-- Fondo de partículas -->
-        <header class="header">
-            <h1>Identificación de Grupos Funcionales en Química Orgánica</h1>
-            <p>Explora los grupos funcionales con lecciones interactivas y visualización 3D.</p>
-        </header>
-        <main class="main-content">
-            <section class="lessons">
-                <h2>Lecciones</h2>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen text-white">
+    <div
+        class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-gray-900/40 to-gray-900/80 pointer-events-none">
+    </div>
+
+    <header class="text-center py-10 px-4 relative z-10">
+        <h1 class="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+            Química Orgánica 3D
+        </h1>
+        <p class="text-xl text-blue-200">Explora el fascinante mundo de la química orgánica</p>
+    </header>
+
+    <main class="container mx-auto px-4 relative z-10">
+        <div class="learning-path">
+            <canvas id="pathCanvas"></canvas>
+
+            <!-- Nivel 1: Grupos Funcionales -->
+            <div class="lesson-node" data-level="1">
+                <div class="node-point"></div>
                 <div class="lesson-card">
-                    <a href="lecciones/leccion1/identificacion-grupos-funcionales/preguntas.html">
-                        Lección 1: Identificación de Grupos Funcionales
+                    <h2 class="text-2xl font-bold mb-4 text-green-400">1. Grupos Funcionales</h2>
+                    <p class="mb-4 text-blue-200">Comienza tu viaje identificando los grupos funcionales básicos.</p>
+                    <a href="lecciones/identificacion-grupos-f/grupos.html"
+                        class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                        Comenzar Aventura
                     </a>
                 </div>
-            </section>
-        </main>
-        <footer class="footer">
-            <p>&copy; 2024 Proyecto de Química Orgánica 3D</p>
-        </footer>
-        <script src="js/particles.js"></script> <!-- Archivo JS para las partículas -->
-        <!-- <script src="js/main.js"></script> Archivo JS para la interacción y visualización 3D -->
-    <!-- </canvas> -->
-</body>
-</html>
+            </div>
+
+            <!-- Nivel 2: Estructuras -->
+            <div class="lesson-node" data-level="2">
+                <div class="node-point"></div>
+                <div class="lesson-card">
+                    <h2 class="text-2xl font-bold mb-4 text-yellow-400">2. Estructuras Moleculares</h2>
+                    <p class="mb-4 text-blue-200">Visualiza y construye estructuras en 3D.</p>
+                    <a href="lecciones/identificacion-grupos-f/Estructuras.html"
+                        class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                        Explorar Estructuras
+                    </a>
+                </div>
+            </div>
+
+            <!-- Nivel 3: Isomería -->
+            <div class="lesson-node" data-level="3">
+                <div class="node-point"></div>
+                <div class="lesson-card">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-400">3. Isomería</h2>
+                    <p class="mb-4 text-blue-200">Descubre los diferentes tipos de isómeros.</p>
+                    <a href="lecciones/Isomeria/ConstruccionIsomeros.html"
+                        class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                        Investigar Isómeros
+                    </a>
+                </div>
+            </div>
+
+            <!-- Nivel 4: Nomenclatura -->
+            <div class="lesson-node" data-level="4">
+                <div class="node-point"></div>
+                <div class="lesson-card">
+                    <h2 class="text-2xl font-bold mb-4 text-purple-400">4. Nomenclatura</h2>
+                    <p class="mb-4 text-blue-200">Aprende a nombrar compuestos orgánicos.</p>
+                    <a href="lecciones/Nomenclatura/Numeracion.html"
+                        class="inline-block bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                        Dominar Nomenclatura
+                    </a>
+                </div>
+            </div>
+
+            <!-- Nivel 5: Reacciones -->
+            <div class="lesson-node" data-level="5">
+                <div class="node-point"></div>
+                <div class="lesson-card">
+                    <h2 class="text-2xl font-bold mb-4 text-red-400">5. Reacciones</h2>
+                    <p class="mb-4 text-blue-200">Experimenta con reacciones orgánicas.</p>
+                    <a href="lecciones/Reacciones-Obtencion/LaboratorioDeObtencion.html"
+                        class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
+                        Experimentar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-8 text-blue-200 relative z-10">
+        <p>&copy; 2024 Proyecto de Química Orgánica 3D</p>
+    </footer>
+
+    <script>
+        class LearningPath {
+            constructor() {
+                this.canvas = document.getElementById('pathCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.nodes = Array.from(document.querySelectorAll('.lesson-node'));
+                this.nodePoints = Array.from(document.querySelectorAll('.node-point'));
+                this.isMobile = window.innerWidth < 1024;
+                this.init();
+            }
+
+            init() {
+                this.setupCanvas();
+                this.setupEventListeners();
+                this.animateNodes();
+
+                if (this.isMobile) {
+                    this.setupMobileInteraction();
+                } else {
+                    this.setupDesktopAnimation();
+                }
+            }
+
+            setupCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.draw();
+            }
+
+            setupEventListeners() {
+                window.addEventListener('resize', () => {
+                    this.isMobile = window.innerWidth < 1024;
+                    this.setupCanvas();
+                });
+
+                window.addEventListener('scroll', () => {
+                    if (this.isMobile) {
+                        this.updateMobileView();
+                    }
+                    requestAnimationFrame(() => this.draw());
+                });
+            }
+
+            setupMobileInteraction() {
+                this.updateMobileView();
+                this.nodes.forEach(node => {
+                    node.style.transform = 'translateZ(-100px) rotateX(10deg)';
+                    node.style.opacity = '0.6';
+                });
+            }
+
+            setupDesktopAnimation() {
+                this.nodes.forEach((node, index) => {
+                    node.style.animation = `float ${4 + index * 0.5}s ease-in-out infinite`;
+                    node.style.animationDelay = `${index * 0.2}s`;
+                });
+            }
+
+            updateMobileView() {
+                const viewportMiddle = window.innerHeight / 2;
+
+                this.nodes.forEach(node => {
+                    const rect = node.getBoundingClientRect();
+                    const distanceFromMiddle = Math.abs(rect.top + rect.height / 2 - viewportMiddle);
+
+                    if (distanceFromMiddle < viewportMiddle / 2) {
+                        node.classList.add('in-view');
+                    } else {
+                        node.classList.remove('in-view');
+                    }
+                });
+            }
+
+            animateNodes() {
+                this.nodes.forEach((node, index) => {
+                    setTimeout(() => {
+                        node.style.opacity = '1';
+                    }, index * 200);
+                });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                if (this.isMobile) {
+                    this.drawMobilePath();
+                } else {
+                    this.drawDesktopPath();
+                }
+            }
+
+            drawMobilePath() {
+                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                gradient.addColorStop(0, 'rgba(76, 175, 80, 0.3)');
+                gradient.addColorStop(1, 'rgba(244, 67, 54, 0.3)');
+
+                this.ctx.strokeStyle = gradient;
+                this.ctx.lineWidth = 3;
+                this.ctx.beginPath();
+
+                const points = this.nodePoints.map(point => {
+                    const rect = point.getBoundingClientRect();
+                    return {
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2
+                    };
+                });
+
+                points.forEach((point, index) => {
+                    if (index === 0) {
+                        this.ctx.moveTo(point.x, point.y);
+                    } else {
+                        const prevPoint = points[index - 1];
+                        const midPoint = {
+                            x: (prevPoint.x + point.x) / 2,
+                            y: (prevPoint.y + point.y) / 2
+                        };
+
+                        // Curva suave entre puntos
+                        const cp1 = {
+                            x: prevPoint.x + (point.x - prevPoint.x) * 0.25,
+                            y: prevPoint.y
+                        };
+                        const cp2 = {
+                            x: prevPoint.x + (point.x - prevPoint.x) * 0.75,
+                            y: point.y
+                        };
+
+                        this.ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
+                    }
+                });
+
+                this.ctx.stroke();
+            }
+
+            drawDesktopPath() {
+                this.ctx.lineWidth = 3;
+
+                const points = this.nodePoints.map(point => {
+                    const rect = point.getBoundingClientRect();
+                    return {
+                        x: rect.left + rect.width / 2,
+                        y: rect.top + rect.height / 2
+                    };
+                });
+
+                // Crear múltiples caminos entre nodos
+                for (let i = 0; i < points.length - 1; i++) {
+                    for (let j = i + 1; j < points.length; j++) {
+                        const start = points[i];
+                        const end = points[j];
+
+                        // Calcular la distancia entre puntos
+                        const distance = Math.hypot(end.x - start.x, end.y - start.y);
+
+                        // Solo dibujar líneas entre puntos cercanos
+                        if (distance < 500) {
+                            const opacity = 1 - (distance / 500);
+                            const gradient = this.ctx.createLinearGradient(
+                                start.x, start.y, end.x, end.y
+                            );
+
+                            // Colores basados en los nodos
+                            const colors = ['#4CAF50', '#FFB300', '#2196F3', '#9C27B0', '#F44336'];
+                            gradient.addColorStop(0, `${colors[i]}${Math.floor(opacity * 99).toString(16).padStart(2, '0')}`);
+                            gradient.addColorStop(1, `${colors[j]}${Math.floor(opacity * 99).toString(16).padStart(2, '0')}`);
+
+                            this.ctx.strokeStyle = gradient;
+
+                            // Dibujar curva Bezier
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(start.x, start.y);
+
+                            const midX = (start.x + end.x) / 2;
+                            const midY = (start.y + end.y) / 2;
+
+                            // Puntos de control para la curva
+                            const cp1 = {
+                                x: midX + (Math.random() - 0.5) * 100,
+                                y: midY + (Math.random() - 0.5) * 100
+                            };
+
+                            const cp2 = {
+                                x: midX + (Math.random() - 0.5) * 100,
+                                y: midY + (Math.random() - 0.5) * 100
+                            };
+
+                            this.ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, end.x, end.y);
+                            this.ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            // Efecto de partículas flotantes
+            addParticleEffect() {
+                const particles = [];
+                const particleCount = 50;
+
+                for (let i = 0; i < particleCount; i++) {
+                    particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        size: Math.random() * 3 + 1,
+                        speedX: (Math.random() - 0.5) * 2,
+                        speedY: (Math.random() - 0.5) * 2,
+                        opacity: Math.random() * 0.5 + 0.1
+                    });
+                }
+
+                const animateParticles = () => {
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                    particles.forEach(particle => {
+                        particle.x += particle.speedX;
+                        particle.y += particle.speedY;
+
+                        // Reiniciar posición si sale del canvas
+                        if (particle.x < 0) particle.x = this.canvas.width;
+                        if (particle.x > this.canvas.width) particle.x = 0;
+                        if (particle.y < 0) particle.y = this.canvas.height;
+                        if (particle.y > this.canvas.height) particle.y = 0;
+
+                        // Dibujar partícula
+                        this.ctx.beginPath();
+                        this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                        this.ctx.fillStyle = `rgba(255, 255, 255, ${particle.opacity})`;
+                        this.ctx.fill();
+                    });
+
+                    this.draw();
+                    requestAnimationFrame(animateParticles);
+                };
+
+                animateParticles();
+            }
+        }
+
+        // Inicializar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', () => {
+            const path = new LearningPath();
+            path.addParticleEffect();
+
+            // Animación de entrada para las lecciones
+            const lessonNodes = document.querySelectorAll('.lesson-node');
+            lessonNodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.style.opacity = '1';
+                    node.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+</script>
