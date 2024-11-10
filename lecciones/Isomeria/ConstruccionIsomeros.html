@@ -307,6 +307,7 @@
                 this.x = x;
                 this.y = y;
                 this.bonds = [];
+                this.bondCount = 0;
                 this.element = this.createElement();
             }
 
@@ -329,19 +330,20 @@
         }
 
         class Bond {
-            constructor(atom1, atom2, bondType = 1) {
+            constructor(atom1, atom2, bondType = 1, gameInstance) {
                 this.atom1 = atom1;
                 this.atom2 = atom2;
                 this.bondType = bondType;
-                this.element = null; // Inicializar como null
-                this.createElement(); // Crear el elemento SVG
+                this.element = null;
+                this.game = gameInstance;
+                this.createElement();
             }
 
             createElement() {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('stroke', 'rgba(255, 255, 255, 0.5)');
-                line.setAttribute('stroke-width', '2');
-                this.element = line; // Asignar el elemento correctamente
+                this.element = line;
+                this.updateStroke();
                 this.updatePosition();
             }
 
@@ -350,11 +352,9 @@
                 this.element.setAttribute('y1', this.atom1.y);
                 this.element.setAttribute('x2', this.atom2.x);
                 this.element.setAttribute('y2', this.atom2.y);
-                this.updateStroke();
             }
 
             updateStroke() {
-                // Cambiar el grosor o estilo del enlace según el tipo de enlace
                 switch (this.bondType) {
                     case 1:
                         this.element.setAttribute('stroke-width', '2');
@@ -370,17 +370,29 @@
 
             incrementBond() {
                 if (this.bondType < 3) {
-                    this.bondType += 1;
+                    const newBondType = this.bondType + 1;
+                    if (this.atom1.bondCount + 1 > (this.atom1.type === 'C' ? 4 : this.atom1.type === 'O' ? 2 : 1) ||
+                        this.atom2.bondCount + 1 > (this.atom2.type === 'C' ? 4 : this.atom2.type === 'O' ? 2 : 1)) {
+                        alert('No se puede incrementar el enlace, supera el máximo de enlaces permitidos.');
+                        return;
+                    }
+
+                    this.bondType = newBondType;
+                    this.atom1.bondCount += 1;
+                    this.atom2.bondCount += 1;
                     this.updateStroke();
                 } else {
-                    this.remove(); // Elimina el enlace si ya es triple
+                    this.game.removeBond(this.atom1, this.atom2);
                 }
             }
+
 
             remove() {
                 this.element.remove();
                 this.atom1.bonds = this.atom1.bonds.filter(bond => bond !== this);
                 this.atom2.bonds = this.atom2.bonds.filter(bond => bond !== this);
+                this.atom1.bondCount -= this.bondType;
+                this.atom2.bondCount -= this.bondType;
             }
         }
 
@@ -453,19 +465,22 @@
             }
 
             removeBond(atom1, atom2) {
-                // Encontrar el enlace entre los dos átomos
                 const bondIndex = this.bonds.findIndex(bond =>
                     (bond.atom1 === atom1 && bond.atom2 === atom2) ||
                     (bond.atom1 === atom2 && bond.atom2 === atom1)
                 );
 
-                // Si se encuentra el enlace, eliminarlo
                 if (bondIndex !== -1) {
                     const bond = this.bonds[bondIndex];
+
+                    // Eliminar el enlace y actualizar el contador de enlaces de los átomos
                     bond.remove();
                     this.bonds.splice(bondIndex, 1);
+                    atom1.bondCount -= bond.bondType;
+                    atom2.bondCount -= bond.bondType;
                 }
             }
+
 
 
             handleAtomStart(e, atom) {
@@ -567,29 +582,36 @@
             }
 
 
-            createBond(atom1, atom2) {
-                if (!this.canCreateBond(atom1) || !this.canCreateBond(atom2)) {
-                    alert('Este átomo ya tiene el máximo de enlaces permitidos');
+            createBond(atom1, atom2, bondType = 1) {
+                if (!this.canCreateBond(atom1, bondType) || !this.canCreateBond(atom2, bondType)) {
+                    alert('No se puede crear este enlace, supera el máximo de enlaces permitidos para uno de los átomos.');
                     return;
                 }
 
-                const bond = new Bond(atom1, atom2, 1);
+                const bond = new Bond(atom1, atom2, bondType, this);
                 this.bonds.push(bond);
                 this.bondsLayer.appendChild(bond.element);
                 atom1.bonds.push(bond);
                 atom2.bonds.push(bond);
+                atom1.bondCount += bondType;
+                atom2.bondCount += bondType;
             }
 
 
-            canCreateBond(atom) {
-                const currentBonds = atom.bonds.length;
+
+
+
+            canCreateBond(atom, bondType = 1) {
+                const totalBonds = atom.bondCount + bondType;
                 switch (atom.type) {
-                    case 'C': return currentBonds < 4;  // Carbono: máximo 4 enlaces
-                    case 'O': return currentBonds < 2;  // Oxígeno: máximo 2 enlaces
-                    case 'H': return currentBonds < 1;  // Hidrógeno: máximo 1 enlace
+                    case 'C': return totalBonds <= 4;  // Carbono: máximo 4 enlaces
+                    case 'O': return totalBonds <= 2;  // Oxígeno: máximo 2 enlaces
+                    case 'H': return totalBonds <= 1;  // Hidrógeno: máximo 1 enlace
                     default: return false;
                 }
             }
+
+
 
             updateBonds() {
                 this.bonds.forEach(bond => bond.updatePosition());
