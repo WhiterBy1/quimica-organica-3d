@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -147,8 +148,105 @@
         .reset-btn:hover {
             background-color: #f4511e;
         }
+
+        .workspace {
+            background-color: var(--dark-light);
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .atom {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: move;
+            user-select: none;
+            font-weight: bold;
+        }
+
+        .atom[data-type="C"] {
+            background-color: #4CAF50;
+        }
+
+        .atom[data-type="O"] {
+            background-color: #FF5722;
+        }
+
+        .atom[data-type="H"] {
+            background-color: #2196F3;
+        }
+
+        .atom::before {
+            content: attr(data-bonds);
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: var(--dark);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .bond {
+            position: absolute;
+            background-color: white;
+            height: 3px;
+            transform-origin: left center;
+            pointer-events: none;
+        }
+
+        .atom-selector {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+        }
+
+        .atom-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .validation-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .validation-message.error {
+            background-color: #f44336;
+            display: block;
+        }
+
+        .validation-message.success {
+            background-color: #4CAF50;
+            display: block;
+        }
     </style>
 </head>
+
 <body>
     <div class="game-container">
         <div class="header">
@@ -180,29 +278,217 @@
             </div>
 
             <div class="workspace">
-                <div class="score-panel">
-                    Puntuación: 0
+                <div class="game-container">
+                    <div class="workspace" id="workspace">
+                        <div class="validation-message" id="validation-message"></div>
+                    </div>
+                    <div class="atom-selector">
+                        <button class="atom-btn" data-type="C">C</button>
+                        <button class="atom-btn" data-type="O">O</button>
+                        <button class="atom-btn" data-type="H">H</button>
+                        <button class="atom-btn" id="validate-btn">Validar</button>
+                        <button class="atom-btn" id="clear-btn">Limpiar</button>
+                    </div>
                 </div>
-                <div class="atom">C</div>
-                <div class="atom">O</div>
-                <div class="atom">H</div>
             </div>
         </div>
     </div>
 
     <script>
-        // Aquí iría la lógica del juego que se implementará después
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelector('.tab.active').classList.remove('active');
-                tab.classList.add('active');
-            });
-        });
+        class MoleculeBuilder {
+            constructor() {
+                this.atoms = [];
+                this.bonds = [];
+                this.draggedAtom = null;
+                this.selectedAtom = null;
+                this.workspace = document.getElementById('workspace');
+                this.validationMessage = document.getElementById('validation-message');
+                
+                // Límites de átomos
+                this.atomLimits = {
+                    C: { max: 5, current: 0, bonds: 4 },
+                    O: { max: 2, current: 0, bonds: 2 },
+                    H: { max: 12, current: 0, bonds: 1 }
+                };
 
-        document.querySelector('.reset-btn').addEventListener('click', () => {
-            // Lógica de reinicio
-            alert('¡Juego reiniciado!');
-        });
+                this.initializeEvents();
+            }
+
+            initializeEvents() {
+                // Eventos para los botones de átomos
+                document.querySelectorAll('.atom-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (btn.dataset.type) {
+                            this.createAtom(btn.dataset.type);
+                        }
+                    });
+                });
+
+                // Evento para validar la molécula
+                document.getElementById('validate-btn').addEventListener('click', () => {
+                    this.validateMolecule();
+                });
+
+                // Evento para limpiar el workspace
+                document.getElementById('clear-btn').addEventListener('click', () => {
+                    this.clearWorkspace();
+                });
+
+                // Eventos del workspace
+                this.workspace.addEventListener('mousemove', (e) => {
+                    if (this.draggedAtom) {
+                        this.moveAtom(e);
+                    }
+                });
+
+                document.addEventListener('mouseup', () => {
+                    if (this.draggedAtom) {
+                        this.draggedAtom = null;
+                    }
+                });
+            }
+
+            createAtom(type) {
+                if (this.atomLimits[type].current >= this.atomLimits[type].max) {
+                    this.showMessage(`No puedes añadir más átomos de ${type}`, 'error');
+                    return;
+                }
+
+                const atom = document.createElement('div');
+                atom.className = 'atom';
+                atom.dataset.type = type;
+                atom.dataset.bonds = '0';
+                atom.innerText = type;
+                atom.style.left = '50%';
+                atom.style.top = '50%';
+
+                // Eventos del átomo
+                atom.addEventListener('mousedown', (e) => {
+                    if (e.ctrlKey) {
+                        this.startBond(atom);
+                    } else {
+                        this.draggedAtom = atom;
+                    }
+                });
+
+                this.workspace.appendChild(atom);
+                this.atoms.push(atom);
+                this.atomLimits[type].current++;
+            }
+
+            moveAtom(e) {
+                const rect = this.workspace.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                this.draggedAtom.style.left = `${x}px`;
+                this.draggedAtom.style.top = `${y}px`;
+
+                // Actualizar posición de los enlaces
+                this.updateBonds();
+            }
+
+            startBond(atom) {
+                if (this.selectedAtom === null) {
+                    this.selectedAtom = atom;
+                    atom.style.boxShadow = '0 0 10px yellow';
+                } else if (this.selectedAtom !== atom) {
+                    this.createBond(this.selectedAtom, atom);
+                    this.selectedAtom.style.boxShadow = '';
+                    this.selectedAtom = null;
+                }
+            }
+
+            createBond(atom1, atom2) {
+                const bonds1 = parseInt(atom1.dataset.bonds);
+                const bonds2 = parseInt(atom2.dataset.bonds);
+                const maxBonds1 = this.atomLimits[atom1.dataset.type].bonds;
+                const maxBonds2 = this.atomLimits[atom2.dataset.type].bonds;
+
+                if (bonds1 >= maxBonds1 || bonds2 >= maxBonds2) {
+                    this.showMessage('No se pueden crear más enlaces en estos átomos', 'error');
+                    return;
+                }
+
+                const bond = document.createElement('div');
+                bond.className = 'bond';
+                this.workspace.appendChild(bond);
+                this.bonds.push({
+                    element: bond,
+                    atom1: atom1,
+                    atom2: atom2
+                });
+
+                atom1.dataset.bonds = bonds1 + 1;
+                atom2.dataset.bonds = bonds2 + 1;
+
+                this.updateBonds();
+            }
+
+            updateBonds() {
+                this.bonds.forEach(bond => {
+                    const rect1 = bond.atom1.getBoundingClientRect();
+                    const rect2 = bond.atom2.getBoundingClientRect();
+                    const workspaceRect = this.workspace.getBoundingClientRect();
+
+                    const x1 = rect1.left - workspaceRect.left + rect1.width/2;
+                    const y1 = rect1.top - workspaceRect.top + rect1.height/2;
+                    const x2 = rect2.left - workspaceRect.left + rect2.width/2;
+                    const y2 = rect2.top - workspaceRect.top + rect2.height/2;
+
+                    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+                    bond.element.style.width = `${length}px`;
+                    bond.element.style.left = `${x1}px`;
+                    bond.element.style.top = `${y1}px`;
+                    bond.element.style.transform = `rotate(${angle}deg)`;
+                });
+            }
+
+            validateMolecule() {
+                // Verificar que todos los átomos tienen sus enlaces completos
+                let isValid = true;
+                this.atoms.forEach(atom => {
+                    const bonds = parseInt(atom.dataset.bonds);
+                    const maxBonds = this.atomLimits[atom.dataset.type].bonds;
+                    if (bonds !== maxBonds) {
+                        isValid = false;
+                    }
+                });
+
+                if (isValid) {
+                    this.showMessage('¡Molécula válida!', 'success');
+                } else {
+                    this.showMessage('La molécula no es válida. Revisa los enlaces.', 'error');
+                }
+            }
+
+            clearWorkspace() {
+                while (this.workspace.firstChild) {
+                    this.workspace.removeChild(this.workspace.firstChild);
+                }
+                this.atoms = [];
+                this.bonds = [];
+                this.selectedAtom = null;
+                this.draggedAtom = null;
+                Object.keys(this.atomLimits).forEach(key => {
+                    this.atomLimits[key].current = 0;
+                });
+            }
+
+            showMessage(message, type) {
+                this.validationMessage.innerText = message;
+                this.validationMessage.className = `validation-message ${type}`;
+                setTimeout(() => {
+                    this.validationMessage.className = 'validation-message';
+                }, 3000);
+            }
+        }
+
+        // Iniciar el juego
+        const moleculeBuilder = new MoleculeBuilder();
     </script>
 </body>
+
 </html>
