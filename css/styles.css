@@ -9,3 +9,21 @@ body {
 main {
     flex-grow: 1;
 }
+/* Estilo del botón y su posición fija */
+#mainPageButton {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #388E3C;
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    border-radius: 5px;
+    z-index: 1000;
+    transition: background-color 0.3s;
+}
+
+#mainPageButton:hover {
+    background-color: #4CAF50;
+}

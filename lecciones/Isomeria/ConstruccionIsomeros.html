@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor de Isómeros</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF5722;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --white: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Arial', sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
+        }
+
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 15px;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 2.5em;
+            position: relative;
+            display: inline-block;
+        }
+
+        .header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50%;
+            height: 3px;
+            background-color: var(--primary);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background-color: var(--dark-light);
+            border: none;
+            border-radius: 10px;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+        }
+
+        .atoms-panel {
+            background-color: var(--dark-light);
+            padding: 20px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+
+        .atom-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .workspace {
+            background-color: var(--dark-light);
+            padding: 20px;
+            border-radius: 15px;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .atom {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            background-color: var(--primary);
+            border-radius: 20px;
+            cursor: move;
+        }
+
+        .score-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--primary-dark);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .reset-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .reset-btn:hover {
+            background-color: #f4511e;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>Constructor de Isómeros</h1>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active">Isómeros Estructurales</button>
+            <button class="tab">Isómeros de Función</button>
+            <button class="tab">Isómeros de Posición</button>
+        </div>
+
+        <div class="game-area">
+            <div class="atoms-panel">
+                <h3>Átomos Disponibles</h3>
+                <div class="atom-counter">
+                    <span>Carbono (C)</span>
+                    <span>5</span>
+                </div>
+                <div class="atom-counter">
+                    <span>Oxígeno (O)</span>
+                    <span>2</span>
+                </div>
+                <div class="atom-counter">
+                    <span>Hidrógeno (H)</span>
+                    <span>12</span>
+                </div>
+                <button class="reset-btn">Reiniciar</button>
+            </div>
+
+            <div class="workspace">
+                <div class="score-panel">
+                    Puntuación: 0
+                </div>
+                <div class="atom">C</div>
+                <div class="atom">O</div>
+                <div class="atom">H</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Aquí iría la lógica del juego que se implementará después
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelector('.tab.active').classList.remove('active');
+                tab.classList.add('active');
+            });
+        });
+
+        document.querySelector('.reset-btn').addEventListener('click', () => {
+            // Lógica de reinicio
+            alert('¡Juego reiniciado!');
+        });
+    </script>
+</body>
+</html>
