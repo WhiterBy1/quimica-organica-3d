@@ -98,7 +98,7 @@
         }
 
         .mode-toggle {
-            display: flex;
+            display:grid;
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -254,6 +254,8 @@
                 <div class="mode-toggle">
                     <button class="button mode-button active" data-mode="move">Modo Mover</button>
                     <button class="button mode-button" data-mode="connect">Modo Conectar</button>
+                    <button class="button mode-button" data-mode="delete">Eliminar Enlace</button>
+
                 </div>
 
                 <div class="atom-counter">
@@ -429,25 +431,39 @@
             }
 
             addEventListeners() {
+                // Manejar los botones de modo (Mover, Conectar y Eliminar Enlace)
                 document.querySelectorAll('.mode-button').forEach(button => {
                     button.addEventListener('click', () => {
-                        this.connectMode = button.dataset.mode === 'connect';
+                        const mode = button.dataset.mode;
+
+                        // Actualizar los modos según el botón seleccionado
+                        this.connectMode = mode === 'connect';
+                        this.deleteMode = mode === 'delete';
+
+                        // Desactivar el modo de eliminación cuando se selecciona otro botón
+                        if (mode !== 'delete') {
+                            this.deleteMode = false;
+                        }
+
+                        // Actualizar el estado visual de los botones
                         document.querySelectorAll('.mode-button').forEach(btn =>
-                            btn.classList.toggle('active', btn.dataset.mode === (this.connectMode ? 'connect' : 'move'))
+                            btn.classList.toggle('active', btn.dataset.mode === mode)
                         );
                     });
                 });
 
+                // Manejar los botones para añadir átomos
                 document.getElementById('add-carbon').addEventListener('click', () => this.addAtom('C'));
                 document.getElementById('add-oxygen').addEventListener('click', () => this.addAtom('O'));
                 document.getElementById('add-hydrogen').addEventListener('click', () => this.addAtom('H'));
                 document.getElementById('validate').addEventListener('click', () => this.validateMolecule());
                 document.getElementById('clear').addEventListener('click', () => this.clearWorkspace());
 
-                // Prevent default touch behavior
+                // Prevenir el comportamiento por defecto en dispositivos táctiles
                 this.workspace.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
                 this.workspace.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
             }
+
 
             addAtom(type) {
                 if (this.counters[type] >= this.limits[type]) return;
@@ -472,20 +488,42 @@
 
                 if (bondIndex !== -1) {
                     const bond = this.bonds[bondIndex];
+                    const bondType = bond.bondType;
 
-                    // Eliminar el enlace y actualizar el contador de enlaces de los átomos
+                    // Eliminar el enlace del DOM
                     bond.remove();
                     this.bonds.splice(bondIndex, 1);
-                    atom1.bondCount -= bond.bondType;
-                    atom2.bondCount -= bond.bondType;
+
+                    // Actualizar el contador de enlaces de los átomos
+                    atom1.bondCount -= bondType;
+                    atom2.bondCount -= bondType;
                 }
             }
 
 
-
             handleAtomStart(e, atom) {
                 e.preventDefault();
-                if (this.connectMode) {
+
+                if (this.deleteMode) {
+                    if (!this.firstAtomForBond) {
+                        this.firstAtomForBond = atom;
+                        atom.element.classList.add('selected');
+                    } else {
+                        if (this.firstAtomForBond !== atom) {
+                            const bond = this.findBond(this.firstAtomForBond, atom);
+                            if (bond) {
+                                this.removeBond(this.firstAtomForBond, atom);
+                                this.showStatusMessage('Enlace eliminado exitosamente.');
+                            } else {
+                                this.showStatusMessage('No hay enlace entre los átomos seleccionados.');
+                            }
+                        }
+
+                        // Restablecer la selección
+                        this.firstAtomForBond.element.classList.remove('selected');
+                        this.firstAtomForBond = null;
+                    }
+                } else if (this.connectMode) {
                     this.handleBondCreation(atom);
                 } else {
                     this.selectedAtom = atom;
@@ -501,6 +539,7 @@
                     document.addEventListener('touchend', this.handleEnd);
                 }
             }
+
 
             handleMove = (e) => {
                 if (!this.isDragging || !this.selectedAtom) return;
@@ -526,6 +565,32 @@
                 document.removeEventListener('mouseup', this.handleEnd);
                 document.removeEventListener('touchmove', this.handleMove);
                 document.removeEventListener('touchend', this.handleEnd);
+            }
+            deleteBond() {
+                if (!this.firstAtomForBond) {
+                    alert('Selecciona dos átomos para eliminar el enlace.');
+                    return;
+                }
+
+                const secondAtom = this.selectedAtom;
+                if (this.firstAtomForBond === secondAtom) {
+                    alert('No puedes eliminar un enlace con el mismo átomo.');
+                    return;
+                }
+
+                const bond = this.findBond(this.firstAtomForBond, secondAtom);
+
+                if (bond) {
+                    this.removeBond(this.firstAtomForBond, secondAtom);
+                    alert('Enlace eliminado exitosamente.');
+                } else {
+                    alert('No hay enlace entre los átomos seleccionados.');
+                }
+
+                // Restablecer la selección de átomos
+                this.firstAtomForBond.element.classList.remove('selected');
+                this.firstAtomForBond = null;
+                this.selectedAtom = null;
             }
 
             getEventPosition(e) {
@@ -584,13 +649,15 @@
 
             createBond(atom1, atom2, bondType = 1) {
                 if (!this.canCreateBond(atom1, bondType) || !this.canCreateBond(atom2, bondType)) {
-                    alert('No se puede crear este enlace, supera el máximo de enlaces permitidos para uno de los átomos.');
+                    alert('Este enlace supera el máximo de enlaces permitidos para uno de los átomos.');
                     return;
                 }
 
-                const bond = new Bond(atom1, atom2, bondType, this);
+                const bond = new Bond(atom1, atom2, bondType);
                 this.bonds.push(bond);
                 this.bondsLayer.appendChild(bond.element);
+
+                // Actualizar el contador de enlaces de los átomos
                 atom1.bonds.push(bond);
                 atom2.bonds.push(bond);
                 atom1.bondCount += bondType;
@@ -601,15 +668,15 @@
 
 
 
+
             canCreateBond(atom, bondType = 1) {
+                const maxBonds = atom.type === 'C' ? 4 : atom.type === 'O' ? 2 : 1;
                 const totalBonds = atom.bondCount + bondType;
-                switch (atom.type) {
-                    case 'C': return totalBonds <= 4;  // Carbono: máximo 4 enlaces
-                    case 'O': return totalBonds <= 2;  // Oxígeno: máximo 2 enlaces
-                    case 'H': return totalBonds <= 1;  // Hidrógeno: máximo 1 enlace
-                    default: return false;
-                }
+
+                // Verificar si el total de enlaces excede el máximo permitido
+                return totalBonds <= maxBonds;
             }
+
 
 
 
