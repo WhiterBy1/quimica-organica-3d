@@ -329,34 +329,56 @@
         }
 
         class Bond {
-
-            constructor(atom1, atom2) {
+            constructor(atom1, atom2, bondType = 1) {
                 this.atom1 = atom1;
                 this.atom2 = atom2;
-                this.element = this.createElement();
+                this.bondType = bondType;
+                this.element = null; // Inicializar como null
+                this.createElement(); // Crear el elemento SVG
             }
 
             createElement() {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('stroke', 'rgba(255, 255, 255, 0.5)');
                 line.setAttribute('stroke-width', '2');
-                this.element = line; // Asignar el elemento aquí
+                this.element = line; // Asignar el elemento correctamente
                 this.updatePosition();
-                return line;
             }
-
-
 
             updatePosition() {
                 this.element.setAttribute('x1', this.atom1.x);
                 this.element.setAttribute('y1', this.atom1.y);
                 this.element.setAttribute('x2', this.atom2.x);
                 this.element.setAttribute('y2', this.atom2.y);
+                this.updateStroke();
+            }
+
+            updateStroke() {
+                // Cambiar el grosor o estilo del enlace según el tipo de enlace
+                switch (this.bondType) {
+                    case 1:
+                        this.element.setAttribute('stroke-width', '2');
+                        break;
+                    case 2:
+                        this.element.setAttribute('stroke-width', '4');
+                        break;
+                    case 3:
+                        this.element.setAttribute('stroke-width', '6');
+                        break;
+                }
+            }
+
+            incrementBond() {
+                if (this.bondType < 3) {
+                    this.bondType += 1;
+                    this.updateStroke();
+                } else {
+                    this.remove(); // Elimina el enlace si ya es triple
+                }
             }
 
             remove() {
                 this.element.remove();
-                // Eliminar el enlace de los átomos conectados
                 this.atom1.bonds = this.atom1.bonds.filter(bond => bond !== this);
                 this.atom2.bonds = this.atom2.bonds.filter(bond => bond !== this);
             }
@@ -505,20 +527,20 @@
                 };
             }
 
+
             handleBondCreation(atom) {
                 if (!this.firstAtomForBond) {
                     this.firstAtomForBond = atom;
                     atom.element.classList.add('selected');
                 } else {
-                    // Si ya hay un átomo seleccionado, intenta conectar o eliminar el enlace
                     if (this.firstAtomForBond !== atom) {
-                        const bondExists = this.bondExists(this.firstAtomForBond, atom);
+                        const existingBond = this.findBond(this.firstAtomForBond, atom);
 
-                        if (bondExists) {
-                            // Si el enlace ya existe, eliminarlo
-                            this.removeBond(this.firstAtomForBond, atom);
+                        if (existingBond) {
+                            // Incrementar el tipo de enlace o eliminar si es triple
+                            existingBond.incrementBond();
                         } else {
-                            // Si el enlace no existe, crear un nuevo enlace
+                            // Crear un nuevo enlace simple
                             this.createBond(this.firstAtomForBond, atom);
                         }
                     }
@@ -537,19 +559,27 @@
                 );
             }
 
+            findBond(atom1, atom2) {
+                return this.bonds.find(bond =>
+                    (bond.atom1 === atom1 && bond.atom2 === atom2) ||
+                    (bond.atom1 === atom2 && bond.atom2 === atom1)
+                );
+            }
+
+
             createBond(atom1, atom2) {
-                // Verificar límites de enlaces según el tipo de átomo
                 if (!this.canCreateBond(atom1) || !this.canCreateBond(atom2)) {
                     alert('Este átomo ya tiene el máximo de enlaces permitidos');
                     return;
                 }
 
-                const bond = new Bond(atom1, atom2);
+                const bond = new Bond(atom1, atom2, 1);
                 this.bonds.push(bond);
                 this.bondsLayer.appendChild(bond.element);
                 atom1.bonds.push(bond);
                 atom2.bonds.push(bond);
             }
+
 
             canCreateBond(atom) {
                 const currentBonds = atom.bonds.length;
