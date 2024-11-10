@@ -410,22 +410,28 @@
             const gruposMezclados = mezclarArray([...gruposFuncionales]);
             const estructurasMezcladas = mezclarArray([...gruposFuncionales]);
 
+            // Creamos y añadimos los elementos inmediatamente visibles
             gruposMezclados.forEach((grupo, index) => {
                 const grupoFuncional = crearElemento('grupo', grupo.nombre, grupo.id);
+                // Aseguramos que el elemento sea visible desde el inicio
+                grupoFuncional.style.opacity = '1';
+                grupoFuncional.style.visibility = 'visible';
                 gruposContainer.appendChild(grupoFuncional);
                 grupoFuncional.addEventListener('dragover', permitirSoltar);
                 grupoFuncional.addEventListener('drop', soltarElemento);
 
-                // Animate entrada with GSAP
+                // Modificamos la animación para que no afecte la visibilidad
                 gsap.from(grupoFuncional, {
                     y: 50,
-                    opacity: 0,
                     duration: 0.5,
                     delay: index * 0.1,
-                    ease: "power3.out"
+                    ease: "power3.out",
+                    onStart: () => {
+                        grupoFuncional.style.opacity = '1';
+                        grupoFuncional.style.visibility = 'visible';
+                    }
                 });
             });
-
             estructurasMezcladas.forEach((grupo, index) => {
                 const molecula = crearElemento('molecula', grupo.estructura, grupo.id);
                 moleculasContainer.appendChild(molecula);
