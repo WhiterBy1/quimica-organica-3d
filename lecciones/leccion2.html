@@ -80,6 +80,7 @@
             padding: 20px;
             min-height: 500px;
             position: relative;
+            touch-action: none;
         }
 
         .atom-counter {
@@ -96,8 +97,49 @@
         }
 
         .mode-toggle {
-            display: none;
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
+        }
+
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .tutorial-content {
+            background: var(--dark-light);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 80%;
+            text-align: left;
+        }
+
+        .tutorial-content h2 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .tutorial-content ul {
+            margin-bottom: 20px;
+        }
+
+        .tutorial-content button {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
         }
 
         @media (max-width: 768px) {
@@ -112,14 +154,12 @@
                 right: 0;
                 z-index: 100;
                 border-radius: 15px 15px 0 0;
-            }
-
-            .mode-toggle {
-                display: block;
+                max-height: 40vh;
+                overflow-y: auto;
             }
 
             .workspace {
-                margin-bottom: 200px;
+                margin-bottom: 40vh;
             }
         }
 
@@ -157,6 +197,7 @@
             user-select: none;
             z-index: 2;
             transform: translate(-50%, -50%);
+            touch-action: none;
         }
 
         .atom[data-type="C"] {
@@ -197,51 +238,6 @@
         .mode-button.active {
             background: var(--secondary);
         }
-
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        .tutorial-content {
-            background: var(--dark-light);
-            padding: 20px;
-            border-radius: 15px;
-            max-width: 80%;
-            text-align: center;
-        }
-
-        @media (max-height: 700px) {
-            .controls-panel {
-                max-height: 40vh;
-                overflow-y: auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .atom {
-                width: 30px;
-                height: 30px;
-                font-size: 14px;
-            }
-
-            .button {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
-
-            .game-title {
-                font-size: 1.8rem;
-            }
-        }
     </style>
 </head>
 
@@ -254,7 +250,7 @@
         <div class="game-area">
             <div class="controls-panel">
                 <div class="mode-toggle">
-                    <button class="button mode-button" data-mode="move">Modo Mover</button>
+                    <button class="button mode-button active" data-mode="move">Modo Mover</button>
                     <button class="button mode-button" data-mode="connect">Modo Conectar</button>
                 </div>
 
@@ -286,6 +282,22 @@
             </div>
         </div>
     </div>
+
+    <div class="tutorial-overlay" id="tutorial">
+        <div class="tutorial-content">
+            <h2>Bienvenido al Constructor de Isómeros</h2>
+            <p>Aprende a construir moléculas siguiendo estos pasos:</p>
+            <ul>
+                <li>Usa los botones para añadir átomos de Carbono (C), Oxígeno (O) e Hidrógeno (H)</li>
+                <li>En "Modo Mover", arrastra los átomos para posicionarlos</li>
+                <li>Cambia a "Modo Conectar" para crear enlaces entre átomos</li>
+                <li>Debes usar todos los átomos disponibles para crear un isómero válido</li>
+                <li>Usa el botón "Validar" para comprobar tu molécula</li>
+            </ul>
+            <button onclick="document.getElementById('tutorial').style.display='none'">¡Empezar!</button>
+        </div>
+    </div>
+
     <script>
         class Atom {
             constructor(type, x, y) {
@@ -315,6 +327,7 @@
         }
 
         class Bond {
+
             constructor(atom1, atom2) {
                 this.atom1 = atom1;
                 this.atom2 = atom2;
@@ -325,15 +338,25 @@
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                 line.setAttribute('stroke', 'rgba(255, 255, 255, 0.5)');
                 line.setAttribute('stroke-width', '2');
+                this.element = line; // Asignar el elemento aquí
                 this.updatePosition();
                 return line;
             }
+
+
 
             updatePosition() {
                 this.element.setAttribute('x1', this.atom1.x);
                 this.element.setAttribute('y1', this.atom1.y);
                 this.element.setAttribute('x2', this.atom2.x);
                 this.element.setAttribute('y2', this.atom2.y);
+            }
+
+            remove() {
+                this.element.remove();
+                // Eliminar el enlace de los átomos conectados
+                this.atom1.bonds = this.atom1.bonds.filter(bond => bond !== this);
+                this.atom2.bonds = this.atom2.bonds.filter(bond => bond !== this);
             }
         }
 
@@ -346,46 +369,48 @@
                 this.firstAtomForBond = null;
                 this.limits = { C: 5, O: 2, H: 12 };
                 this.counters = { C: 0, O: 0, H: 0 };
+                this.isDragging = false;
 
                 this.initializeDOM();
                 this.addEventListeners();
+                this.setupWorkspaceSize();
             }
 
             initializeDOM() {
                 this.workspace = document.querySelector('.workspace');
                 this.bondsLayer = document.getElementById('bonds-layer');
                 this.atomsLayer = document.getElementById('atoms-layer');
-                this.setupWorkspaceSize();
             }
 
             setupWorkspaceSize() {
-                const rect = this.workspace.getBoundingClientRect();
-                this.bondsLayer.setAttribute('width', rect.width);
-                this.bondsLayer.setAttribute('height', rect.height);
+                const updateSize = () => {
+                    const rect = this.workspace.getBoundingClientRect();
+                    this.bondsLayer.setAttribute('width', rect.width);
+                    this.bondsLayer.setAttribute('height', rect.height);
+                };
+                updateSize();
+                window.addEventListener('resize', updateSize);
             }
 
             addEventListeners() {
-                // Mode toggle buttons
                 document.querySelectorAll('.mode-button').forEach(button => {
                     button.addEventListener('click', () => {
                         this.connectMode = button.dataset.mode === 'connect';
-                        this.updateModeButtons();
+                        document.querySelectorAll('.mode-button').forEach(btn =>
+                            btn.classList.toggle('active', btn.dataset.mode === (this.connectMode ? 'connect' : 'move'))
+                        );
                     });
                 });
 
-                // Atom addition buttons
                 document.getElementById('add-carbon').addEventListener('click', () => this.addAtom('C'));
                 document.getElementById('add-oxygen').addEventListener('click', () => this.addAtom('O'));
                 document.getElementById('add-hydrogen').addEventListener('click', () => this.addAtom('H'));
-
-                // Validation and clear buttons
                 document.getElementById('validate').addEventListener('click', () => this.validateMolecule());
                 document.getElementById('clear').addEventListener('click', () => this.clearWorkspace());
 
-                // Touch events
-                this.workspace.addEventListener('touchstart', this.handleTouchStart.bind(this));
-                this.workspace.addEventListener('touchmove', this.handleTouchMove.bind(this));
-                this.workspace.addEventListener('touchend', this.handleTouchEnd.bind(this));
+                // Prevent default touch behavior
+                this.workspace.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+                this.workspace.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
             }
 
             addAtom(type) {
@@ -398,59 +423,84 @@
                 this.atomsLayer.appendChild(atom.element);
                 this.updateCounter(type, 1);
 
-                this.addAtomEventListeners(atom);
+                // Add both mouse and touch event listeners
+                atom.element.addEventListener('mousedown', (e) => this.handleAtomStart(e, atom));
+                atom.element.addEventListener('touchstart', (e) => this.handleAtomStart(e, atom), { passive: false });
             }
 
-            addAtomEventListeners(atom) {
-                atom.element.addEventListener('mousedown', this.handleAtomMouseDown.bind(this, atom));
-                atom.element.addEventListener('touchstart', this.handleAtomTouchStart.bind(this, atom));
+            removeBond(atom1, atom2) {
+                // Encontrar el enlace entre los dos átomos
+                const bondIndex = this.bonds.findIndex(bond =>
+                    (bond.atom1 === atom1 && bond.atom2 === atom2) ||
+                    (bond.atom1 === atom2 && bond.atom2 === atom1)
+                );
+
+                // Si se encuentra el enlace, eliminarlo
+                if (bondIndex !== -1) {
+                    const bond = this.bonds[bondIndex];
+                    bond.remove();
+                    this.bonds.splice(bondIndex, 1);
+                }
             }
 
-            handleAtomMouseDown(atom, event) {
+
+            handleAtomStart(e, atom) {
+                e.preventDefault();
                 if (this.connectMode) {
                     this.handleBondCreation(atom);
                 } else {
                     this.selectedAtom = atom;
-                    document.addEventListener('mousemove', this.handleMouseMove.bind(this));
-                    document.addEventListener('mouseup', this.handleMouseUp.bind(this));
+                    this.isDragging = true;
+
+                    const pos = this.getEventPosition(e);
+                    this.offsetX = pos.x - atom.x;
+                    this.offsetY = pos.y - atom.y;
+
+                    document.addEventListener('mousemove', this.handleMove);
+                    document.addEventListener('mouseup', this.handleEnd);
+                    document.addEventListener('touchmove', this.handleMove, { passive: false });
+                    document.addEventListener('touchend', this.handleEnd);
                 }
             }
 
-            handleMouseMove(event) {
-                if (this.selectedAtom) {
-                    const rect = this.workspace.getBoundingClientRect();
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
-                    this.selectedAtom.updatePosition(x, y);
-                    this.updateBonds();
-                }
+            handleMove = (e) => {
+                if (!this.isDragging || !this.selectedAtom) return;
+                e.preventDefault();
+
+                const pos = this.getEventPosition(e);
+                const rect = this.workspace.getBoundingClientRect();
+
+                let x = pos.x - this.offsetX;
+                let y = pos.y - this.offsetY;
+
+                // Constrain to workspace boundaries
+                x = Math.max(0, Math.min(rect.width, x));
+                y = Math.max(0, Math.min(rect.height, y));
+                this.selectedAtom.updatePosition(x, y);
+                this.updateBonds();
             }
 
-            handleMouseUp() {
+            handleEnd = (e) => {
+                this.isDragging = false;
                 this.selectedAtom = null;
-                document.removeEventListener('mousemove', this.handleMouseMove);
-                document.removeEventListener('mouseup', this.handleMouseUp);
+                document.removeEventListener('mousemove', this.handleMove);
+                document.removeEventListener('mouseup', this.handleEnd);
+                document.removeEventListener('touchmove', this.handleMove);
+                document.removeEventListener('touchend', this.handleEnd);
             }
 
-            handleTouchStart(event) {
-                event.preventDefault();
-            }
-
-            handleTouchMove(event) {
-                event.preventDefault();
-                if (this.selectedAtom) {
-                    const touch = event.touches[0];
-                    const rect = this.workspace.getBoundingClientRect();
-                    const x = touch.clientX - rect.left;
-                    const y = touch.clientY - rect.top;
-                    this.selectedAtom.updatePosition(x, y);
-                    this.updateBonds();
+            getEventPosition(e) {
+                const rect = this.workspace.getBoundingClientRect();
+                if (e.touches) {
+                    return {
+                        x: e.touches[0].clientX - rect.left,
+                        y: e.touches[0].clientY - rect.top
+                    };
                 }
-            }
-
-            handleTouchEnd(event) {
-                event.preventDefault();
-                this.selectedAtom = null;
+                return {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
             }
 
             handleBondCreation(atom) {
@@ -458,20 +508,55 @@
                     this.firstAtomForBond = atom;
                     atom.element.classList.add('selected');
                 } else {
+                    // Si ya hay un átomo seleccionado, intenta conectar o eliminar el enlace
                     if (this.firstAtomForBond !== atom) {
-                        this.createBond(this.firstAtomForBond, atom);
+                        const bondExists = this.bondExists(this.firstAtomForBond, atom);
+
+                        if (bondExists) {
+                            // Si el enlace ya existe, eliminarlo
+                            this.removeBond(this.firstAtomForBond, atom);
+                        } else {
+                            // Si el enlace no existe, crear un nuevo enlace
+                            this.createBond(this.firstAtomForBond, atom);
+                        }
                     }
+
+                    // Desmarcar el átomo seleccionado
                     this.firstAtomForBond.element.classList.remove('selected');
                     this.firstAtomForBond = null;
                 }
             }
 
+
+            bondExists(atom1, atom2) {
+                return this.bonds.some(bond =>
+                    (bond.atom1 === atom1 && bond.atom2 === atom2) ||
+                    (bond.atom1 === atom2 && bond.atom2 === atom1)
+                );
+            }
+
             createBond(atom1, atom2) {
+                // Verificar límites de enlaces según el tipo de átomo
+                if (!this.canCreateBond(atom1) || !this.canCreateBond(atom2)) {
+                    alert('Este átomo ya tiene el máximo de enlaces permitidos');
+                    return;
+                }
+
                 const bond = new Bond(atom1, atom2);
                 this.bonds.push(bond);
                 this.bondsLayer.appendChild(bond.element);
                 atom1.bonds.push(bond);
                 atom2.bonds.push(bond);
+            }
+
+            canCreateBond(atom) {
+                const currentBonds = atom.bonds.length;
+                switch (atom.type) {
+                    case 'C': return currentBonds < 4;  // Carbono: máximo 4 enlaces
+                    case 'O': return currentBonds < 2;  // Oxígeno: máximo 2 enlaces
+                    case 'H': return currentBonds < 1;  // Hidrógeno: máximo 1 enlace
+                    default: return false;
+                }
             }
 
             updateBonds() {
@@ -480,11 +565,31 @@
 
             updateCounter(type, change) {
                 this.counters[type] += change;
-                document.getElementById(`${type.toLowerCase()}-counter`).textContent =
+
+                // Mapear el tipo de átomo al ID correcto del contador
+                const counterIds = {
+                    'C': 'carbon-counter',
+                    'O': 'oxygen-counter',
+                    'H': 'hydrogen-counter'
+                };
+
+                const counterId = counterIds[type];
+                document.getElementById(counterId).textContent =
                     `${this.counters[type]}/${this.limits[type]}`;
+
+                // Deshabilitar botones cuando se alcanza el límite
+                const buttonIds = {
+                    'C': 'add-carbon',
+                    'O': 'add-oxygen',
+                    'H': 'add-hydrogen'
+                };
+
+                const button = document.getElementById(buttonIds[type]);
+                button.disabled = this.counters[type] >= this.limits[type];
             }
 
             validateMolecule() {
+                // Verificar que se usaron todos los átomos
                 const allAtomsUsed = Object.entries(this.counters).every(
                     ([type, count]) => count === this.limits[type]
                 );
@@ -494,28 +599,47 @@
                     return;
                 }
 
-                alert('¡Molécula válida! Has creado un isómero.');
+                // Verificar que todos los átomos tienen los enlaces correctos
+                const invalidAtoms = this.atoms.filter(atom => !this.hasValidBonds(atom));
+                if (invalidAtoms.length > 0) {
+                    alert('Algunos átomos no tienen el número correcto de enlaces');
+                    return;
+                }
+
+                alert('¡Felicitaciones! Has creado un isómero válido');
+            }
+
+            hasValidBonds(atom) {
+                const bondCount = atom.bonds.length;
+                switch (atom.type) {
+                    case 'C': return bondCount === 4;
+                    case 'O': return bondCount === 2;
+                    case 'H': return bondCount === 1;
+                    default: return false;
+                }
             }
 
             clearWorkspace() {
-                this.atoms.forEach(atom => atom.element.remove());
-                this.bonds.forEach(bond => bond.element.remove());
+                while (this.atomsLayer.firstChild) {
+                    this.atomsLayer.removeChild(this.atomsLayer.firstChild);
+                }
+                while (this.bondsLayer.firstChild) {
+                    this.bondsLayer.removeChild(this.bondsLayer.firstChild);
+                }
+
                 this.atoms = [];
                 this.bonds = [];
+                this.selectedAtom = null;
+                this.firstAtomForBond = null;
+
                 Object.keys(this.counters).forEach(type => {
                     this.counters[type] = 0;
                     this.updateCounter(type, 0);
                 });
             }
-
-            updateModeButtons() {
-                document.querySelectorAll('.mode-button').forEach(button => {
-                    button.classList.toggle('active', button.dataset.mode === (this.connectMode ? 'connect' : 'move'));
-                });
-            }
         }
 
-        // Initialize the game when the DOM is loaded
+        // Inicializar el juego cuando el DOM esté cargado
         document.addEventListener('DOMContentLoaded', () => {
             new IsomerGame();
         });
