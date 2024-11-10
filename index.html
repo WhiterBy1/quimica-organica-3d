@@ -1,730 +1,464 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Química Orgánica 3D</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <title>Química Orgánica Interactiva</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        /* Estilos base y layout */
-        .learning-path {
-            position: relative;
-            padding: 2rem;
-            margin: 0 auto;
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF5722;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--white);
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        @media (min-width: 1024px) {
-            .learning-path {
-                max-width: 1400px;
-                display: flex;
-                flex-direction: column;
-                gap: 6rem;
-                padding: 4rem;
-            }
-
-            .lesson-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                position: relative;
-            }
-
-            .lesson-row:nth-child(even) {
-                flex-direction: row-reverse;
-            }
-        }
-
-        /* Canvas para el path */
-        #pathCanvas {
+        #particles-js {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 1;
-            pointer-events: none;
+            z-index: 0;
         }
 
-        /* Nodos de lección */
-        .lesson-node {
+        .container {
             position: relative;
-            opacity: 0;
-            z-index: 2;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            max-width: 500px;
+            z-index: 1;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 2rem;
         }
 
-        @media (min-width: 1024px) {
-            .lesson-node {
-                width: 45%;
-                margin: 0;
-                transform: translateY(0);
-            }
-
-            .lesson-row:nth-child(odd) .lesson-node {
-                transform: translateX(-50px);
-            }
-
-            .lesson-row:nth-child(even) .lesson-node {
-                transform: translateX(50px);
-            }
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 1rem;
+            background: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
 
-        /* Diseño móvil con perspectiva 3D */
-        @media (max-width: 1023px) {
-            .learning-path {
-                perspective: 1000px;
-                transform-style: preserve-3d;
-            }
-
-            .lesson-node {
-                transform: translateZ(0) rotateX(0);
-                margin: 2rem auto;
-                max-width: 90%;
-                transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            }
-
-            .lesson-node.in-view {
-                transform: translateZ(50px) rotateX(0);
-            }
-
-            .lesson-node:not(.in-view) {
-                transform: translateZ(-100px) rotateX(10deg);
-                opacity: 0.6;
-            }
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
         }
 
-        /* Puntos de conexión */
-        .node-point {
+        h1::after {
+            content: '';
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: #fff;
-            border: 4px solid;
-            border-radius: 50%;
-            z-index: 3;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
         }
 
-        @media (min-width: 1024px) {
-            .lesson-row:nth-child(odd) .node-point {
-                right: -12px;
-                left: auto;
-                transform: translateX(50%);
-            }
-
-            .lesson-row:nth-child(even) .node-point {
-                left: -12px;
-                transform: translateX(-50%);
-            }
+        header p {
+            font-size: 1.2rem;
+            color: #bcbcbc;
+            max-width: 600px;
+            margin: 1.5rem auto 0;
         }
 
-        /* Tarjetas de lección */
-        .lesson-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            padding: 1rem;
+        }
+
+        .topic-card {
+            background: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 2rem;
+            cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            opacity: 0;
+            transform: translateY(20px);
             position: relative;
             overflow: hidden;
         }
 
-        .lesson-card::before {
+        .topic-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(76, 175, 80, 0.1), transparent);
             transform: translateX(-100%);
-            transition: 0.5s;
+            transition: 0.6s;
         }
 
-        .lesson-card:hover::before {
+        .topic-card:hover::before {
             transform: translateX(100%);
         }
 
-        .lesson-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(255, 255, 255, 0.3);
+        .topic-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px 0 rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.3);
         }
 
-        /* Colores específicos para cada nodo */
-        .lesson-node:nth-child(1) .node-point {
-            border-color: #4CAF50;
+        .topic-card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 0.5rem;
         }
 
-        .lesson-row:nth-child(2) .node-point {
-            border-color: #FFB300;
+        .topic-card h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: width 0.3s ease;
         }
 
-        .lesson-row:nth-child(3) .node-point {
-            border-color: #2196F3;
+        .topic-card:hover h2::after {
+            width: 100px;
         }
 
-        .lesson-row:nth-child(4) .node-point {
-            border-color: #9C27B0;
+        .subtopic-list {
+            list-style: none;
+            display: none;
+            margin-top: 1rem;
         }
 
-        .lesson-row:nth-child(5) .node-point {
-            border-color: #F44336;
+        .subtopic-list.active {
+            display: block;
         }
 
-        /* Animación de flotación */
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-10px);
-            }
-
-            100% {
-                transform: translateY(0px);
-            }
+        .subtopic-list li {
+            padding: 0.8rem 0;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+            padding-left: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
         }
 
-        .animate-float {
-            animation: float 4s ease-in-out infinite;
+        .subtopic-list li::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--secondary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
         }
 
-        /* Efectos de hover y estados activos */
-        .lesson-node:hover .node-point {
-            transform: scale(1.2);
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.5);
+        .subtopic-list li:hover::before {
+            transform: scaleY(1);
         }
 
-        .lesson-card:hover .node-point {
-            transform: scale(1.2);
+        .subtopic-list li a {
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            display: block;
         }
 
-        /* Animaciones de entrada */
-        @keyframes fadeInSlideUp {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .subtopic-list li:hover a {
+            color: var(--secondary);
+            transform: translateX(10px);
         }
 
-        .lesson-node {
-            animation: fadeInSlideUp 0.6s ease-out forwards;
-            animation-play-state: paused;
-        }
-
-        .lesson-node.visible {
-            animation-play-state: running;
-        }
-
-        /* Efectos de transición */
-        .lesson-node {
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .lesson-card {
-            transition: all 0.3s ease-in-out;
-        }
-
-        /* Efectos de profundidad */
-        .lesson-card {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .lesson-card:hover {
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Efectos de gradiente para el fondo */
-        .bg-gradient {
-            background: linear-gradient(135deg,
-                    rgba(76, 175, 80, 0.1) 0%,
-                    rgba(33, 150, 243, 0.1) 50%,
-                    rgba(156, 39, 176, 0.1) 100%);
-        }
-
-        /* Estilos responsivos adicionales */
+        /* Estilos para dispositivos móviles */
         @media (max-width: 768px) {
-            .lesson-card {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            header {
+                margin-bottom: 2rem;
+                padding: 2rem 1rem;
+            }
+
+            .topic-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .topic-card {
                 padding: 1.5rem;
             }
 
-            .node-point {
-                width: 20px;
-                height: 20px;
+            .topic-card h2 {
+                font-size: 1.5rem;
             }
         }
 
-        /* Efectos de conexión */
-        .connection-line {
-            position: absolute;
-            width: 2px;
-            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2), transparent);
-            z-index: 1;
-        }
-
-        @media (min-width: 1024px) {
-            .connection-line {
-                width: 100%;
-                height: 2px;
-                background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+        /* Animación de pulso para los botones */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
             }
         }
 
-        /* Efectos de brillo */
-        .glow-effect {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center,
-                    rgba(255, 255, 255, 0.1) 0%,
-                    transparent 70%);
-            pointer-events: none;
+        /* Barra de desplazamiento personalizada */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
     </style>
 </head>
+<body>
+    <div id="particles-js"></div>
+    <div class="container">
+        <header>
+            <h1>Química Orgánica Interactiva</h1>
+            <p>Explora y domina los conceptos fundamentales de la química orgánica a través de nuestro sistema interactivo de aprendizaje</p>
+        </header>
 
-<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 min-h-screen text-white">
-    <div
-        class="fixed inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-gray-900/40 to-gray-900/80 pointer-events-none">
+        <div class="topic-grid">
+            <div class="topic-card">
+                <h2>Identificación de Grupos Funcionales</h2>
+                <ul class="subtopic-list">
+                    <li><a href="identificacion-grupos-funcionales/Estructuras.html">Estructuras</a></li>
+                    <li><a href="identificacion-grupos-funcionales/grupos.html">Grupos Funcionales</a></li>
+                    <li><a href="identificacion-grupos-funcionales/Identificacion_Characteristic.html">Características de Identificación</a></li>
+                </ul>
+            </div>
+
+            <div class="topic-card">
+                <h2>Isomería</h2>
+                <ul class="subtopic-list">
+                    <li><a href="Isomeria/ConstruccionIsomeros.html">Construcción de Isómeros</a></li>
+                </ul>
+            </div>
+
+            <div class="topic-card">
+                <h2>Nomenclatura</h2>
+                <ul class="subtopic-list">
+                    <li><a href="Nomenclatura/Blaster.html">Nomenclatura Blaster</a></li>
+                    <li><a href="Nomenclatura/CarreraQuimica.html">Carrera Química</a></li>
+                    <li><a href="Nomenclatura/Numeracion.html">Numeración</a></li>
+                </ul>
+            </div>
+
+            <div class="topic-card">
+                <h2>Reacciones y Obtención</h2>
+                <ul class="subtopic-list">
+                    <li><a href="Reacciones-Obtencion/LaboratorioDeObtencion.html">Laboratorio de Obtención</a></li>
+                    <li><a href="Reacciones-Obtencion/MounstroReacciones.html">Monstruo de Reacciones</a></li>
+                </ul>
+            </div>
+        </div>
     </div>
 
-    <header class="text-center py-10 px-4 relative z-10">
-        <h1 class="text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
-            Química Orgánica 3D
-        </h1>
-        <p class="text-xl text-blue-200">Explora el fascinante mundo de la química orgánica</p>
-    </header>
-
-    <main class="container mx-auto px-4 relative z-10">
-        <div class="learning-path">
-            <canvas id="pathCanvas"></canvas>
-
-            <!-- Nivel 1: Grupos Funcionales -->
-        <div class="lesson-row">
-            <div class="lesson-node" data-level="1">
-                <div class="node-point"></div>
-                <div class="lesson-card">
-                    <h2 class="text-2xl font-bold mb-4 text-green-400">1. Grupos Funcionales</h2>
-                    <p class="mb-4 text-blue-200">Comienza tu viaje identificando los grupos funcionales básicos.</p>
-                    <a href="lecciones/identificacion-grupos-f/grupos.html"
-                        class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
-                        Comenzar Aventura
-                    </a>
-                </div>
-            </div>
-        </div>
-
-            <!-- Nivel 2: Estructuras -->
-        <div class="lesson-row">
-            <div class="lesson-node" data-level="2">
-                <div class="node-point"></div>
-                <div class="lesson-card">
-                    <h2 class="text-2xl font-bold mb-4 text-yellow-400">2. Estructuras Moleculares</h2>
-                    <p class="mb-4 text-blue-200">Visualiza y construye estructuras en 3D.</p>
-                    <a href="lecciones/identificacion-grupos-f/Estructuras.html"
-                        class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
-                        Explorar Estructuras
-                    </a>
-                </div>
-            </div>
-        </div>
-
-            <!-- Nivel 3: Isomería -->
-        <div class="lesson-row">
-            <div class="lesson-node" data-level="3">
-                <div class="node-point"></div>
-                <div class="lesson-card">
-                    <h2 class="text-2xl font-bold mb-4 text-blue-400">3. Isomería</h2>
-                    <p class="mb-4 text-blue-200">Descubre los diferentes tipos de isómeros.</p>
-                    <a href="lecciones/Isomeria/ConstruccionIsomeros.html"
-                        class="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
-                        Investigar Isómeros
-                    </a>
-                </div>
-            </div>
-        </div>
-
-            <!-- Nivel 4: Nomenclatura -->
-        <div class="lesson-row">
-            <div class="lesson-node" data-level="4">
-                <div class="node-point"></div>
-                <div class="lesson-card">
-                    <h2 class="text-2xl font-bold mb-4 text-purple-400">4. Nomenclatura</h2>
-                    <p class="mb-4 text-blue-200">Aprende a nombrar compuestos orgánicos.</p>
-                    <a href="lecciones/Nomenclatura/Numeracion.html"
-                        class="inline-block bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
-                        Dominar Nomenclatura
-                    </a>
-                </div>
-            </div>
-        </div>
-
-            <!-- Nivel 5: Reacciones -->
-        <div class="lesson-row">
-            <div class="lesson-node" data-level="5">
-                <div class="node-point"></div>
-                <div class="lesson-card">
-                    <h2 class="text-2xl font-bold mb-4 text-red-400">5. Reacciones</h2>
-                    <p class="mb-4 text-blue-200">Experimenta con reacciones orgánicas.</p>
-                    <a href="lecciones/Reacciones-Obtencion/LaboratorioDeObtencion.html"
-                        class="inline-block bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-full transition-all transform hover:scale-105">
-                        Experimentar
-                    </a>
-                </div>
-            </div>
-        </div>
-        </div>
-    </main>
-
-    <footer class="text-center py-8 text-blue-200 relative z-10">
-        <p>&copy; 2024 Proyecto de Química Orgánica 3D</p>
-    </footer>
-
     <script>
-        class LearningPath {
-            constructor() {
-                this.canvas = document.getElementById('pathCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.nodes = Array.from(document.querySelectorAll('.lesson-node'));
-                this.nodePoints = Array.from(document.querySelectorAll('.node-point'));
-                this.isMobile = window.innerWidth < 1024;
-                this.colors = ['#4CAF50', '#FFB300', '#2196F3', '#9C27B0', '#F44336'];
-                this.particles = [];
-                this.init();
-            }
-
-            init() {
-                this.setupCanvas();
-                this.setupEventListeners();
-                this.animateNodes();
-                this.initializeParticles();
-
-                if (this.isMobile) {
-                    this.setupMobileInteraction();
-                } else {
-                    this.setupDesktopAnimation();
-                }
-
-                this.animate();
-            }
-
-            setupCanvas() {
-                const updateCanvasSize = () => {
-                    const dpr = window.devicePixelRatio || 1;
-                    const rect = this.canvas.getBoundingClientRect();
-
-                    this.canvas.width = rect.width * dpr;
-                    this.canvas.height = rect.height * dpr;
-
-                    this.ctx.scale(dpr, dpr);
-                    this.canvas.style.width = `${rect.width}px`;
-                    this.canvas.style.height = `${rect.height}px`;
-                };
-
-                updateCanvasSize();
-                this.draw();
-            }
-
-            setupEventListeners() {
-                window.addEventListener('resize', () => {
-                    this.isMobile = window.innerWidth < 1024;
-                    this.setupCanvas();
-                    if (this.isMobile) {
-                        this.setupMobileInteraction();
-                    } else {
-                        this.setupDesktopAnimation();
-                    }
-                });
-
-                window.addEventListener('scroll', () => {
-                    if (this.isMobile) {
-                        this.updateMobileView();
-                    }
-                    requestAnimationFrame(() => this.draw());
-                });
-
-                // Añadir interactividad a los nodos
-                this.nodes.forEach((node, index) => {
-                    node.addEventListener('mouseenter', () => {
-                        this.highlightNode(index);
-                    });
-
-                    node.addEventListener('mouseleave', () => {
-                        this.unhighlightNode(index);
-                    });
-                });
-            }
-
-            highlightNode(index) {
-                const node = this.nodes[index];
-                node.style.transform = 'scale(1.05)';
-                node.style.zIndex = '10';
-
-                // Efecto de brillo en el punto del nodo
-                const nodePoint = this.nodePoints[index];
-                nodePoint.style.transform = 'scale(1.5)';
-                nodePoint.style.boxShadow = `0 0 20px ${this.colors[index]}`;
-            }
-
-            unhighlightNode(index) {
-                const node = this.nodes[index];
-                node.style.transform = '';
-                node.style.zIndex = '2';
-
-                const nodePoint = this.nodePoints[index];
-                nodePoint.style.transform = '';
-                nodePoint.style.boxShadow = '';
-            }
-
-            setupMobileInteraction() {
-                this.updateMobileView();
-                this.nodes.forEach(node => {
-                    node.style.transform = 'translateZ(-100px) rotateX(10deg)';
-                    node.style.opacity = '0.6';
-                });
-            }
-
-            setupDesktopAnimation() {
-                this.nodes.forEach((node, index) => {
-                    node.style.opacity = '1';
-                    node.style.transform = '';
-                    node.style.animation = `float ${4 + index * 0.5}s ease-in-out infinite`;
-                    node.style.animationDelay = `${index * 0.2}s`;
-                });
-            }
-
-            updateMobileView() {
-                const viewportMiddle = window.innerHeight / 2;
-
-                this.nodes.forEach(node => {
-                    const rect = node.getBoundingClientRect();
-                    const distanceFromMiddle = Math.abs(rect.top + rect.height / 2 - viewportMiddle);
-
-                    if (distanceFromMiddle < viewportMiddle / 2) {
-                        node.classList.add('in-view');
-                        node.style.opacity = '1';
-                        node.style.transform = 'translateZ(50px) rotateX(0)';
-                    } else {
-                        node.classList.remove('in-view');
-                        node.style.opacity = '0.6';
-                        node.style.transform = 'translateZ(-100px) rotateX(10deg)';
-                    }
-                });
-            }
-
-            animateNodes() {
-                this.nodes.forEach((node, index) => {
-                    setTimeout(() => {
-                        node.style.opacity = '1';
-                        if (!this.isMobile) {
-                            node.style.transform = 'translateY(0)';
+        // Configuración de particles.js
+        particlesJS('particles-js',
+            {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
                         }
-                    }, index * 200);
-                });
-            }
-
-            initializeParticles() {
-                const particleCount = this.isMobile ? 30 : 50;
-
-                for (let i = 0; i < particleCount; i++) {
-                    this.particles.push({
-                        x: Math.random() * this.canvas.width,
-                        y: Math.random() * this.canvas.height,
-                        size: Math.random() * 2 + 1,
-                        speedX: (Math.random() - 0.5) * 1,
-                        speedY: (Math.random() - 0.5) * 1,
-                        opacity: Math.random() * 0.5 + 0.1,
-                        color: this.colors[Math.floor(Math.random() * this.colors.length)]
-                    });
-                }
-            }
-
-            updateParticles() {
-                this.particles.forEach(particle => {
-                    particle.x += particle.speedX;
-                    particle.y += particle.speedY;
-
-                    // Rebote en los bordes
-                    if (particle.x < 0 || particle.x > this.canvas.width) {
-                        particle.speedX *= -1;
+                    },
+                    "color": {
+                        "value": "#4CAF50"
+                    },
+                    "shape": {
+                        "type": "circle"
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#4CAF50",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false
                     }
-                    if (particle.y < 0 || particle.y > this.canvas.height) {
-                        particle.speedY *= -1;
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
                     }
+                },
+                "retina_detect": true
+            });
 
-                    // Mantener partículas dentro del canvas
-                    particle.x = Math.max(0, Math.min(this.canvas.width, particle.x));
-                    particle.y = Math.max(0, Math.min(this.canvas.height, particle.y));
-                });
-            }
-
-            drawParticles() {
-                this.particles.forEach(particle => {
-                    this.ctx.beginPath();
-                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = `${particle.color}${Math.floor(particle.opacity * 255).toString(16).padStart(2, '0')}`;
-                    this.ctx.fill();
-                });
-            }
-
-            draw() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-                // Dibujar partículas
-                this.drawParticles();
-
-                // Dibujar conexiones
-                if (this.isMobile) {
-                    this.drawMobilePath();
-                } else {
-                    this.drawDesktopPath();
-                }
-            }
-
-            drawMobilePath() {
-                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-                gradient.addColorStop(0, 'rgba(76, 175, 80, 0.3)');
-                gradient.addColorStop(1, 'rgba(244, 67, 54, 0.3)');
-
-                this.ctx.strokeStyle = gradient;
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-
-                const points = this.getNodePoints();
-
-                points.forEach((point, index) => {
-                    if (index === 0) {
-                        this.ctx.moveTo(point.x, point.y);
-                    } else {
-                        const prevPoint = points[index - 1];
-                        const cp1 = {
-                            x: prevPoint.x + (point.x - prevPoint.x) * 0.5,
-                            y: prevPoint.y
-                        };
-                        const cp2 = {
-                            x: prevPoint.x + (point.x - prevPoint.x) * 0.5,
-                            y: point.y
-                        };
-
-                        this.ctx.bezierCurveTo(cp1.x, cp1.y, cp2.x, cp2.y, point.x, point.y);
-                    }
-                });
-
-                this.ctx.stroke();
-            }
-
-            drawDesktopPath() {
-                const points = this.getNodePoints();
-
-                // Dibujar líneas conectoras
-                for (let i = 0; i < points.length - 1; i++) {
-                    const start = points[i];
-                    const end = points[i + 1];
-
-                    const gradient = this.ctx.createLinearGradient(
-                        start.x, start.y, end.x, end.y
-                    );
-
-                    gradient.addColorStop(0, this.colors[i]);
-                    gradient.addColorStop(1, this.colors[i + 1]);
-
-                    this.ctx.strokeStyle = gradient;
-                    this.ctx.lineWidth = 3;
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(start.x, start.y);
-
-                    // Punto de control para curva suave
-                    const controlPoint = {
-                        x: (start.x + end.x) / 2,
-                        y: start.y + (end.y - start.y) * 0.2
-                    };
-
-                    this.ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, end.x, end.y);
-                    this.ctx.stroke();
-
-                    // Añadir efecto de brillo en las conexiones
-                    this.drawConnectionGlow(start, end, i);
-                }
-
-                // Añadir brillo a los nodos
-                points.forEach((point, index) => {
-                    this.drawNodeGlow(point, index);
-                });
-            }
-
-            drawConnectionGlow(start, end, index) {
-                const gradient = this.ctx.createLinearGradient(
-                    start.x, start.y, end.x, end.y
-                );
-
-                gradient.addColorStop(0, `${this.colors[index]}20`);
-                gradient.addColorStop(1, `${this.colors[index + 1]}20`);
-
-                this.ctx.strokeStyle = gradient;
-                this.ctx.lineWidth = 8;
-                this.ctx.beginPath();
-                this.ctx.moveTo(start.x, start.y);
-
-                const controlPoint = {
-                    x: (start.x + end.x) / 2,
-                    y: start.y + (end.y - start.y) * 0.2
-                };
-
-                this.ctx.quadraticCurveTo(controlPoint.x, controlPoint.y, end.x, end.y);
-                this.ctx.stroke();
-            }
-
-            drawNodeGlow(point, index) {
-                const glow = this.ctx.createRadialGradient(
-                    point.x, point.y, 0,
-                    point.x, point.y, 20
-                );
-
-                glow.addColorStop(0, `${this.colors[index]}40`);
-                glow.addColorStop(1, 'transparent');
-
-                this.ctx.fillStyle = glow;
-                this.ctx.beginPath();
-                this.ctx.arc(point.x, point.y, 20, 0, Math.PI * 2);
-                this.ctx.fill();
-            }
-
-            getNodePoints() {
-                return this.nodePoints.map(point => {
-                    const rect = point.getBoundingClientRect();
-                    return {
-                        x: rect.left + rect.width / 2,
-                        y: rect.top + rect.height / 2
-                    };
-                });
-            }
-
-            animate() {
-                this.updateParticles();
-                this.draw();
-                requestAnimationFrame(() => this.animate());
-            }
-        }
-
-        // Inicializar cuando el DOM esté listo
+        // Animaciones con GSAP
         document.addEventListener('DOMContentLoaded', () => {
-            const path = new LearningPath();
+            const cards = document.querySelectorAll('.topic-card');
+            
+            // Animación de entrada de las tarjetas
+            gsap.to(cards, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+
+            // Evento para mostrar/ocultar subtemas con animación
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const subtopicList = card.querySelector('.subtopic-list');
+                    const isActive = subtopicList.classList.contains('active');
+                    
+                    // Cerrar todas las listas primero
+                    document.querySelectorAll('.subtopic-list').forEach(list => {
+                        if (list !== subtopicList) {
+                            list.classList.remove('active');
+                            gsap.to(list, {
+                                height: 0,
+                                opacity: 0,
+                                duration: 0.3,
+                                ease: "power2.inOut"
+                            });
+                        }
+                    });
+
+                    // Alternar la lista actual
+                    if (!isActive) {
+                        subtopicList.classList.add('active');
+                        gsap.fromTo(subtopicList,
+                            {
+                                height: 0,
+                                opacity: 0
+                            },
+                            {
+                                height: "auto",
+                                opacity: 1,
+                                duration: 0.5,
+                                ease: "power2.inOut"
+                            }
+                        );
+
+                        // Animar los elementos de la lista
+                        gsap.fromTo(subtopicList.children,
+                            {
+                                x: -20,
+                                opacity: 0
+                            },
+                            {
+                                x: 0,
+                                opacity: 1,
+                                duration: 0.4,
+                                stagger: 0.1,
+                                ease: "power2.out"
+                            }
+                        );
+                    } else {
+                        subtopicList.classList.remove('active');
+                        gsap.to(subtopicList, {
+                            height: 0,
+                            opacity: 0,
+                            duration: 0.3,
+                            ease: "power2.inOut"
+                        });
+                    }
+                });
+
+                // Efecto hover en las tarjetas
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card, {
+                        scale: 1.02,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            });
         });
     </script>
+</body>
+</html>
