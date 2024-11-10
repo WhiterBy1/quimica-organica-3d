@@ -32,7 +32,7 @@ Esta página web es un proyecto final de la asignatura de Química Orgánica, cr
 
 El proyecto está desplegado en **Netlify** y puedes accederlo en el siguiente enlace:
 
-🔗 [https://quimicaorganicaproject.netlify.app/](https://quimicaorganicaproject.netlify.app/)
+🔗 [quimicaorganicaproject](https://quimicaorganicaproject.netlify.app/)
 
 ## Contribuciones
 
