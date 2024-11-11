@@ -98,7 +98,7 @@
         }
 
         .mode-toggle {
-            display:grid;
+            display: grid;
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -281,6 +281,10 @@
             </div>
 
             <div class="workspace">
+                <div class="combination-display">
+                    <h3>Combinación Actual:</h3>
+                    <p id="combination-info">C: 0, H: 0, O: 0</p>
+                </div>
                 <svg id="bonds-layer"></svg>
                 <div id="atoms-layer"></div>
             </div>
@@ -303,6 +307,7 @@
     </div>
 
     <script>
+
         class Atom {
             constructor(type, x, y) {
                 this.type = type;
@@ -412,7 +417,78 @@
                 this.initializeDOM();
                 this.addEventListeners();
                 this.setupWorkspaceSize();
+                this.selectRandomCombination();
             }
+
+            // Combinaciones predefinidas
+            combinations = [
+                { C: 2, H: 6, O: 1 },  // Etanol o Dimetil éter
+                { C: 3, H: 8, O: 0 },  // Propano
+                { C: 2, H: 4, O: 2 },  // Ácido acético o Éter dimetílico
+                { C: 4, H: 10, O: 0 }, // Butano
+                { C: 3, H: 6, O: 1 }   // Propanona (Acetona)
+            ];
+
+            // Seleccionar una combinación al azar
+            selectRandomCombination() {
+                const randomIndex = Math.floor(Math.random() * this.combinations.length);
+                this.currentCombination = this.combinations[randomIndex];
+                this.uniqueIsomers = [];
+                this.updateCombinationDisplay();
+            }
+
+            updateButtonState(type, limit) {
+                const counterIds = {
+                    'C': 'carbon-counter',
+                    'O': 'oxygen-counter',
+                    'H': 'hydrogen-counter'
+                };
+
+                const buttonIds = {
+                    'C': 'add-carbon',
+                    'O': 'add-oxygen',
+                    'H': 'add-hydrogen'
+                };
+
+                const counterElement = document.getElementById(counterIds[type]);
+                const button = document.getElementById(buttonIds[type]);
+
+                if (limit === 0) {
+                    // Deshabilitar el botón y cambiar el estilo si el límite es 0
+                    counterElement.style.color = '#666'; // Gris
+                    button.disabled = true;
+                    button.style.backgroundColor = '#666';
+                } else {
+                    // Habilitar el botón si el límite es mayor a 0
+                    counterElement.style.color = '#FFF'; // Blanco
+                    button.disabled = false;
+                    button.style.backgroundColor = 'var(--primary)';
+                }
+            }
+
+
+            // Actualizar la interfaz con la combinación actual
+            updateCombinationDisplay() {
+                const { C, H, O } = this.currentCombination;
+
+                // Actualizar los contadores visuales
+                document.getElementById('carbon-counter').textContent = `0/${C}`;
+                document.getElementById('oxygen-counter').textContent = `0/${O}`;
+                document.getElementById('hydrogen-counter').textContent = `0/${H}`;
+
+                // Actualizar el botón y contador para cada tipo de átomo
+                this.updateButtonState('C', C);
+                this.updateButtonState('O', O);
+                this.updateButtonState('H', H);
+
+                // **Actualizar la información de la combinación actual**
+                const combinationInfo = document.getElementById('combination-info');
+                if (combinationInfo) {
+                    combinationInfo.textContent = `C: ${C}, H: ${H}, O: ${O}`;
+                }
+            }
+
+
 
             initializeDOM() {
                 this.workspace = document.querySelector('.workspace');
@@ -466,7 +542,7 @@
 
 
             addAtom(type) {
-                if (this.counters[type] >= this.limits[type]) return;
+                if (!this.currentCombination || this.counters[type] >= this.currentCombination[type]) return;
 
                 const rect = this.workspace.getBoundingClientRect();
                 const atom = new Atom(type, rect.width / 2, rect.height / 2);
@@ -475,10 +551,11 @@
                 this.atomsLayer.appendChild(atom.element);
                 this.updateCounter(type, 1);
 
-                // Add both mouse and touch event listeners
+                // Añadir eventos para arrastrar el átomo
                 atom.element.addEventListener('mousedown', (e) => this.handleAtomStart(e, atom));
                 atom.element.addEventListener('touchstart', (e) => this.handleAtomStart(e, atom), { passive: false });
             }
+
 
             removeBond(atom1, atom2) {
                 const bondIndex = this.bonds.findIndex(bond =>
@@ -695,40 +772,72 @@
                 };
 
                 const counterId = counterIds[type];
-                document.getElementById(counterId).textContent =
-                    `${this.counters[type]}/${this.limits[type]}`;
+                const limit = this.currentCombination[type] || 0; // Obtenemos el límite de la combinación actual
 
-                // Deshabilitar botones cuando se alcanza el límite
+                // Actualizar el texto del contador
+                document.getElementById(counterId).textContent = `${this.counters[type]}/${limit}`;
+
+                // Cambiar el estilo si el límite es 0
+                const counterElement = document.getElementById(counterId);
                 const buttonIds = {
                     'C': 'add-carbon',
                     'O': 'add-oxygen',
                     'H': 'add-hydrogen'
                 };
 
+                console.log(limit)
+
                 const button = document.getElementById(buttonIds[type]);
-                button.disabled = this.counters[type] >= this.limits[type];
+                if (limit === 0) {
+                    counterElement.style.color = '#666'; // Gris
+                    button.disabled = true;
+                    button.style.backgroundColor = '#666';
+                } else {
+                    counterElement.style.color = '#FFF'; // Blanco
+                    button.disabled = this.counters[type] >= limit;
+                    button.style.backgroundColor = button.disabled ? '#666' : 'var(--primary)';
+                }
             }
+
+
 
             validateMolecule() {
                 // Verificar que se usaron todos los átomos
-                const allAtomsUsed = Object.entries(this.counters).every(
-                    ([type, count]) => count === this.limits[type]
-                );
+                const { C, H, O } = this.currentCombination;
 
-                if (!allAtomsUsed) {
-                    alert('Debes usar todos los átomos disponibles');
+                // Contar los átomos utilizados
+                const carbonCount = this.atoms.filter(atom => atom.type === 'C').length;
+                const oxygenCount = this.atoms.filter(atom => atom.type === 'O').length;
+                const hydrogenCount = this.atoms.filter(atom => atom.type === 'H').length;
+
+                // Validar si coinciden con la combinación actual
+                if (carbonCount !== C || oxygenCount !== O || hydrogenCount !== H) {
+                    alert('El isómero creado no coincide con la combinación seleccionada.');
                     return;
                 }
 
                 // Verificar que todos los átomos tienen los enlaces correctos
                 const invalidAtoms = this.atoms.filter(atom => !this.hasValidBonds(atom));
                 if (invalidAtoms.length > 0) {
-                    alert('Algunos átomos no tienen el número correcto de enlaces');
+                    alert('Algunos átomos no tienen el número correcto de enlaces.');
                     return;
                 }
 
-                alert('¡Felicitaciones! Has creado un isómero válido');
+                alert('¡Felicitaciones! Has creado un isómero válido.');
+
+                // Añadir el isómero a la lista de isómeros únicos
+                const isomerString = this.getIsomerString();
+                if (this.uniqueIsomers.includes(isomerString)) {
+                    alert('Este isómero ya ha sido creado. Intenta otra estructura.');
+                } else {
+                    this.uniqueIsomers.push(isomerString);
+                    alert('Isómero registrado exitosamente. ¡Crea otro!');
+                    this.selectRandomCombination(); // Seleccionar una nueva combinación para la siguiente ronda
+                    this.clearWorkspace();
+                }
             }
+
+
 
             hasValidBonds(atom) {
                 const bondCount = atom.bonds.length;
@@ -758,6 +867,32 @@
                     this.updateCounter(type, 0);
                 });
             }
+            buildGraph() {
+                const graph = {};
+                this.atoms.forEach(atom => {
+                    graph[atom.type + atom.x + atom.y] = atom.bonds.map(bond => bond.atom2.type);
+                });
+                return graph;
+            }
+            getIsomerString() {
+                const atomStrings = this.atoms.map(atom => {
+                    const bondCounts = atom.bonds.map(bond => bond.bondType).sort().join('');
+                    return `${atom.type}${bondCounts}`;
+                });
+                return atomStrings.sort().join('-');
+            }
+
+            isUniqueGraph(graph) {
+                return !this.uniqueIsomers.some(isomer => JSON.stringify(isomer) === JSON.stringify(graph));
+            }
+
+            startNewRound() {
+                this.clearWorkspace();
+                this.selectRandomCombination();
+                alert('Nueva ronda iniciada. Construye los isómeros para la combinación seleccionada.');
+            }
+
+
         }
 
         // Inicializar el juego cuando el DOM esté cargado
