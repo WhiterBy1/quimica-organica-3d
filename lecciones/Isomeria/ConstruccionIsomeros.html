@@ -430,12 +430,17 @@
             ];
 
             // Seleccionar una combinación al azar
+            // Seleccionar una combinación al azar
             selectRandomCombination() {
+                // Reiniciar la lista de isómeros registrados para la nueva combinación
+                this.uniqueIsomers = [];
                 const randomIndex = Math.floor(Math.random() * this.combinations.length);
                 this.currentCombination = this.combinations[randomIndex];
-                this.uniqueIsomers = [];
+
                 this.updateCombinationDisplay();
+                console.log("Combinación actual:", this.currentCombination);
             }
+
 
             updateButtonState(type, limit) {
                 const counterIds = {
@@ -802,17 +807,19 @@
 
 
             validateMolecule() {
-                // Verificar que se usaron todos los átomos
-                const { C, H, O } = this.currentCombination;
+                // Verificar si el isómero ya ha sido registrado
+                if (this.isIsomerRegistered()) {
+                    alert("Este isómero ya ha sido registrado. Intenta crear otro diferente.");
+                    return;
+                }
 
-                // Contar los átomos utilizados
-                const carbonCount = this.atoms.filter(atom => atom.type === 'C').length;
-                const oxygenCount = this.atoms.filter(atom => atom.type === 'O').length;
-                const hydrogenCount = this.atoms.filter(atom => atom.type === 'H').length;
+                // Verificar que se usaron todos los átomos disponibles
+                const allAtomsUsed = Object.entries(this.counters).every(
+                    ([type, count]) => count === this.currentCombination[type]
+                );
 
-                // Validar si coinciden con la combinación actual
-                if (carbonCount !== C || oxygenCount !== O || hydrogenCount !== H) {
-                    alert('El isómero creado no coincide con la combinación seleccionada.');
+                if (!allAtomsUsed) {
+                    alert('Debes usar todos los átomos disponibles para esta combinación.');
                     return;
                 }
 
@@ -823,18 +830,35 @@
                     return;
                 }
 
-                alert('¡Felicitaciones! Has creado un isómero válido.');
+                // Registrar el nuevo isómero
+                this.registerIsomer();
+                alert('¡Felicidades! Has creado un isómero válido. Sigue buscando más isómeros para esta combinación.');
+            }
 
-                // Añadir el isómero a la lista de isómeros únicos
-                const isomerString = this.getIsomerString();
-                if (this.uniqueIsomers.includes(isomerString)) {
-                    alert('Este isómero ya ha sido creado. Intenta otra estructura.');
-                } else {
-                    this.uniqueIsomers.push(isomerString);
-                    alert('Isómero registrado exitosamente. ¡Crea otro!');
-                    this.selectRandomCombination(); // Seleccionar una nueva combinación para la siguiente ronda
-                    this.clearWorkspace();
-                }
+            // Función para convertir el grafo a una cadena única (representación canónica)
+            getCanonicalGraphString(graph) {
+                const entries = Object.entries(graph).map(([node, neighbors]) => {
+                    return `${node}:${neighbors.join(',')}`;
+                });
+                // Ordenar las entradas para una representación única
+                return entries.sort().join('|');
+            }
+
+            registerIsomer() {
+                const graph = this.buildGraph();
+                const canonicalString = this.getCanonicalGraphString(graph);
+
+                // Agregar el isómero a la lista de registrados
+                this.uniqueIsomers.push(canonicalString);
+                console.log("Isómero registrado:", canonicalString);
+            }
+
+            isIsomerRegistered() {
+                const graph = this.buildGraph();
+                const canonicalString = this.getCanonicalGraphString(graph);
+                console.log("Representación canónica:", canonicalString);
+                // Verificar si el isómero ya está en la lista
+                return this.uniqueIsomers.includes(canonicalString);
             }
 
 
@@ -867,13 +891,23 @@
                     this.updateCounter(type, 0);
                 });
             }
+
             buildGraph() {
                 const graph = {};
                 this.atoms.forEach(atom => {
-                    graph[atom.type + atom.x + atom.y] = atom.bonds.map(bond => bond.atom2.type);
+                    const atomId = this.atoms.indexOf(atom);
+                    graph[atomId] = [];
+                    atom.bonds.forEach(bond => {
+                        const neighborId = this.atoms.indexOf(bond.atom1 === atom ? bond.atom2 : bond.atom1);
+                        graph[atomId].push(neighborId);
+                    });
+                    // Ordenar las conexiones para normalizar el grafo
+                    graph[atomId].sort((a, b) => a - b);
                 });
+                console.log("Grafo actual:", graph);
                 return graph;
             }
+
             getIsomerString() {
                 const atomStrings = this.atoms.map(atom => {
                     const bondCounts = atom.bonds.map(bond => bond.bondType).sort().join('');
