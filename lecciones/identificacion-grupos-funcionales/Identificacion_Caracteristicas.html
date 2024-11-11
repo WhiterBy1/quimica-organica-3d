@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identificación de Grupos Funcionales</title>
+    <link rel="stylesheet" href="/css/preguntas.css">
+    <link rel="stylesheet" href="../../css/styles.css">
+</head>
+
+<body>
+    <!-- Particles Container -->
+    <div class="particles" id="particles-js"></div>
+
+    <header class="text-center py-4">
+        <h1>Identificación de Grupos Funcionales</h1>
+        <p>Puntuación: <span id="puntuacion">0</span></p>
+        <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    </header>
+
+    <main class="container text-center">
+        <section class="my-5">
+            <div class="content-container">
+                <h2 id="pregunta">¿Cuál es el grupo funcional de esta molécula?</h2>
+
+                <div class="flip-card-container">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div id="molecule-viewer" style="width: 300px; height: 300px;"></div>
+                        </div>
+                        <div class="flip-card-back">
+                            <img id="molecule-viewer-2D" src="" alt="Vista 2D de la molécula" />
+                        </div>
+                    </div>
+                </div>
+
+                <div id="color-legend" class="color-legend">
+                    <h3>Identificación de Átomos</h3>
+                    <ul style="color: white;">
+                        <li><span class="legend-color" style="background-color: red;"></span>Oxígeno</li>
+                        <li><span class="legend-color" style="background-color: gray;"></span>Carbono</li>
+                        <li><span class="legend-color"
+                                style="background-color: white; border: 1px solid #ccc;"></span>Hidrógeno</li>
+                    </ul>
+                </div>
+
+                <button id="toggle-view-button" class="toggle-view-btn" onclick="alternarVista()">Cambiar a 2D</button>
+
+                <div id="opciones" class="options"></div>
+                <div id="feedback" class="mt-4"></div>
+
+                <button id="btnSiguiente" class="next-btn" onclick="siguientePregunta()" disabled>Avanzar a la siguiente
+                    pregunta</button>
+            </div>
+        </section>
+    </main>
+
+    
+
+    <!-- Cargar JSmol -->
+    <script src="../../../js/jsmol/JSmol.min.js"></script>
+    <script src="../../../js/preguntas.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Configuración de partículas
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: '#4CAF50'
+                },
+                shape: {
+                    type: 'circle'
+                },
+                opacity: {
+                    value: 0.5,
+                    random: false
+                },
+                size: {
+                    value: 3,
+                    random: true
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#4CAF50',
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: 'none',
+                    random: false,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'repulse'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Química Orgánica Interactiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Space+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="../../css/styles.css">
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF5722;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            background: rgba(45, 45, 45, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 2px;
+            color: var(--white);
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1rem auto;
+            transition: width 0.3s ease;
+        }
+
+        .game-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .moleculas,
+        .grupos {
+            background: rgba(45, 45, 45, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: var(--white);
+            font-family: 'Space Mono', monospace;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            display: block;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            margin: 0.5rem auto;
+            transition: width 0.3s ease;
+        }
+
+        .molecula,
+        .grupo {
+            /* Aseguramos que los elementos sean visibles desde el inicio */
+            opacity: 1 !important;
+            /* Forzamos la opacidad */
+            visibility: visible !important;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'Space Mono', monospace;
+            position: relative;
+            overflow: hidden;
+            /* Aseguramos que el z-index sea apropiado */
+            z-index: 2;
+        }
+
+        .molecula:hover,
+        .grupo:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+            border-color: var(--primary);
+        }
+
+        .molecula::before,
+        .grupo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg,
+                    transparent,
+                    rgba(76, 175, 80, 0.2),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        .molecula:hover::before,
+        .grupo:hover::before {
+            left: 100%;
+        }
+
+        .selected {
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(255, 87, 34, 0.3);
+        }
+
+        .correct {
+            background: linear-gradient(45deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.4));
+            border-color: var(--primary);
+            pointer-events: none;
+        }
+
+        .incorrect {
+            animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
+            border-color: var(--secondary);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            margin: 2rem 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        #puntuacion {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            color: var(--white);
+            font-family: 'Space Mono', monospace;
+        }
+
+        #reiniciar {
+            display: block;
+            margin: 2rem auto;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #reiniciar:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .game-area {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    </header>    
+    <div id="particles-js"></div>
+    <div class="container">
+        <div class="header">
+            <h1>Química Orgánica Interactiva</h1>
+            <p>Empareje las estructuras moleculares con sus grupos funcionales correspondientes mediante arrastre o
+                selección.</p>
+        </div>
+        <div class="game-area">
+            <div class="moleculas">
+                <h2>Estructuras Moleculares</h2>
+                <div id="moleculas-container"></div>
+            </div>
+            <div class="grupos">
+                <h2>Grupos Funcionales</h2>
+                <div id="grupos-container"></div>
+            </div>
+        </div>
+        <div id="puntuacion">Puntuación: 0 / 6</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <button id="reiniciar">Reiniciar Juego</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        // Particles.js Configuration
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#4CAF50" },
+                shape: { type: "circle" },
+                opacity: {
+                    value: 0.5,
+                    random: false,
+                    anim: { enable: false }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: { enable: false }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#4CAF50",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                },
+                modes: {
+                    repulse: { distance: 100, duration: 0.4 },
+                    push: { particles_nb: 4 }
+                }
+            },
+            retina_detect: true
+        });
+
+        const gruposFuncionales = [
+            { id: 1, nombre: 'Alcohol', estructura: 'R-OH' },
+            { id: 2, nombre: 'Aldehído', estructura: 'R-CHO' },
+            { id: 3, nombre: 'Cetona', estructura: 'R-CO-R' },
+            { id: 4, nombre: 'Ácido Carboxílico', estructura: 'R-COOH' },
+            { id: 5, nombre: 'Éster', estructura: 'R-COO-R' },
+            { id: 6, nombre: 'Amina', estructura: 'R-NH2' },
+            { id: 7, nombre: 'Eter', estructura: 'R-O-R' }
+        ];
+
+        let puntuacion = 0;
+        let seleccionado = null;
+
+        function mezclarArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function crearElemento(tipo, texto, id) {
+            const elemento = document.createElement('div');
+            elemento.textContent = texto;
+            elemento.className = tipo;
+            elemento.setAttribute('tabindex', '0');
+            elemento.id = `${tipo}-${id}`;
+            elemento.draggable = true;
+            elemento.addEventListener('click', manejarSeleccion);
+            elemento.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    manejarSeleccion(e);
+                }
+            });
+            elemento.addEventListener('dragstart', iniciarArrastre);
+            elemento.addEventListener('dragend', finalizarArrastre);
+            return elemento;
+        }
+
+        function inicializarJuego() {
+            const moleculasContainer = document.getElementById('moleculas-container');
+            const gruposContainer = document.getElementById('grupos-container');
+
+            moleculasContainer.innerHTML = '';
+            gruposContainer.innerHTML = '';
+            puntuacion = 0;
+            seleccionado = null;
+            actualizarPuntuacion();
+
+            const gruposMezclados = mezclarArray([...gruposFuncionales]);
+            const estructurasMezcladas = mezclarArray([...gruposFuncionales]);
+
+            // Creamos y añadimos los elementos inmediatamente visibles
+            gruposMezclados.forEach((grupo, index) => {
+                const grupoFuncional = crearElemento('grupo', grupo.nombre, grupo.id);
+                // Aseguramos que el elemento sea visible desde el inicio
+                grupoFuncional.style.opacity = '1';
+                grupoFuncional.style.visibility = 'visible';
+                gruposContainer.appendChild(grupoFuncional);
+                grupoFuncional.addEventListener('dragover', permitirSoltar);
+                grupoFuncional.addEventListener('drop', soltarElemento);
+
+                // Modificamos la animación para que no afecte la visibilidad
+                gsap.from(grupoFuncional, {
+                    y: 50,
+                    duration: 0.5,
+                    delay: index * 0.1,
+                    ease: "power3.out",
+                    onStart: () => {
+                        grupoFuncional.style.opacity = '1';
+                        grupoFuncional.style.visibility = 'visible';
+                    }
+                });
+            });
+            estructurasMezcladas.forEach((grupo, index) => {
+                const molecula = crearElemento('molecula', grupo.estructura, grupo.id);
+                moleculasContainer.appendChild(molecula);
+
+                // Animate entrada with GSAP
+                gsap.from(molecula, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 0.5,
+                    delay: index * 0.1,
+                    ease: "power3.out"
+                });
+            });
+        }
+
+        function verificarEmparejamiento(molecula, grupo) {
+            if (molecula.id.split('-')[1] === grupo.id.split('-')[1]) {
+                molecula.classList.add('correct');
+                grupo.classList.add('correct');
+                molecula.style.pointerEvents = 'none';
+                grupo.style.pointerEvents = 'none';
+                molecula.setAttribute('draggable', 'false');
+                grupo.setAttribute('draggable', 'false');
+                puntuacion++;
+                actualizarPuntuacion();
+
+                // Animate correct match
+                gsap.to([molecula, grupo], {
+                    scale: 1.05,
+                    duration: 0.3,
+                    yoyo: true,
+                    repeat: 1,
+                    ease: "power2.out"
+                });
+            } else {
+                molecula.classList.add('incorrect');
+                grupo.classList.add('incorrect');
+
+                // Animate incorrect match
+                gsap.to([molecula, grupo], {
+                    x: 10,
+                    duration: 0.1,
+                    yoyo: true,
+                    repeat: 3,
+                    ease: "power2.out",
+                    onComplete: () => {
+                        molecula.classList.remove('incorrect', 'selected');
+                        grupo.classList.remove('incorrect');
+                    }
+                });
+            }
+            seleccionado = null;
+        }
+
+        function manejarSeleccion(e) {
+            const elemento = e.currentTarget;
+
+            if (elemento.classList.contains('molecula')) {
+                if (seleccionado && seleccionado.classList.contains('molecula')) {
+                    seleccionado.classList.remove('selected');
+                }
+                seleccionado = elemento;
+
+                // Animate selection
+                gsap.to(elemento, {
+                    scale: 1.05,
+                    duration: 0.2,
+                    ease: "power2.out"
+                });
+
+                elemento.classList.add('selected');
+            } else if (elemento.classList.contains('grupo')) {
+                if (seleccionado && seleccionado.classList.contains('molecula')) {
+                    verificarEmparejamiento(seleccionado, elemento);
+                }
+            }
+        }
+
+        function iniciarArrastre(e) {
+            e.dataTransfer.setData('text/plain', e.target.id);
+            e.target.classList.add('dragging');
+
+            // Animate drag start
+            gsap.to(e.target, {
+                scale: 1.05,
+                opacity: 0.8,
+                duration: 0.2,
+                ease: "power2.out"
+            });
+        }
+
+        function finalizarArrastre(e) {
+            e.target.classList.remove('dragging');
+
+            // Animate drag end
+            gsap.to(e.target, {
+                scale: 1,
+                opacity: 1,
+                duration: 0.2,
+                ease: "power2.out"
+            });
+        }
+
+        function permitirSoltar(e) {
+            e.preventDefault();
+            // Add subtle highlight effect
+            gsap.to(e.target, {
+                scale: 1.02,
+                duration: 0.2,
+                ease: "power2.out"
+            });
+        }
+
+        function soltarElemento(e) {
+            e.preventDefault();
+            const idMolecula = e.dataTransfer.getData('text');
+            const molecula = document.getElementById(idMolecula);
+
+            // Reset highlight effect
+            gsap.to(e.target, {
+                scale: 1,
+                duration: 0.2,
+                ease: "power2.out"
+            });
+
+            verificarEmparejamiento(molecula, e.target);
+        }
+
+        function actualizarPuntuacion() {
+            const puntuacionElement = document.getElementById('puntuacion');
+            const progressBar = document.getElementById('progress');
+            const progreso = (puntuacion / gruposFuncionales.length) * 100;
+
+            // Animate score update
+            gsap.to(puntuacionElement, {
+                scale: 1.1,
+                duration: 0.2,
+                yoyo: true,
+                repeat: 1,
+                ease: "power2.out"
+            });
+
+            // Animate progress bar
+            gsap.to(progressBar, {
+                width: `${progreso}%`,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+
+            puntuacionElement.textContent = `Puntuación: ${puntuacion} / ${gruposFuncionales.length}`;
+
+            if (puntuacion === gruposFuncionales.length) {
+                setTimeout(() => {
+                    // Animate victory message
+                    const container = document.querySelector('.container');
+                    const victoryOverlay = document.createElement('div');
+                    victoryOverlay.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0,0,0,0.8);
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        z-index: 1000;
+                    `;
+
+                    const victoryMessage = document.createElement('div');
+                    victoryMessage.style.cssText = `
+                        background: rgba(76, 175, 80, 0.2);
+                        padding: 2rem;
+                        border-radius: 20px;
+                        text-align: center;
+                        backdrop-filter: blur(10px);
+                        border: 1px solid var(--primary);
+                    `;
+                    victoryMessage.innerHTML = '<h2>¡Felicitaciones!</h2><p>Ha completado con éxito el ejercicio de Química Orgánica.</p>';
+
+                    victoryOverlay.appendChild(victoryMessage);
+                    document.body.appendChild(victoryOverlay);
+
+                    gsap.from(victoryMessage, {
+                        scale: 0,
+                        opacity: 0,
+                        duration: 0.5,
+                        ease: "back.out"
+                    });
+
+                    victoryOverlay.addEventListener('click', () => {
+                        gsap.to(victoryOverlay, {
+                            opacity: 0,
+                            duration: 0.3,
+                            onComplete: () => victoryOverlay.remove()
+                        });
+                    });
+                }, 500);
+            }
+        }
+
+        // Event listener for restart button
+        document.getElementById('reiniciar').addEventListener('click', () => {
+            gsap.to('.container', {
+                opacity: 0,
+                duration: 0.3,
+                onComplete: () => {
+                    inicializarJuego();
+                    gsap.to('.container', {
+                        opacity: 1,
+                        duration: 0.3
+                    });
+                }
+            });
+        });
+
+        // Initialize game when page loads
+        window.addEventListener('load', () => {
+            gsap.from('.header', {
+                y: -50,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            });
+
+            inicializarJuego();
+        });
+    </script>
+</body>
+
+</html>

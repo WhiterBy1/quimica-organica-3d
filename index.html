@@ -1,36 +1,464 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Química Orgánica 3D</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="css/index.css">
-</head>
+    <title>Química Orgánica Interactiva</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF5722;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --white: #ffffff;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding: 3rem 1rem;
+            background: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: var(--white);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: #bcbcbc;
+            max-width: 600px;
+            margin: 1.5rem auto 0;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            padding: 1rem;
+        }
+
+        .topic-card {
+            background: rgba(45, 45, 45, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(76, 175, 80, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            opacity: 0;
+            transform: translateY(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .topic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: 0.6s;
+        }
+
+        .topic-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .topic-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 12px 40px 0 rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.3);
+        }
+
+        .topic-card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .topic-card h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .topic-card:hover h2::after {
+            width: 100px;
+        }
+
+        .subtopic-list {
+            list-style: none;
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .subtopic-list.active {
+            display: block;
+        }
+
+        .subtopic-list li {
+            padding: 0.8rem 0;
+            margin: 0.5rem 0;
+            border-left: 3px solid var(--primary);
+            padding-left: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .subtopic-list li::before {
+            content: '';
+            position: absolute;
+            left: -3px;
+            top: 0;
+            width: 3px;
+            height: 100%;
+            background: var(--secondary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .subtopic-list li:hover::before {
+            transform: scaleY(1);
+        }
+
+        .subtopic-list li a {
+            color: var(--white);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            display: block;
+        }
+
+        .subtopic-list li:hover a {
+            color: var(--secondary);
+            transform: translateX(10px);
+        }
+
+        /* Estilos para dispositivos móviles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            header {
+                margin-bottom: 2rem;
+                padding: 2rem 1rem;
+            }
+
+            .topic-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .topic-card {
+                padding: 1.5rem;
+            }
+
+            .topic-card h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Animación de pulso para los botones */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        /* Barra de desplazamiento personalizada */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
 <body>
-    <!-- <canvas> -->
-        <div class="particle-background"></div> <!-- Fondo de partículas -->
-        <header class="header">
-            <h1>Identificación de Grupos Funcionales en Química Orgánica</h1>
-            <p>Explora los grupos funcionales con lecciones interactivas y visualización 3D.</p>
+    <div id="particles-js"></div>
+    <div class="container">
+        <header>
+            <h1>Química Orgánica Interactiva</h1>
+            <p>Explora y domina los conceptos fundamentales de la química orgánica a través de nuestro sistema interactivo de aprendizaje</p>
         </header>
-        <main class="main-content">
-            <section class="lessons">
-                <h2>Lecciones</h2>
-                <div class="lesson-card">
-                    <a href="lecciones/leccion1/identificacion-grupos-funcionales/preguntas.html">
-                        Lección 1: Identificación de Grupos Funcionales
-                    </a>
-                </div>
-            </section>
-        </main>
-        <footer class="footer">
-            <p>&copy; 2024 Proyecto de Química Orgánica 3D</p>
-        </footer>
-        <script src="js/particles.js"></script> <!-- Archivo JS para las partículas -->
-        <!-- <script src="js/main.js"></script> Archivo JS para la interacción y visualización 3D -->
-    <!-- </canvas> -->
+
+        <div class="topic-grid">
+            <div class="topic-card">
+                <h2>Identificación de Grupos Funcionales</h2>
+                <ul class="subtopic-list">
+                    <li><a href="lecciones/identificacion-grupos-funcionales/Estructuras.html">Estructuras</a></li>
+                    <li><a href="lecciones/identificacion-grupos-funcionales/grupos.html">Grupos Funcionales</a></li>
+                    <li><a href="lecciones/identificacion-grupos-funcionales/Identificacion_Caracteristicas.html">Características de Identificación</a></li>
+                </ul>
+            </div>
+
+            <div class="topic-card">
+                <h2>Isomería</h2>
+                <ul class="subtopic-list">
+                    <li><a href="/lecciones/Isomeria/ConstruccionIsomeros.html">Construcción de Isómeros</a></li>
+                </ul>
+            </div>
+
+            <div class="topic-card">
+                <h2>Nomenclatura</h2>
+                <ul class="subtopic-list">
+                    <li><a href="/lecciones/Nomenclatura/Numeracion.html">Numeración</a></li>
+                    <li><a href="/lecciones/Nomenclatura/CarreraQuimica.html">Nomenclatura Blaster</a></li>
+                    <li><a href="/lecciones/Nomenclatura/Blaster.html">Carrera Química</a></li>
+                </ul>
+            </div>
+
+            <div class="topic-card">
+                <h2>Reacciones y Obtención</h2>
+                <ul class="subtopic-list">
+                    <li><a href="/lecciones/Reacciones-Obtencion/MounstroReacciones.html">Laboratorio de Obtención</a></li>
+                    <li><a href="/lecciones/Reacciones-Obtencion/LaboratorioDeObtencion.html">Monstruo de Reacciones</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de particles.js
+        particlesJS('particles-js',
+            {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#4CAF50"
+                    },
+                    "shape": {
+                        "type": "circle"
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#4CAF50",
+                        "opacity": 0.4,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "repulse"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    }
+                },
+                "retina_detect": true
+            });
+
+        // Animaciones con GSAP
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.topic-card');
+            
+            // Animación de entrada de las tarjetas
+            gsap.to(cards, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: "power3.out"
+            });
+
+            // Evento para mostrar/ocultar subtemas con animación
+            cards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const subtopicList = card.querySelector('.subtopic-list');
+                    const isActive = subtopicList.classList.contains('active');
+                    
+                    // Cerrar todas las listas primero
+                    document.querySelectorAll('.subtopic-list').forEach(list => {
+                        if (list !== subtopicList) {
+                            list.classList.remove('active');
+                            gsap.to(list, {
+                                height: 0,
+                                opacity: 0,
+                                duration: 0.3,
+                                ease: "power2.inOut"
+                            });
+                        }
+                    });
+
+                    // Alternar la lista actual
+                    if (!isActive) {
+                        subtopicList.classList.add('active');
+                        gsap.fromTo(subtopicList,
+                            {
+                                height: 0,
+                                opacity: 0
+                            },
+                            {
+                                height: "auto",
+                                opacity: 1,
+                                duration: 0.5,
+                                ease: "power2.inOut"
+                            }
+                        );
+
+                        // Animar los elementos de la lista
+                        gsap.fromTo(subtopicList.children,
+                            {
+                                x: -20,
+                                opacity: 0
+                            },
+                            {
+                                x: 0,
+                                opacity: 1,
+                                duration: 0.4,
+                                stagger: 0.1,
+                                ease: "power2.out"
+                            }
+                        );
+                    } else {
+                        subtopicList.classList.remove('active');
+                        gsap.to(subtopicList, {
+                            height: 0,
+                            opacity: 0,
+                            duration: 0.3,
+                            ease: "power2.inOut"
+                        });
+                    }
+                });
+
+                // Efecto hover en las tarjetas
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card, {
+                        scale: 1.02,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, {
+                        scale: 1,
+                        duration: 0.3,
+                        ease: "power2.out"
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>
