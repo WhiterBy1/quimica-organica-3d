@@ -31,55 +31,62 @@
             color: var(--white);
             line-height: 1.6;
             min-height: 100vh;
+            background: var(--dark);
+            color: var(--white);
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
-        #particles-js {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
+        #gameMenu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .game-container {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: rgba(45, 45, 45, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 600px;
+            animation: fadeInUp 0.5s ease;
         }
+
 
         .header {
             text-align: center;
             margin-bottom: 2rem;
+            position: relative;
         }
 
         .title {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--primary);
-            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--white);
             text-transform: uppercase;
-            letter-spacing: 2px;
             margin-bottom: 1rem;
+            position: relative;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .title::after {
             content: '';
-            display: block;
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 100px;
             height: 4px;
             background: var(--primary);
-            margin: 1rem auto;
+            transition: width 0.3s ease;
         }
 
         .stats {
@@ -90,17 +97,17 @@
         }
 
         .stat-card {
-            background: rgba(76, 175, 80, 0.1);
-            padding: 1.5rem;
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
             text-align: center;
-            border: 1px solid rgba(76, 175, 80, 0.2);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 3px solid var(--primary);
+            transition: all 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
+            background: rgba(255, 255, 255, 0.15);
         }
 
         .stat-value {
@@ -111,29 +118,21 @@
         }
 
         .stat-label {
-            font-size: 1rem;
-            color: var(--white);
-            opacity: 0.8;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .game-area {
+            text-align: center;
         }
 
         .number-display {
             font-size: 6rem;
             font-weight: 700;
             color: var(--primary);
-            text-align: center;
-            margin: 2rem 0;
-            font-family: 'Space Mono', monospace;
-            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
-            position: relative;
-        }
-
-        .number-display[data-tipo]::after {
-            content: attr(data-tipo);
-            font-size: 0.3em;
-            position: absolute;
-            top: 0;
-            right: -30px;
-            color: var(--secondary);
+            margin: 1rem 0;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
+            animation: numberPop 0.5s ease;
         }
 
         .options-grid {
@@ -141,24 +140,46 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
             margin-top: 2rem;
+            position: relative;
+            z-index: 10;
         }
 
         .option-button {
-            background: rgba(76, 175, 80, 0.1);
-            border: 2px solid var(--primary);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             color: var(--white);
-            padding: 1.5rem;
-            border-radius: 15px;
+            padding: 1rem;
+            border-radius: 12px;
             font-size: 1.2rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Space Mono', monospace;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 20;
+        }
+
+        .option-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.1),
+                    transparent);
+            transition: 0.5s;
+        }
+
+        .option-button:hover::before {
+            left: 100%;
         }
 
         .option-button:hover {
-            background: var(--primary);
+            background: rgba(255, 255, 255, 0.2);
             transform: scale(1.02);
-            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            border-color: var(--primary);
         }
 
         .difficulty-buttons {
@@ -169,14 +190,13 @@
         }
 
         .difficulty-button {
-            background: rgba(76, 175, 80, 0.1);
-            border: 1px solid var(--primary);
-            color: var(--white);
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Space Mono', monospace;
+            color: var(--white);
         }
 
         .difficulty-button.active {
@@ -185,8 +205,8 @@
         }
 
         .start-button {
-            background: var(--primary);
-            color: var(--white);
+            background: var(--primary-dark);
+            color: white;
             border: none;
             padding: 1rem 3rem;
             border-radius: 30px;
@@ -194,24 +214,22 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 1rem;
-            font-family: 'Space Mono', monospace;
-            width: 100%;
-            max-width: 300px;
-            display: block;
-            margin: 1rem auto;
+            border: 1px solid transparent;
         }
 
         .start-button:hover {
-            background: var(--primary-dark);
+            background: var(--primary);
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
+            /*Aliniarlo en el centro*/
+
+            border-color: var(--white);
         }
 
         .progress-bar {
             width: 100%;
-            height: 10px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
+            border-radius: 4px;
             margin-top: 1rem;
             overflow: hidden;
         }
@@ -221,41 +239,55 @@
             background: var(--primary);
             width: 100%;
             transition: width linear 1s;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
+
+        .number-display[data-tipo]::after {
+            content: attr(data-tipo);
+            font-size: 0.5em;
+            vertical-align: super;
+        }
+
+        .best-score {
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
 
         .correct {
             background: var(--primary) !important;
-            color: var(--white) !important;
-            animation: glow 0.5s ease-in-out infinite alternate;
+            color: white !important;
         }
 
         .incorrect {
             background: var(--secondary) !important;
-            color: var(--white) !important;
-            animation: shake 0.5s ease-in-out;
+            color: white !important;
         }
 
-        .best-score {
-            background: rgba(255, 87, 34, 0.2);
-            color: var(--white);
-            padding: 0.8rem 2rem;
-            border-radius: 30px;
-            border: 1px solid var(--secondary);
-            font-family: 'Space Mono', monospace;
-            text-align: center;
-            width: fit-content;
-            margin: 0 auto 1rem auto;
-            display: block;
-        }
-
-        @keyframes glow {
-            from {
-                box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        @keyframes numberPop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
             }
 
-            to {
-                box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
@@ -275,31 +307,8 @@
             }
         }
 
-        @keyframes numberPop {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-
-            50% {
-                transform: scale(1.2);
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .molecular-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0.1;
-            z-index: -1;
+        .shake {
+            animation: shake 0.5s ease-in-out;
         }
 
         @media (max-width: 768px) {
@@ -316,13 +325,13 @@
                 font-size: 4rem;
             }
 
-            .options-grid {
-                grid-template-columns: 1fr;
+            .option-button {
+                font-size: 1rem;
+                padding: 0.8rem;
             }
 
             .stats {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -408,7 +417,7 @@
                 tipoPrefijo: 'mixto'
             },
             dificil: {
-                tiempo: 5,
+                tiempo: 10,
                 numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 puntosPorAcierto: 30,
                 tipoPrefijo: 'carbono'
@@ -471,6 +480,7 @@
                 this.puntos = 0;
                 this.vidas = 3;
                 this.mejorPuntaje = localStorage.getItem('mejorPuntaje') || 0;
+                this.sufijoActual = 'ano'; // Inicialización por defecto
                 this.juegoActivo = false;
                 this.temporizador = null;
                 this.intervaloBarra = null;
@@ -491,6 +501,149 @@
                         document.getElementById('timeDisplay').textContent = this.tiempo;
                     });
                 });
+            }
+
+            generarNumeroAleatorio() {
+                const numerosNivel = NIVELES[this.nivel].numeros;
+                return numerosNivel[Math.floor(Math.random() * numerosNivel.length)];
+            }
+
+            determinarTipoPrefijo() {
+                const nivelActual = NIVELES[this.nivel];
+                if (nivelActual.tipoPrefijo === 'numerico') {
+                    return 'numerico';
+                } else if (nivelActual.tipoPrefijo === 'carbono') {
+                    return 'carbono';
+                } else {
+                    // Para el nivel mixto, alternar aleatoriamente
+                    return Math.random() < 0.5 ? 'numerico' : 'carbono';
+                }
+            }
+
+            generarPrefijosAleatorios(numeroCorrect) {
+                this.tipoActual = this.determinarTipoPrefijo();
+                const prefijosDiccionario = this.tipoActual === 'numerico' ? PREFIJOS : CADENAS_CARBONO;
+                const prefijosCopia = { ...prefijosDiccionario };
+                delete prefijosCopia[numeroCorrect];
+                const prefijosArray = Object.values(prefijosCopia);
+                const prefijosSeleccionados = [];
+
+                prefijosSeleccionados.push(prefijosDiccionario[numeroCorrect]);
+
+                for (let i = 0; i < 3; i++) {
+                    const randomIndex = Math.floor(Math.random() * prefijosArray.length);
+                    prefijosSeleccionados.push(prefijosArray[randomIndex]);
+                    prefijosArray.splice(randomIndex, 1);
+                }
+
+                return prefijosSeleccionados.sort(() => Math.random() - 0.5);
+            }
+
+            actualizarUI() {
+                document.getElementById('timeDisplay').textContent = this.tiempo;
+                document.getElementById('scoreDisplay').textContent = this.puntos;
+                document.getElementById('livesDisplay').textContent = this.vidas;
+                document.getElementById('numberDisplay').textContent = this.numeroActual;
+
+                // Usar el sufijo constante para esta ronda
+                const tipoTexto = this.tipoActual === 'numerico' ? '' : this.sufijoActual;
+                document.getElementById('numberDisplay').setAttribute('data-tipo', tipoTexto);
+                document.getElementById('progressBar').style.width = `${(this.tiempo / NIVELES[this.nivel].tiempo) * 100}%`;
+            }
+
+
+
+            crearBotonesOpciones(prefijos) {
+                const optionsGrid = document.getElementById('optionsGrid');
+                optionsGrid.innerHTML = '';
+
+                // Reiniciar animación para evitar conflictos
+                optionsGrid.style.animation = 'none';
+
+                prefijos.forEach(prefijo => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+
+                    // Usar el sufijo constante de la ronda
+                    const sufijo = this.tipoActual === 'numerico' ? '-' : this.sufijoActual;
+                    button.textContent = `${prefijo}${sufijo}`;
+                    button.addEventListener('click', () => this.verificarRespuesta(prefijo));
+                    optionsGrid.appendChild(button);
+                });
+
+                // Restaurar animación después de un pequeño retraso
+                setTimeout(() => {
+                    optionsGrid.style.animation = '';
+                }, 50);
+            }
+
+
+
+
+            verificarRespuesta(prefijoSeleccionado) {
+                const prefijosDiccionario = this.tipoActual === 'numerico' ? PREFIJOS : CADENAS_CARBONO;
+                const esCorrecta = prefijoSeleccionado === prefijosDiccionario[this.numeroActual];
+                const sufijos = ['ano', 'eno', 'ino']; // Lista de sufijos posibles
+
+                // Buscar el botón correspondiente ignorando el sufijo
+                const botonSeleccionado = [...document.getElementsByClassName('option-button')]
+                    .find(button => {
+                        const buttonText = button.textContent;
+                        // Verificar si el texto del botón comienza con el prefijo seleccionado
+                        return sufijos.some(sufijo => buttonText === `${prefijoSeleccionado}${sufijo}`);
+                    });
+
+                // Verificar si el botón existe antes de usarlo
+                if (!botonSeleccionado) {
+                    console.warn('Botón no encontrado o ya eliminado del DOM.');
+                    return;
+                }
+
+                if (esCorrecta) {
+                    botonSeleccionado.classList.add('correct');
+                    this.puntos += NIVELES[this.nivel].puntosPorAcierto;
+                    setTimeout(() => this.siguienteRonda(), 500);
+                } else {
+                    botonSeleccionado.classList.add('incorrect');
+                    this.vidas--;
+                    document.getElementById('gameArea').classList.add('shake');
+                    setTimeout(() => document.getElementById('gameArea').classList.remove('shake'), 500);
+
+                    if (this.vidas <= 0) {
+                        this.finalizarJuego();
+                    }
+                }
+
+                this.actualizarUI();
+            }
+
+
+            siguienteRonda() {
+                this.numeroActual = this.generarNumeroAleatorio();
+                const prefijos = this.generarPrefijosAleatorios(this.numeroActual);
+
+                // Seleccionar un sufijo aleatorio solo al inicio de la ronda
+                const sufijos = ['ano', 'eno', 'ino'];
+                this.sufijoActual = this.tipoActual === 'numerico' ? '-' : sufijos[Math.floor(Math.random() * sufijos.length)];
+
+                this.crearBotonesOpciones(prefijos);
+                this.tiempo = NIVELES[this.nivel].tiempo;
+                this.actualizarUI();
+
+                // Reiniciar animación del número
+                document.getElementById('numberDisplay').style.animation = 'none';
+                setTimeout(() => {
+                    document.getElementById('numberDisplay').style.animation = 'numberPop 0.5s ease';
+                }, 10);
+            }
+
+
+            finalizarJuego() {
+                clearInterval(this.temporizador);
+                this.juegoActivo = false;
+                this.actualizarMejorPuntaje();
+                document.getElementById('gameArea').style.display = 'none';
+                document.getElementById('gameMenu').style.display = 'flex';
             }
 
             actualizarMejorPuntaje() {
