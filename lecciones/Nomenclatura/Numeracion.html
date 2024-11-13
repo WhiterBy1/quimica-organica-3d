@@ -4,44 +4,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Prefijo Rápido</title>
+    <title>El Prefijo Químico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Space+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
-
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #4338CA;
-            --secondary: #10B981;
-            --danger: #EF4444;
-            --warning: #F59E0B;
-            --background: #F3F4F6;
-            --text: #1F2937;
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF5722;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --white: #ffffff;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
         }
 
         body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
+            line-height: 1.6;
             min-height: 100vh;
-            background: linear-gradient(135deg, #6366F1, #4F46E5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--text);
-            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
 
         .game-container {
-            background: white;
-            border-radius: 20px;
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin: 2rem auto;
             padding: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 600px;
+            background: rgba(45, 45, 45, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .header {
@@ -50,54 +64,76 @@
         }
 
         .title {
-            font-size: 2.5rem;
-            font-weight: 800;
+            font-size: 3rem;
+            font-weight: 700;
             color: var(--primary);
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 2px;
             margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1rem auto;
         }
 
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
+            gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
         .stat-card {
-            background: var(--background);
-            padding: 1rem;
-            border-radius: 12px;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
             text-align: center;
-            transition: transform 0.3s ease;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.2);
         }
 
         .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 2rem;
+            font-weight: 700;
             color: var(--primary);
+            font-family: 'Space Mono', monospace;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            color: #6B7280;
-        }
-
-        .game-area {
-            text-align: center;
+            font-size: 1rem;
+            color: var(--white);
+            opacity: 0.8;
         }
 
         .number-display {
-            font-size: 5rem;
-            font-weight: 800;
+            font-size: 6rem;
+            font-weight: 700;
             color: var(--primary);
-            margin: 1rem 0;
-            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.1);
-            animation: numberPop 0.5s ease;
+            text-align: center;
+            margin: 2rem 0;
+            font-family: 'Space Mono', monospace;
+            text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+            position: relative;
+        }
+
+        .number-display[data-tipo]::after {
+            content: attr(data-tipo);
+            font-size: 0.3em;
+            position: absolute;
+            top: 0;
+            right: -30px;
+            color: var(--secondary);
         }
 
         .options-grid {
@@ -108,20 +144,21 @@
         }
 
         .option-button {
-            background: white;
+            background: rgba(76, 175, 80, 0.1);
             border: 2px solid var(--primary);
-            color: var(--primary);
-            padding: 1rem;
-            border-radius: 12px;
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 15px;
             font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-family: 'Space Mono', monospace;
         }
 
         .option-button:hover {
             background: var(--primary);
-            color: white;
-            transform: scale(1.05);
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
         }
 
         .difficulty-buttons {
@@ -132,47 +169,49 @@
         }
 
         .difficulty-button {
-            background: var(--background);
-            border: none;
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-family: 'Space Mono', monospace;
         }
 
         .difficulty-button.active {
             background: var(--primary);
-            color: white;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
         }
 
         .start-button {
-            background: var(--secondary);
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border: none;
             padding: 1rem 3rem;
-            border-radius: 12px;
+            border-radius: 30px;
             font-size: 1.2rem;
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 1rem;
-        }
-
-        .number-display[data-tipo]::after {
-            content: attr(data-tipo);
-            font-size: 0.5em;
-            vertical-align: super;
+            font-family: 'Space Mono', monospace;
+            width: 100%;
+            max-width: 300px;
+            display: block;
+            margin: 1rem auto;
         }
 
         .start-button:hover {
-            background: #059669;
+            background: var(--primary-dark);
             transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(76, 175, 80, 0.4);
         }
 
         .progress-bar {
             width: 100%;
-            height: 8px;
-            background: var(--background);
-            border-radius: 4px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
             margin-top: 1rem;
             overflow: hidden;
         }
@@ -182,17 +221,41 @@
             background: var(--primary);
             width: 100%;
             transition: width linear 1s;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
         }
 
-        @keyframes numberPop {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
+        .correct {
+            background: var(--primary) !important;
+            color: var(--white) !important;
+            animation: glow 0.5s ease-in-out infinite alternate;
+        }
+
+        .incorrect {
+            background: var(--secondary) !important;
+            color: var(--white) !important;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .best-score {
+            background: rgba(255, 87, 34, 0.2);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            border-radius: 30px;
+            border: 1px solid var(--secondary);
+            font-family: 'Space Mono', monospace;
+            text-align: center;
+            width: fit-content;
+            margin: 0 auto 1rem auto;
+            display: block;
+        }
+
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
             }
 
-            100% {
-                transform: scale(1);
-                opacity: 1;
+            to {
+                box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
             }
         }
 
@@ -204,39 +267,44 @@
             }
 
             25% {
-                transform: translateX(-5px);
+                transform: translateX(-10px);
             }
 
             75% {
-                transform: translateX(5px);
+                transform: translateX(10px);
             }
         }
 
-        .shake {
-            animation: shake 0.5s ease-in-out;
+        @keyframes numberPop {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
-        .correct {
-            background: var(--secondary) !important;
-            color: white !important;
+        .molecular-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.1;
+            z-index: -1;
         }
 
-        .incorrect {
-            background: var(--danger) !important;
-            color: white !important;
-        }
-
-        .best-score {
-            background: var(--warning);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .game-container {
+                margin: 1rem;
                 padding: 1rem;
             }
 
@@ -248,32 +316,37 @@
                 font-size: 4rem;
             }
 
-            .option-button {
-                font-size: 1rem;
-                padding: 0.8rem;
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
             }
         }
     </style>
 </head>
 
 <body>
+    <div id="particles-js"></div>
     <div class="game-container">
         <div class="header">
-            <h1 class="title">El Prefijo Rápido</h1>
+            <h1 class="title">El Prefijo Químico</h1>
         </div>
 
         <div id="gameMenu">
             <div id="bestScore" class="best-score" style="display: none;">
-                Mejor Puntaje: <span id="bestScoreValue">0</span>
+                Mejor Puntuación: <span id="bestScoreValue">0</span>
             </div>
 
             <div class="difficulty-buttons">
-                <button class="difficulty-button active" data-difficulty="facil">Fácil</button>
-                <button class="difficulty-button" data-difficulty="medio">Medio</button>
-                <button class="difficulty-button" data-difficulty="dificil">Difícil</button>
+                <button class="difficulty-button active" data-difficulty="facil">Novato</button>
+                <button class="difficulty-button" data-difficulty="medio">Experto</button>
+                <button class="difficulty-button" data-difficulty="dificil">Maestro</button>
             </div>
 
-            <button class="start-button" id="startButton">¡Comenzar Juego!</button>
+            <button class="start-button" id="startButton">¡Iniciar Experimento!</button>
         </div>
 
         <div id="gameArea" style="display: none;">
@@ -288,7 +361,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="livesDisplay">3</div>
-                    <div class="stat-label">Vidas</div>
+                    <div class="stat-label">Intentos</div>
                 </div>
             </div>
 
@@ -316,17 +389,9 @@
             10: 'dec'
         };
 
-        const CADENAS_CARBONO = {
-            1: 'met',
-            2: 'et',
-            3: 'prop',
-            4: 'but',
-            5: 'pent',
-            6: 'hex',
-            7: 'hept',
-            8: 'oct',
-            9: 'non',
-            10: 'dec'
+        const SUFIJOS = {
+            numerico: ['0', 'o', 'o'],
+            carbono: ['ano', 'eno', 'ino']
         };
 
         const NIVELES = {
@@ -334,23 +399,71 @@
                 tiempo: 10,
                 numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 puntosPorAcierto: 10,
-                tipoPrefijo: 'numerico' // solo prefijos numéricos
+                tipoPrefijo: 'numerico'
             },
             medio: {
                 tiempo: 8,
-                numeros: [1, 2, 3, 4, 5, 6],
+                numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 puntosPorAcierto: 20,
-                tipoPrefijo: 'mixto' // mezcla de prefijos numéricos y cadenas de carbono
+                tipoPrefijo: 'mixto'
             },
             dificil: {
                 tiempo: 5,
                 numeros: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                 puntosPorAcierto: 30,
-                tipoPrefijo: 'carbono' // solo cadenas de carbono
+                tipoPrefijo: 'carbono'
             }
         };
 
-        class PrefijoRapido {
+        // Configuración de particles.js
+        particlesJS("particles-js", {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#4CAF50" },
+                shape: { type: "circle" },
+                opacity: {
+                    value: 0.5,
+                    random: false,
+                    anim: { enable: false }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: { enable: false }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#4CAF50",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false,
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "repulse" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                },
+                modes: {
+                    repulse: { distance: 100, duration: 0.4 },
+                    push: { particles_nb: 4 }
+                }
+            },
+            retina_detect: true
+        });
+
+        class PrefijoQuimico {
             constructor() {
                 this.nivel = 'facil';
                 this.numeroActual = null;
@@ -360,12 +473,13 @@
                 this.mejorPuntaje = localStorage.getItem('mejorPuntaje') || 0;
                 this.juegoActivo = false;
                 this.temporizador = null;
-                this.tipoActual = 'numerico'; // tipo de prefijo actual
-                this.setupEventListeners();
+                this.intervaloBarra = null;
+                this.sufijoActual = null;
+                this.inicializarEventos();
                 this.actualizarMejorPuntaje();
             }
 
-            setupEventListeners() {
+            inicializarEventos() {
                 document.getElementById('startButton').addEventListener('click', () => this.iniciarJuego());
 
                 document.querySelectorAll('.difficulty-button').forEach(button => {
@@ -373,115 +487,10 @@
                         document.querySelectorAll('.difficulty-button').forEach(b => b.classList.remove('active'));
                         e.target.classList.add('active');
                         this.nivel = e.target.dataset.difficulty;
+                        this.tiempo = NIVELES[this.nivel].tiempo;
+                        document.getElementById('timeDisplay').textContent = this.tiempo;
                     });
                 });
-            }
-
-            generarNumeroAleatorio() {
-                const numerosNivel = NIVELES[this.nivel].numeros;
-                return numerosNivel[Math.floor(Math.random() * numerosNivel.length)];
-            }
-
-            determinarTipoPrefijo() {
-                const nivelActual = NIVELES[this.nivel];
-                if (nivelActual.tipoPrefijo === 'numerico') {
-                    return 'numerico';
-                } else if (nivelActual.tipoPrefijo === 'carbono') {
-                    return 'carbono';
-                } else {
-                    // Para el nivel mixto, alternar aleatoriamente
-                    return Math.random() < 0.5 ? 'numerico' : 'carbono';
-                }
-            }
-
-            generarPrefijosAleatorios(numeroCorrect) {
-                this.tipoActual = this.determinarTipoPrefijo();
-                const prefijosDiccionario = this.tipoActual === 'numerico' ? PREFIJOS : CADENAS_CARBONO;
-                const prefijosCopia = { ...prefijosDiccionario };
-                delete prefijosCopia[numeroCorrect];
-                const prefijosArray = Object.values(prefijosCopia);
-                const prefijosSeleccionados = [];
-
-                prefijosSeleccionados.push(prefijosDiccionario[numeroCorrect]);
-
-                for (let i = 0; i < 3; i++) {
-                    const randomIndex = Math.floor(Math.random() * prefijosArray.length);
-                    prefijosSeleccionados.push(prefijosArray[randomIndex]);
-                    prefijosArray.splice(randomIndex, 1);
-                }
-
-                return prefijosSeleccionados.sort(() => Math.random() - 0.5);
-            }
-
-            actualizarUI() {
-                document.getElementById('timeDisplay').textContent = this.tiempo;
-                document.getElementById('scoreDisplay').textContent = this.puntos;
-                document.getElementById('livesDisplay').textContent = this.vidas;
-                document.getElementById('numberDisplay').textContent = this.numeroActual;
-                // Añadir indicador de tipo de prefijo
-                const tipoTexto = this.tipoActual === 'numerico' ? '' : 'ano';
-                document.getElementById('numberDisplay').setAttribute('data-tipo', tipoTexto);
-                document.getElementById('progressBar').style.width = `${(this.tiempo / NIVELES[this.nivel].tiempo) * 100}%`;
-            }
-
-            crearBotonesOpciones(prefijos) {
-                const optionsGrid = document.getElementById('optionsGrid');
-                optionsGrid.innerHTML = '';
-
-                prefijos.forEach(prefijo => {
-                    const button = document.createElement('button');
-                    button.className = 'option-button';
-                    // Añadir sufijo según el tipo de prefijo
-                    const sufijo = this.tipoActual === 'numerico' ? '-' : 'ano';
-                    button.textContent = `${prefijo}${sufijo}`;
-                    button.addEventListener('click', () => this.verificarRespuesta(prefijo));
-                    optionsGrid.appendChild(button);
-                });
-            }
-
-            verificarRespuesta(prefijoSeleccionado) {
-                const prefijosDiccionario = this.tipoActual === 'numerico' ? PREFIJOS : CADENAS_CARBONO;
-                const esCorrecta = prefijoSeleccionado === prefijosDiccionario[this.numeroActual];
-                const sufijo = this.tipoActual === 'numerico' ? '-' : 'ano';
-                const botonSeleccionado = [...document.getElementsByClassName('option-button')]
-                    .find(button => button.textContent === `${prefijoSeleccionado}${sufijo}`);
-
-                if (esCorrecta) {
-                    botonSeleccionado.classList.add('correct');
-                    this.puntos += NIVELES[this.nivel].puntosPorAcierto;
-                    setTimeout(() => this.siguienteRonda(), 500);
-                } else {
-                    botonSeleccionado.classList.add('incorrect');
-                    this.vidas--;
-                    document.getElementById('gameArea').classList.add('shake');
-                    setTimeout(() => document.getElementById('gameArea').classList.remove('shake'), 500);
-
-                    if (this.vidas <= 0) {
-                        this.finalizarJuego();
-                    }
-                }
-
-                this.actualizarUI();
-            }
-
-            siguienteRonda() {
-                this.numeroActual = this.generarNumeroAleatorio();
-                const prefijos = this.generarPrefijosAleatorios(this.numeroActual);
-                this.crearBotonesOpciones(prefijos);
-                this.tiempo = NIVELES[this.nivel].tiempo;
-                this.actualizarUI();
-                document.getElementById('numberDisplay').style.animation = 'none';
-                setTimeout(() => {
-                    document.getElementById('numberDisplay').style.animation = 'numberPop 0.5s ease';
-                }, 10);
-            }
-
-            finalizarJuego() {
-                clearInterval(this.temporizador);
-                this.juegoActivo = false;
-                this.actualizarMejorPuntaje();
-                document.getElementById('gameArea').style.display = 'none';
-                document.getElementById('gameMenu').style.display = 'block';
             }
 
             actualizarMejorPuntaje() {
@@ -490,36 +499,176 @@
                     localStorage.setItem('mejorPuntaje', this.mejorPuntaje);
                 }
                 document.getElementById('bestScoreValue').textContent = this.mejorPuntaje;
-                document.getElementById('bestScore').style.display = this.mejorPuntaje > 0 ? 'inline-block' : 'none';
+                document.getElementById('bestScore').style.display = '';
             }
 
             iniciarJuego() {
                 this.juegoActivo = true;
                 this.puntos = 0;
                 this.vidas = 3;
+                this.tiempo = NIVELES[this.nivel].tiempo;
+
                 document.getElementById('gameMenu').style.display = 'none';
                 document.getElementById('gameArea').style.display = 'block';
 
-                this.siguienteRonda();
+                this.actualizarEstadisticas();
+                this.siguienteNumero();
+                this.iniciarTemporizador();
+            }
+
+            iniciarTemporizador() {
+                if (this.temporizador) clearInterval(this.temporizador);
+                if (this.intervaloBarra) clearInterval(this.intervaloBarra);
+
+                const progressBar = document.getElementById('progressBar');
+                progressBar.style.width = '100%';
 
                 this.temporizador = setInterval(() => {
                     this.tiempo--;
-                    this.actualizarUI();
+                    document.getElementById('timeDisplay').textContent = this.tiempo;
 
                     if (this.tiempo <= 0) {
-                        this.vidas--;
-                        if (this.vidas <= 0) {
-                            this.finalizarJuego();
-                        } else {
-                            this.siguienteRonda();
-                        }
+                        this.verificarRespuesta('timeout');
                     }
+                }, 1000);
+
+                const intervaloActualizacion = 50;
+                const decrementoProgreso = (100 / (NIVELES[this.nivel].tiempo * 1000)) * intervaloActualizacion;
+
+                this.intervaloBarra = setInterval(() => {
+                    const anchoActual = parseFloat(progressBar.style.width) || 100;
+                    const nuevoAncho = Math.max(0, anchoActual - decrementoProgreso);
+                    progressBar.style.width = nuevoAncho + '%';
+                }, intervaloActualizacion);
+            }
+
+            siguienteNumero() {
+                const numerosNivel = NIVELES[this.nivel].numeros;
+                this.numeroActual = numerosNivel[Math.floor(Math.random() * numerosNivel.length)];
+
+                const displayElement = document.getElementById('numberDisplay');
+                const tipoSufijo = NIVELES[this.nivel].tipoPrefijo === 'carbono' ? 'carbono' : 'numerico';
+                this.sufijoActual = SUFIJOS[tipoSufijo][Math.floor(Math.random() * SUFIJOS[tipoSufijo].length)];
+
+                // Mostrar el número junto con el sufijo
+                displayElement.textContent = `${this.numeroActual}${this.sufijoActual}`;
+                displayElement.style.animation = 'numberPop 0.5s ease-out';
+
+                if (NIVELES[this.nivel].tipoPrefijo === 'carbono') {
+                    displayElement.dataset.tipo = 'C';
+                } else {
+                    delete displayElement.dataset.tipo;
+                }
+
+                this.generarOpciones();
+                this.tiempo = NIVELES[this.nivel].tiempo;
+                this.actualizarEstadisticas();
+                this.iniciarTemporizador();
+            }
+
+            generarOpciones() {
+                const optionsGrid = document.getElementById('optionsGrid');
+                optionsGrid.innerHTML = '';
+
+                let opciones = [PREFIJOS[this.numeroActual]];
+                let prefijosDisponibles = Object.values(PREFIJOS).filter(p => p !== PREFIJOS[this.numeroActual]);
+
+                // Para el nivel medio, incluir opciones con y sin terminaciones
+                if (this.nivel === 'medio') {
+                    const opcionesMedio = new Set();
+                    opcionesMedio.add(PREFIJOS[this.numeroActual]); // Agregar el prefijo correcto
+
+                    // Agregar algunas opciones con sufijo
+                    while (opcionesMedio.size < 4) {
+                        const randomPrefijo = prefijosDisponibles[Math.floor(Math.random() * prefijosDisponibles.length)];
+                        opcionesMedio.add(randomPrefijo);
+                    }
+
+                    opciones = [...opcionesMedio];
+                } else {
+                    // Para otros niveles, mantener el comportamiento original
+                    for (let i = 0; i < 3; i++) {
+                        const randomIndex = Math.floor(Math.random() * prefijosDisponibles.length);
+                        opciones.push(prefijosDisponibles[randomIndex]);
+                        prefijosDisponibles.splice(randomIndex, 1);
+                    }
+                }
+
+                opciones = opciones.sort(() => Math.random() - 0.5);
+
+                opciones.forEach(opcion => {
+                    const button = document.createElement('button');
+                    button.className = 'option-button';
+                    button.textContent = opcion;
+                    button.addEventListener('click', () => this.verificarRespuesta(opcion));
+                    optionsGrid.appendChild(button);
+                });
+            }
+
+            verificarRespuesta(respuesta) {
+                if (!this.juegoActivo) return;
+
+                const esCorrecta = respuesta === PREFIJOS[this.numeroActual];
+                const buttons = document.querySelectorAll('.option-button');
+
+                buttons.forEach(button => {
+                    const prefijoBoton = button.textContent;
+                    if (prefijoBoton === PREFIJOS[this.numeroActual]) {
+                        button.classList.add('correct');
+                    } else if (prefijoBoton === respuesta) {
+                        button.classList.add('incorrect');
+                    }
+                    button.disabled = true;
+                });
+
+                clearInterval(this.temporizador);
+                clearInterval(this.intervaloBarra);
+
+                if (respuesta === 'timeout' || !esCorrecta) {
+                    this.vidas--;
+                    if (this.vidas <= 0) {
+                        this.terminarJuego();
+                        return;
+                    }
+                } else {
+                    this.puntos += NIVELES[this.nivel].puntosPorAcierto;
+                }
+
+                this.actualizarEstadisticas();
+
+                setTimeout(() => {
+                    if (this.juegoActivo) {
+                        this.siguienteNumero();
+                    }
+                }, 1000);
+            }
+
+            actualizarEstadisticas() {
+                document.getElementById('scoreDisplay').textContent = this.puntos;
+                document.getElementById('livesDisplay').textContent = this.vidas;
+                document.getElementById('timeDisplay').textContent = this.tiempo;
+            }
+
+            terminarJuego() {
+                this.juegoActivo = false;
+                clearInterval(this.temporizador);
+                clearInterval(this.intervaloBarra);
+
+                this.actualizarMejorPuntaje();
+
+                setTimeout(() => {
+                    alert(`¡Juego terminado! Puntuación final: ${this.puntos}`);
+                    document.getElementById('gameArea').style.display = 'none';
+                    document.getElementById('gameMenu').style.display = 'block';
                 }, 1000);
             }
         }
 
-        // Iniciar el juego cuando el DOM esté cargado
+        // Iniciar el juego cuando se carga la página
         document.addEventListener('DOMContentLoaded', () => {
-            new PrefijoRapido();
+            const game = new PrefijoQuimico();
         });
     </script>
+</body>
+
+</html>

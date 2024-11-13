@@ -83,20 +83,25 @@
         }
 
         .game-area {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
             gap: 2rem;
-            margin-top: 2rem;
         }
 
         .moleculas,
         .grupos {
+            min-height: 500px;
             background: rgba(45, 45, 45, 0.3);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 48%;
+            flex: 1;
+            min-width: 300px;
         }
 
         h2 {
@@ -287,7 +292,7 @@
 <body>
     <header>
         <a href="/" class="main-button" id="mainPageButton">Main Page</a>
-    </header>    
+    </header>
     <div id="particles-js"></div>
     <div class="container">
         <div class="header">
@@ -398,6 +403,8 @@
             });
             elemento.addEventListener('dragstart', iniciarArrastre);
             elemento.addEventListener('dragend', finalizarArrastre);
+            elemento.style.minHeight = '50px';
+            elemento.style.margin = '0.5rem 0';
             return elemento;
         }
 
