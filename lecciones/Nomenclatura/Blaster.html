@@ -251,7 +251,6 @@
         let lives = 3;
         let gameInterval;
         let molecules = [];
-        let missingEndings = []; // Terminaciones que aún no están en los botones
         let activeOptions = [];
         let selectedEnding = null;
         let gameSpeed = 7000; // Cambiado a 7000ms
@@ -262,46 +261,50 @@
             return shuffled.slice(0, count);
         }
 
-        function initializeOptions(firstEnding) {
-            activeOptions = [firstEnding];
-
-            // Obtener otras 3 terminaciones aleatorias excluyendo la primera
-            const allEndings = IUPAC_GROUPS.map(group => group.ending).filter(ending => ending !== firstEnding);
-            const randomEndings = allEndings.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-            // Añadir las opciones aleatorias
-            activeOptions.push(...randomEndings);
-            updateOptions();
-        }
-
-
         function updateOptions() {
+            // Obtener grupos actualmente en pantalla
+            const fallingGroups = molecules.map(m => m.ending);
+
+            // Asegurarse de que las opciones incluyan los grupos que están cayendo
+            let newOptions = [...new Set([...fallingGroups])];
+
+            // Añadir grupos aleatorios hasta tener 4 opciones
+            while (newOptions.length < 4) {
+                const randomGroup = IUPAC_GROUPS[Math.floor(Math.random() * IUPAC_GROUPS.length)];
+                if (!newOptions.includes(randomGroup.ending)) {
+                    newOptions.push(randomGroup.ending);
+                }
+            }
+
+            // Mezclar las opciones
+            newOptions = newOptions.sort(() => 0.5 - Math.random());
+
+            // Actualizar los botones
             const optionsContainer = document.getElementById('options');
             optionsContainer.innerHTML = '';
 
-            activeOptions.forEach((ending) => {
+            newOptions.forEach(ending => {
                 const button = document.createElement('button');
                 button.className = 'option-button';
                 button.textContent = ending;
+                if (ending === selectedEnding) {
+                    button.classList.add('selected');
+                }
                 button.onclick = () => selectEnding(ending);
                 optionsContainer.appendChild(button);
             });
-        }
 
+            activeOptions = newOptions;
+        }
 
         function startGame() {
             document.getElementById('startScreen').style.display = 'none';
             resetGame();
             isGameActive = true;
-
-            // Obtener la terminación de la primera molécula y cargar las opciones
-            const firstGroup = IUPAC_GROUPS[Math.floor(Math.random() * IUPAC_GROUPS.length)];
-            initializeOptions(firstGroup.ending);
-
+            updateOptions();
             spawnMolecule();
             updateDisplay();
         }
-
 
         function resetGame() {
             score = 0;
@@ -327,11 +330,14 @@
 
         function spawnMolecule() {
             if (!isGameActive) return;
+
+            // Limitar el número de moléculas en pantalla
             if (molecules.length >= 4) return;
 
             const gameArea = document.getElementById('gameArea');
             const availableWidth = gameArea.clientWidth - 100;
 
+            // Elegir un grupo que coincida con una de las opciones activas o actualizar opciones
             let randomGroup;
             do {
                 randomGroup = IUPAC_GROUPS[Math.floor(Math.random() * IUPAC_GROUPS.length)];
@@ -352,19 +358,18 @@
                 ending: randomGroup.ending
             });
 
-            // Agregar a las terminaciones faltantes si no está en las opciones activas
-            if (!activeOptions.includes(randomGroup.ending) && !missingEndings.includes(randomGroup.ending)) {
-                missingEndings.push(randomGroup.ending);
-            }
+            updateOptions();
 
             molecule.addEventListener('animationend', () => {
                 if (gameArea.contains(molecule)) {
                     gameArea.removeChild(molecule);
                     molecules = molecules.filter(m => m.element !== molecule);
                     loseLife();
+                    updateOptions();
                 }
             });
 
+            // Aumentar el intervalo entre spawns y añadir más variación
             setTimeout(spawnMolecule, Math.random() * 2000 + 2000);
         }
 
@@ -374,34 +379,13 @@
                 moleculeElement.remove();
                 molecules = molecules.filter(m => m.element !== moleculeElement);
                 addPoints(10);
-
-                // Reemplazar la opción seleccionada con una nueva terminación
-                replaceOption(selectedEnding);
-                selectedEnding = null;
                 updateOptions();
-            } else {
+            } else if (selectedEnding !== null) {
                 shake(moleculeElement);
                 loseLife();
             }
         }
 
-
-        function replaceOption(removedEnding) {
-            activeOptions = activeOptions.filter(option => option !== removedEnding);
-
-            // Obtener la siguiente terminación de la lista de faltantes en orden de aparición
-            const newEnding = missingEndings.shift();
-
-            // Si no hay terminaciones faltantes, elige una aleatoria que no esté en los botones actuales
-            if (!newEnding) {
-                const allEndings = IUPAC_GROUPS.map(group => group.ending);
-                const fallbackEnding = allEndings.find(ending => !activeOptions.includes(ending));
-                if (fallbackEnding) activeOptions.push(fallbackEnding);
-            } else {
-                activeOptions.push(newEnding);
-            }
-        }
-        
         function createExplosion(element) {
             const explosion = document.createElement('div');
             explosion.className = 'explosion';

@@ -47,7 +47,7 @@ const leyendaColores = {
     ],
     Halogenuro: [
         { color: "green", nombre: "Cloro (Cl)" },
-        { color: "orange", nombre: "Bromo (Br)" },
+        { color: "#8B0000", nombre: "Bromo (Br)" }, // Rojo oscuro o vinotinto
         { color: "purple", nombre: "Yodo (I)" },
         { color: "lightblue", nombre: "Flúor (F)" },
         { color: "gray", nombre: "Carbono (C)" },
