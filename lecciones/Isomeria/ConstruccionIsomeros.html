@@ -413,6 +413,9 @@
                 this.limits = { C: 5, O: 2, H: 12 };
                 this.counters = { C: 0, O: 0, H: 0 };
                 this.isDragging = false;
+                this.uniqueIsomers = []; // Lista de isómeros registrados
+                this.carbonConnections = {}; // Almacenará las conexiones de cada carbono
+                this.uniqueIsomers = []; // Lista de isómeros registrados
 
                 this.initializeDOM();
                 this.addEventListeners();
@@ -439,6 +442,68 @@
 
                 this.updateCombinationDisplay();
                 console.log("Combinación actual:", this.currentCombination);
+            }
+
+            // Registrar una conexión entre dos carbonos
+            connectCarbons(id1, id2) {
+                if (!this.carbonConnections[id1]) this.carbonConnections[id1] = [];
+                if (!this.carbonConnections[id2]) this.carbonConnections[id2] = [];
+
+                this.carbonConnections[id1].push(id2);
+                this.carbonConnections[id2].push(id1);
+
+                console.log(`Conexión registrada: C${id1} <-> C${id2}`);
+
+                // Debug para mostrar el estado de conexiones
+                console.log("Estado actual de conexiones:", this.carbonConnections);
+            }
+
+
+            // Identificar la cadena principal y las ramificaciones
+            analyzeStructure() {
+                const mainChain = [];
+                const branches = [];
+                const visited = new Set();
+
+                // Función para identificar el tipo de carbono
+                const getCarbonType = (carbonId) => {
+                    const connections = this.carbonConnections[carbonId];
+                    if (connections.length === 1) return 'inicio/final';
+                    if (connections.length === 2) return 'lineal';
+                    if (connections.length >= 3) return 'ramificación';
+                    return 'desconocido';
+                };
+
+                // Explorar los carbonos para identificar la cadena principal y ramificaciones
+                Object.keys(this.carbonConnections).forEach(id => {
+                    const carbonType = getCarbonType(id);
+                    if (carbonType === 'inicio/final' && !visited.has(id)) {
+                        const chain = [];
+                        let currentId = parseInt(id);
+
+                        while (currentId !== undefined && !visited.has(currentId)) {
+                            visited.add(currentId);
+                            chain.push(currentId);
+
+                            const nextCarbons = this.carbonConnections[currentId].filter(c => !visited.has(c));
+                            if (nextCarbons.length === 1) {
+                                currentId = nextCarbons[0];
+                            } else {
+                                branches.push(nextCarbons);
+                                break;
+                            }
+                        }
+
+                        if (chain.length > mainChain.length) {
+                            mainChain.length = 0;
+                            mainChain.push(...chain);
+                        }
+                    }
+                });
+
+                console.log("Cadena principal identificada:", mainChain);
+                console.log("Ramificaciones identificadas:", branches);
+                return { mainChain, branches };
             }
 
 
@@ -704,6 +769,14 @@
                         } else {
                             // Crear un nuevo enlace simple
                             this.createBond(this.firstAtomForBond, atom);
+
+                            // Registrar la conexión si ambos átomos son de carbono
+                            const id1 = this.atoms.indexOf(this.firstAtomForBond);
+                            const id2 = this.atoms.indexOf(atom);
+
+                            if (this.firstAtomForBond.type === 'C' && atom.type === 'C') {
+                                this.connectCarbons(id1, id2);
+                            }
                         }
                     }
 
@@ -712,6 +785,7 @@
                     this.firstAtomForBond = null;
                 }
             }
+
 
 
             bondExists(atom1, atom2) {
@@ -804,15 +878,42 @@
                 }
             }
 
+            buildStructureRepresentation() {
+                const representation = [];
+                const visited = new Set();
+
+                const traverse = (atom, path) => {
+                    visited.add(atom);
+
+                    const connections = atom.bonds.map(bond => {
+                        const neighbor = bond.atom1 === atom ? bond.atom2 : bond.atom1;
+                        return neighbor.type;
+                    }).sort().join('-');
+
+                    path.push(`${atom.type}(${connections})`);
+
+                    atom.bonds.forEach(bond => {
+                        const neighbor = bond.atom1 === atom ? bond.atom2 : bond.atom1;
+                        if (!visited.has(neighbor)) {
+                            traverse(neighbor, path);
+                        }
+                    });
+                };
+
+                this.atoms.forEach(atom => {
+                    if (!visited.has(atom)) {
+                        const path = [];
+                        traverse(atom, path);
+                        representation.push(path.sort().join('|'));
+                    }
+                });
+
+                console.log("Representación simplificada:", representation.sort().join('||'));
+                return representation.sort().join('||');
+            }
 
 
             validateMolecule() {
-                // Verificar si el isómero ya ha sido registrado
-                if (this.isIsomerRegistered()) {
-                    alert("Este isómero ya ha sido registrado. Intenta crear otro diferente.");
-                    return;
-                }
-
                 // Verificar que se usaron todos los átomos disponibles
                 const allAtomsUsed = Object.entries(this.counters).every(
                     ([type, count]) => count === this.currentCombination[type]
@@ -820,46 +921,56 @@
 
                 if (!allAtomsUsed) {
                     alert('Debes usar todos los átomos disponibles para esta combinación.');
+                    console.log("Átomos utilizados:", this.counters);
+                    console.log("Combinación esperada:", this.currentCombination);
                     return;
                 }
 
-                // Verificar que todos los átomos tienen los enlaces correctos
-                const invalidAtoms = this.atoms.filter(atom => !this.hasValidBonds(atom));
-                if (invalidAtoms.length > 0) {
-                    alert('Algunos átomos no tienen el número correcto de enlaces.');
-                    return;
-                }
-
-                // Registrar el nuevo isómero
-                this.registerIsomer();
-                alert('¡Felicidades! Has creado un isómero válido. Sigue buscando más isómeros para esta combinación.');
-            }
-
-            // Función para convertir el grafo a una cadena única (representación canónica)
-            getCanonicalGraphString(graph) {
-                const entries = Object.entries(graph).map(([node, neighbors]) => {
-                    return `${node}:${neighbors.join(',')}`;
+                // Verificar que todos los átomos están conectados correctamente
+                const allConnected = this.atoms.every(atom => {
+                    if (atom.type === 'H') return true; // Los hidrógenos pueden estar al final sin conexiones visibles
+                    return atom.bonds.length > 0;
                 });
-                // Ordenar las entradas para una representación única
-                return entries.sort().join('|');
+
+                if (!allConnected) {
+                    alert('Algunos átomos no están conectados.');
+                    console.log("Estado de los átomos:", this.atoms.map(atom => ({ type: atom.type, bonds: atom.bonds.length })));
+                    return;
+                }
+
+                // Construir una representación simplificada de la estructura
+                const structure = this.buildStructureRepresentation();
+
+                // Verificar si el isómero ya ha sido registrado
+                if (this.isIsomerRegistered(structure)) {
+                    alert("Este isómero ya ha sido registrado. Intenta crear otro diferente.");
+                    return;
+                }
+
+                // Registrar el nuevo isómero si pasa todas las validaciones
+                this.registerIsomer(structure);
             }
 
-            registerIsomer() {
-                const graph = this.buildGraph();
-                const canonicalString = this.getCanonicalGraphString(graph);
-
-                // Agregar el isómero a la lista de registrados
-                this.uniqueIsomers.push(canonicalString);
-                console.log("Isómero registrado:", canonicalString);
+            registerIsomer(structure) {
+                this.uniqueIsomers.push(structure);
+                console.log("Nuevo isómero registrado:", structure);
+                alert("¡Felicidades! Has creado un isómero válido.");
             }
 
-            isIsomerRegistered() {
-                const graph = this.buildGraph();
-                const canonicalString = this.getCanonicalGraphString(graph);
-                console.log("Representación canónica:", canonicalString);
-                // Verificar si el isómero ya está en la lista
-                return this.uniqueIsomers.includes(canonicalString);
+
+            // Verificar si el isómero ya ha sido registrado
+            isIsomerRegistered(structure) {
+                const isRegistered = this.uniqueIsomers.includes(structure);
+
+                if (isRegistered) {
+                    console.log("Isómero ya registrado:", structure);
+                    return true;
+                }
+
+                return false;
             }
+
+
 
 
 
@@ -874,6 +985,7 @@
             }
 
             clearWorkspace() {
+                // Limpiar el DOM de átomos y enlaces
                 while (this.atomsLayer.firstChild) {
                     this.atomsLayer.removeChild(this.atomsLayer.firstChild);
                 }
@@ -881,32 +993,23 @@
                     this.bondsLayer.removeChild(this.bondsLayer.firstChild);
                 }
 
+                // Reiniciar las listas de átomos, enlaces y conexiones
                 this.atoms = [];
                 this.bonds = [];
+                this.carbonConnections = {}; // Limpiar todas las conexiones de carbono
                 this.selectedAtom = null;
                 this.firstAtomForBond = null;
 
+                // Reiniciar los contadores de cada tipo de átomo
                 Object.keys(this.counters).forEach(type => {
                     this.counters[type] = 0;
                     this.updateCounter(type, 0);
                 });
+
+                console.log("Espacio de trabajo limpiado. Todas las conexiones y átomos han sido eliminados.");
             }
 
-            buildGraph() {
-                const graph = {};
-                this.atoms.forEach(atom => {
-                    const atomId = this.atoms.indexOf(atom);
-                    graph[atomId] = [];
-                    atom.bonds.forEach(bond => {
-                        const neighborId = this.atoms.indexOf(bond.atom1 === atom ? bond.atom2 : bond.atom1);
-                        graph[atomId].push(neighborId);
-                    });
-                    // Ordenar las conexiones para normalizar el grafo
-                    graph[atomId].sort((a, b) => a - b);
-                });
-                console.log("Grafo actual:", graph);
-                return graph;
-            }
+
 
             getIsomerString() {
                 const atomStrings = this.atoms.map(atom => {
@@ -916,15 +1019,7 @@
                 return atomStrings.sort().join('-');
             }
 
-            isUniqueGraph(graph) {
-                return !this.uniqueIsomers.some(isomer => JSON.stringify(isomer) === JSON.stringify(graph));
-            }
 
-            startNewRound() {
-                this.clearWorkspace();
-                this.selectRandomCombination();
-                alert('Nueva ronda iniciada. Construye los isómeros para la combinación seleccionada.');
-            }
 
 
         }
