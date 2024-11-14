@@ -4,8 +4,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Química del Monstruo</title>
+    <title>Química del Monstruo Reactivo</title>
     <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --secondary: #FF5722;
+            --dark: #1a1a1a;
+            --dark-light: #2d2d2d;
+            --white: #ffffff;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,138 +22,201 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: var(--white);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            overflow: hidden;
+            background-image: linear-gradient(45deg, var(--dark) 0%, var(--dark-light) 100%);
         }
 
         .game-container {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            max-width: 600px;
-            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
         }
 
         .score {
-            font-size: 1.2em;
-            color: #666;
-            margin-bottom: 10px;
+            font-size: 1.4rem;
+            color: var(--white);
+            background-color: var(--primary-dark);
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
         }
 
         .monster {
-            font-size: 80px;
-            text-align: center;
-            margin: 20px 0;
+            font-size: 100px;
+            margin: 30px 0;
             transition: transform 0.3s ease;
+            text-align: center;
         }
 
         .monster.happy {
-            transform: scale(1.1);
-            color: #4CAF50;
+            transform: scale(1.2);
+        }
+
+        .monster.sad {
+            transform: scale(0.8);
         }
 
         .message {
             text-align: center;
-            margin: 10px 0;
-            min-height: 24px;
-            color: #666;
+            margin: 20px 0;
+            color: var(--white);
+            font-size: 1.2rem;
+            font-weight: bold;
         }
 
         .target-molecule {
             text-align: center;
-            margin: 15px 0;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+            margin: 25px 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 15px;
         }
 
         .current-molecule {
             min-height: 60px;
-            border: 2px dashed #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 15px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            align-items: center;
-        }
-
-        .atom {
-            background-color: #e3f2fd;
-            padding: 5px 10px;
-            border-radius: 3px;
-            display: inline-block;
-            margin: 2px;
+            border: 2px dashed var(--primary);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 25px 0;
+            color: var(--white);
+            font-size: 1.2rem;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.05);
         }
 
         .elements-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
         .element-btn {
-            padding: 10px;
+            padding: 12px;
             border: none;
-            background-color: #2196F3;
-            color: white;
-            border-radius: 5px;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 10px;
+            transition: transform 0.2s, background-color 0.3s;
+            font-size: 1rem;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
         .element-btn:hover {
-            background-color: #1976D2;
+            background-color: var(--primary-dark);
+            transform: scale(1.05);
         }
 
         .controls {
             display: flex;
-            gap: 10px;
+            gap: 20px;
             justify-content: center;
-            margin-top: 15px;
         }
 
-        .control-btn {
-            padding: 10px 20px;
+        .clear-btn, .check-btn {
+            padding: 12px 25px;
             border: none;
-            border-radius: 5px;
+            color: var(--white);
+            border-radius: 25px;
+            font-size: 1rem;
             cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .check-btn {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        .check-btn:hover {
-            background-color: #388E3C;
+            transition: transform 0.2s, background-color 0.3s;
         }
 
         .clear-btn {
-            background-color: #f44336;
+            background-color: var(--secondary);
+        }
+
+        .check-btn {
+            background-color: var(--primary);
+        }
+
+        .clear-btn:hover, .check-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .explanation {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        .feedback-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
             color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+            border: 2px solid var(--primary);
+            max-width: 80%;
+            width: 400px;
         }
 
-        .clear-btn:hover {
-            background-color: #d32f2f;
+        .feedback-message h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .placeholder {
-            color: #999;
+        .feedback-message p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .feedback-message .next-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        .feedback-message .next-btn:hover {
+            background-color: #e64a19;
+            transform: scale(1.05);
+        }
+
+        .next-btn {
+            background-color: var(--secondary);
+            display: none;
         }
     </style>
 </head>
@@ -152,143 +224,127 @@
 <body>
     <div class="game-container">
         <div class="header">
-            <h1>Química del Monstruo</h1>
+            <h1>Química del Monstruo Reactivo</h1>
             <div class="score">Puntuación: <span id="score">0</span></div>
         </div>
 
         <div class="monster" id="monster">👾</div>
-        <div class="message" id="message">¡Alimenta al monstruo con la molécula correcta!</div>
+        <div class="message" id="message">¡Alimenta al monstruo con el reactivo correcto!</div>
 
         <div class="target-molecule">
-            <h3>Molécula objetivo: <span id="target-name">Agua (H₂O)</span></h3>
+            <h3>Reactivo objetivo: <span id="target-name"></span></h3>
         </div>
 
-        <div class="current-molecule" id="current-molecule">
-            <span class="placeholder">Construye tu molécula aquí</span>
-        </div>
+        <div class="current-molecule" id="current-molecule">Construye tu reactivo aquí</div>
 
         <div class="elements-grid" id="elements-grid"></div>
 
         <div class="controls">
-            <button class="control-btn clear-btn" id="clear-btn">Limpiar</button>
-            <button class="control-btn check-btn" id="check-btn">Alimentar al monstruo</button>
+            <button class="clear-btn" id="clear-btn">Limpiar</button>
+            <button class="check-btn" id="check-btn">Alimentar al monstruo</button>
         </div>
-    </div>
 
+        <div class="explanation" id="explanation"></div>
+        <div id="feedback-message" class="feedback-message"></div>
+    </div>
     <script>
+        const monsterElement = document.getElementById("monster");
+
         const elements = [
             { symbol: "H", name: "Hidrógeno" },
             { symbol: "O", name: "Oxígeno" },
             { symbol: "C", name: "Carbono" },
-            { symbol: "N", name: "Nitrógeno" }
+            { symbol: "N", name: "Nitrógeno" },
+            { symbol: "Cl", name: "Cloro" },
+            { symbol: "Br", name: "Bromo" },
+            { symbol: "I", name: "Yodo" },
+            { symbol: "Na", name: "Sodio" },
+            { symbol: "K", name: "Potasio" },
+            { symbol: "Ag", name: "Plata" },
+            { symbol: "Cu", name: "Cobre" },
+            { symbol: "S", name: "Azufre" },
+            { symbol: "Mn", name: "Manganeso" },
+            { symbol: "Fe", name: "Hierro" },
+            { symbol: "Ba", name: "Bario" }
         ];
 
         const targetReagents = [
             {
-                formula: ["Cu", "S", "O", "H", "Na"],
-                name: "Reactivo de Benedict",
-                description: "Utilizado para detectar azúcares reductores. Al calentar, cambia de azul a rojo anaranjado si hay presencia de glucosa."
-            },
-            {
-                formula: ["Ag", "N", "O", "H", "N", "H", "3"],
-                name: "Reactivo de Tollens",
-                description: "Usado para identificar aldehídos. Reacciona con aldehídos y produce un espejo de plata en el tubo de ensayo."
-            },
-            {
-                formula: ["Cu", "S", "O", "K", "N", "H", "H"],
-                name: "Reactivo de Fehling",
-                description: "Se utiliza para detectar azúcares reductores y aldehídos. Cambia de azul a rojo ladrillo al calentar si el compuesto es positivo."
-            },
-            {
-                formula: ["H", "C", "l"],
+                formula: ["H", "Cl"],
                 name: "Ácido Clorhídrico (HCl)",
-                description: "Reacciona con carbonatos para liberar dióxido de carbono y es utilizado en muchas reacciones de neutralización."
+                description: "Prueba de pH ácido, reacciona con metales como zinc y magnesio, liberando gas hidrógeno."
             },
             {
-                formula: ["H", "N", "O", "3"],
+                formula: ["Ag", "N", "H", "H", "N", "H", "H", "H", "H"],
+                name: "Reactivo de Tollens (Ag(NH₃)₂⁺)",
+                description: "Prueba cualitativa para aldehídos, forma un espejo de plata en presencia de aldehídos."
+            },
+            {
+                formula: ["Cu", "S", "O", "O", "O", "O"],
+                name: "Reactivo de Benedict (CuSO₄)",
+                description: "Detecta azúcares reductores como la glucosa, cambiando de azul a rojo ladrillo."
+            },
+            {
+                formula: ["H", "N", "O", "O", "O"],
                 name: "Ácido Nítrico (HNO₃)",
-                description: "Reactivo fuerte utilizado para la nitración de compuestos aromáticos y en pruebas para proteínas (xantoproteica)."
+                description: "Oxida metales y reacciona con compuestos orgánicos, produciendo gases tóxicos."
             },
             {
-                formula: ["C", "H", "I", "3"],
-                name: "Reactivo de Yodoformo (CHI₃)",
-                description: "Usado para identificar compuestos que contienen un grupo metil cetona. Forma un precipitado amarillo (yodoformo)."
+                formula: ["C", "H", "I", "I", "I"],
+                name: "Yodoformo (CHI₃)",
+                description: "Prueba para grupos metilcetona, formando un precipitado amarillo característico."
             },
             {
-                formula: ["B", "r", "2"],
-                name: "Reactivo de Bromo",
-                description: "Utilizado para pruebas de insaturación. Reacciona con dobles enlaces (alquenos) y cambia de color marrón a incoloro."
+                formula: ["Br", "Br"],
+                name: "Bromo (Br₂)",
+                description: "Se usa para detectar dobles enlaces en alquenos, desapareciendo el color marrón del bromo."
             },
             {
-                formula: ["I", "2", "K", "I"],
-                name: "Reactivo de Lugol (Solución de Yodo)",
-                description: "Utilizado para detectar almidones. Cambia de marrón a azul oscuro o negro en presencia de almidón."
+                formula: ["I", "I"],
+                name: "Yodo Molecular (I₂)",
+                description: "Detecta almidones al formar un complejo azul oscuro característico."
             },
             {
-                formula: ["F", "e", "C", "l", "3"],
+                formula: ["Fe", "Cl", "Cl", "Cl"],
                 name: "Cloruro Férrico (FeCl₃)",
-                description: "Usado para la prueba de fenoles. Produce un color púrpura intenso al reaccionar con fenoles."
+                description: "Prueba cualitativa para fenoles, desarrollando un color violeta en presencia de fenoles."
             },
             {
-                formula: ["N", "H", "3", "H", "2", "O"],
-                name: "Amoníaco (NH₃)",
-                description: "Utilizado como reactivo para preparar complejos de cobre y en pruebas de identificación de cationes."
-            },
-            {
-                formula: ["C", "H", "3", "C", "O", "H"],
-                name: "Acetaldehído (CH₃CHO)",
-                description: "Puede actuar como reactivo y sustrato en reacciones orgánicas, como la prueba de iodoformo."
-            },
-            {
-                formula: ["K", "M", "n", "O", "4"],
-                name: "Permanganato de Potasio (KMnO₄)",
-                description: "Utilizado como reactivo oxidante. Se decolora al reaccionar con compuestos insaturados (alquenos y alquinos)."
-            },
-            {
-                formula: ["C", "r", "O", "3"],
-                name: "Óxido de Cromo (VI) (CrO₃)",
-                description: "Reactivo fuerte utilizado en la oxidación de alcoholes a cetonas y aldehídos."
-            },
-            {
-                formula: ["H", "2", "S", "O", "4"],
-                name: "Ácido Sulfúrico (H₂SO₄)",
-                description: "Reactivo común en reacciones de deshidratación y como catalizador en reacciones de esterificación."
-            },
-            {
-                formula: ["N", "a", "O", "H"],
+                formula: ["Na", "O", "H"],
                 name: "Hidróxido de Sodio (NaOH)",
-                description: "Base fuerte utilizada en saponificación y neutralización de ácidos."
+                description: "Base fuerte que reacciona con ácidos carboxílicos, formando sales solubles."
             },
             {
-                formula: ["Z", "n", "H", "C", "l"],
-                name: "Reactivo de Lucas",
-                description: "Usado para diferenciar alcoholes primarios, secundarios y terciarios. Reacciona rápidamente con alcoholes terciarios."
+                formula: ["K", "Mn", "O", "O", "O", "O"],
+                name: "Permanganato de Potasio (KMnO₄)",
+                description: "Oxidante fuerte que cambia de violeta a incoloro al reaccionar con alquenos o alcoholes."
+            },
+            {
+                formula: ["Ba", "Cl", "Cl"],
+                name: "Cloruro de Bario (BaCl₂)",
+                description: "Prueba cualitativa para sulfatos, formando un precipitado blanco de sulfato de bario (BaSO₄)."
+            },
+            {
+                formula: ["H", "C", "O", "O", "H"],
+                name: "Ácido Fórmico (HCOOH)",
+                description: "Reactivo cualitativo para aldehídos, puede reducir el reactivo de Tollens formando un espejo de plata."
+            },
+            {
+                formula: ["C", "H", "C", "l", "3"],
+                name: "Cloroformo (CHCl₃)",
+                description: "Solvente orgánico utilizado en pruebas de solubilidad para compuestos polares y no polares."
             }
         ];
-
 
         let currentMolecule = [];
         let score = 0;
         let currentTargetIndex = 0;
 
         const moleculeContainer = document.getElementById("current-molecule");
-        const elementsGrid = document.getElementById("elements-grid");
-        const clearBtn = document.getElementById("clear-btn");
-        const checkBtn = document.getElementById("check-btn");
+        const targetNameElement = document.getElementById("target-name");
         const scoreElement = document.getElementById("score");
         const messageElement = document.getElementById("message");
-        const monsterElement = document.getElementById("monster");
-        const targetNameElement = document.getElementById("target-name");
-
-        elements.forEach(function (element) {
-            const button = document.createElement("button");
-            button.className = "element-btn";
-            button.textContent = element.symbol + " - " + element.name;
-            button.onclick = function () {
-                addElement(element.symbol);
-            };
-            elementsGrid.appendChild(button);
-        });
+        const explanationElement = document.getElementById("explanation");
 
         function addElement(symbol) {
             currentMolecule.push(symbol);
@@ -296,53 +352,65 @@
         }
 
         function updateMoleculeDisplay() {
-            moleculeContainer.innerHTML = "";
-            if (currentMolecule.length === 0) {
-                moleculeContainer.innerHTML = "<span class='placeholder'>Construye tu molécula aquí</span>";
-            } else {
-                currentMolecule.forEach(function (symbol) {
-                    const atom = document.createElement("span");
-                    atom.className = "atom";
-                    atom.textContent = symbol;
-                    moleculeContainer.appendChild(atom);
-                });
-            }
+            moleculeContainer.textContent = currentMolecule.join(" - ");
         }
 
         function clearMolecule() {
             currentMolecule = [];
             updateMoleculeDisplay();
-            messageElement.textContent = "¡Alimenta al monstruo con la molécula correcta!";
-            monsterElement.classList.remove("happy");
         }
 
         function checkMolecule() {
-            const currentTarget = targetMolecules[currentTargetIndex];
-            const sortedCurrent = [...currentMolecule].sort();
-            const sortedTarget = [...currentTarget.formula].sort();
-            const isCorrect = JSON.stringify(sortedCurrent) === JSON.stringify(sortedTarget);
+            const target = targetReagents[currentTargetIndex];
+            const sortedCurrent = [...currentMolecule].map(e => e.trim()).sort();
+            const sortedTarget = [...target.formula].map(e => e.trim()).sort();
+
+            const isCorrect = sortedCurrent.length === sortedTarget.length &&
+                sortedCurrent.every((val, index) => val === sortedTarget[index]);
 
             if (isCorrect) {
                 score++;
                 scoreElement.textContent = score;
-                messageElement.textContent = "¡Correcto! ¡Al monstruo le encanta!";
+                const feedbackMessage = document.getElementById("feedback-message");
+                feedbackMessage.innerHTML = `
+                    <h2>¡Correcto!</h2>
+                    <p>¡El monstruo está feliz y bien alimentado!</p>
+                    <h3>${target.name}</h3>
+                    <p>${target.description}</p>
+                    <button id="next-btn" class="next-btn">Siguiente Desafío</button>
+                `;
+                feedbackMessage.style.display = "block";
                 monsterElement.classList.add("happy");
-
-                currentTargetIndex = (currentTargetIndex + 1) % targetMolecules.length;
-                targetNameElement.textContent = targetMolecules[currentTargetIndex].name;
-
-                setTimeout(function () {
-                    clearMolecule();
-                    monsterElement.classList.remove("happy");
-                }, 2000);
+                document.getElementById("next-btn").onclick = nextTarget;
             } else {
-                messageElement.textContent = "¡Ups! El monstruo no puede comer esa molécula";
-                monsterElement.classList.remove("happy");
+                messageElement.textContent = "¡Incorrecto! Intenta de nuevo.";
+                monsterElement.classList.add("sad");
+                setTimeout(() => {
+                    monsterElement.classList.remove("sad");
+                }, 2000);
             }
         }
 
-        clearBtn.onclick = clearMolecule;
-        checkBtn.onclick = checkMolecule;
+        function nextTarget() {
+            clearMolecule();
+            monsterElement.classList.remove("happy");
+            currentTargetIndex = (currentTargetIndex + 1) % targetReagents.length;
+            targetNameElement.textContent = targetReagents[currentTargetIndex].name;
+            document.getElementById("feedback-message").style.display = "none";
+            messageElement.textContent = "¡Alimenta al monstruo con el reactivo correcto!";
+        }
+
+        elements.forEach(element => {
+            const button = document.createElement("button");
+            button.textContent = `${element.symbol} - ${element.name}`;
+            button.className = "element-btn";
+            button.onclick = () => addElement(element.symbol);
+            document.getElementById("elements-grid").appendChild(button);
+        });
+
+        document.getElementById("clear-btn").onclick = clearMolecule;
+        document.getElementById("check-btn").onclick = checkMolecule;
+        targetNameElement.textContent = targetReagents[currentTargetIndex].name;
     </script>
 </body>
 
