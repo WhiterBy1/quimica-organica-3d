@@ -279,6 +279,134 @@
                 width: 250px;
             }
         }
+
+        /* Estilos para los nuevos botones en el header */
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #f1c40f, #f39c12);
+            color: var(--dark);
+        }
+
+        .btn-tutorial {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        }
+
+        /* Estilos para el modal del tutorial */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: var(--dark-light);
+            margin: 50px auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .close-btn {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--white);
+            background: none;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .tutorial-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .tutorial-section h3 {
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .functional-group {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .functional-group:last-child {
+            border-bottom: none;
+        }
+
+        .modal {
+            /* Añadir a los estilos existentes del modal */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.visible {
+            opacity: 1;
+        }
+
+        .tutorial-actions {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-container input {
+            width: 16px;
+            height: 16px;
+        }
     </style>
 </head>
 
@@ -286,7 +414,87 @@
     <div id="gameContainer">
         <div class="header">
             <h1>Chemistry Racer Pro</h1>
-            <div id="levelIndicator">Nivel 1</div>
+            <div class="header-buttons">
+                <button id="hintButton" class="btn btn-hint">Pista</button>
+                <button id="tutorialButton" class="btn btn-tutorial">Tutorial</button>
+                <div id="levelIndicator">Nivel 1</div>
+            </div>
+        </div>
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn">&times;</button>
+                <h2>Tutorial - Nomenclatura IUPAC</h2>
+
+                <div class="tutorial-section">
+                    <h3>Reglas Básicas</h3>
+                    <p>1. Identifica la cadena más larga de carbonos</p>
+                    <p>2. Numera la cadena dando prioridad al grupo funcional principal</p>
+                    <p>3. Nombra los sustituyentes en orden alfabético</p>
+                </div>
+
+                <div class="tutorial-section">
+                    <h3>Grupos Funcionales</h3>
+
+                    <div class="functional-group">
+                        <strong>-ano</strong>
+                        <div>Alcanos (enlaces simples C-C)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-eno</strong>
+                        <div>Alquenos (doble enlace C=C)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ino</strong>
+                        <div>Alquinos (triple enlace C≡C)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ol</strong>
+                        <div>Alcoholes (-OH)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-al</strong>
+                        <div>Aldehídos (-CHO)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ona</strong>
+                        <div>Cetonas (-CO-)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ácido -oico</strong>
+                        <div>Ácidos carboxílicos (-COOH)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-amina</strong>
+                        <div>Aminas (-NH2)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-éter</strong>
+                        <div>Éteres (-O-)</div>
+                    </div>
+                </div>
+                <div class="tutorial-actions">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="dontShowAgain">
+                        <span>No volver a mostrar</span>
+                    </label>
+                </div>
+                <div class="tutorial-section">
+                    <h3>Consejos para el Juego</h3>
+                    <p>• Usa el botón de pista si necesitas ayuda</p>
+                    <p>• Observa cuidadosamente la estructura mostrada</p>
+                    <p>• Identifica primero el grupo funcional principal</p>
+                    <p>• No olvides los acentos en las palabras</p>
+                </div>
+            </div>
         </div>
 
         <div class="stats">
@@ -339,7 +547,7 @@
             },
             {
                 structure: `CH3-COOH`,
-                name: "acido acetico",
+                name: "acido etanoico",
                 difficulty: 1,
                 hint: "Ácido carboxílico de 2 carbonos"
             },
@@ -352,31 +560,31 @@
             {
                 structure: `CH3-CO-CH3`,
                 name: "propanona",
-                difficulty: 2,
+                difficulty: 1,
                 hint: "Cetona de 3 carbonos"
             },
             {
                 structure: `CH3-CH2-CH2-CH2-OH`,
                 name: "butanol",
-                difficulty: 2,
+                difficulty: 1,
                 hint: "Alcohol de 4 carbonos"
             },
             {
                 structure: `CH3-CH=CH2`,
                 name: "propeno",
-                difficulty: 2,
+                difficulty: 1,
                 hint: "Alqueno de 3 carbonos"
             },
             {
                 structure: `CH3-CH2-NH2`,
                 name: "etilamina",
-                difficulty: 3,
+                difficulty: 1,
                 hint: "Amina de 2 carbonos"
             },
             {
                 structure: `CH3-O-CH3`,
                 name: "dimetileter",
-                difficulty: 3,
+                difficulty: 1,
                 hint: "Éter con 2 grupos metilo"
             }
         ];
@@ -401,6 +609,92 @@
         const progressFill = document.getElementById('progressFill');
         const feedback = document.getElementById('feedback');
 
+        const tutorialModal = document.getElementById('tutorialModal');
+        const tutorialButton = document.getElementById('tutorialButton');
+        const closeBtn = document.querySelector('.close-btn');
+
+        // Función para mostrar el tutorial siempre al cargar la página
+        function showTutorial() {
+            tutorialModal.style.display = "block";
+            tutorialModal.classList.add('visible');
+        }
+
+        // Función para ocultar el tutorial y luego iniciar el juego
+        function hideTutorial() {
+            tutorialModal.classList.remove('visible');
+            setTimeout(() => {
+                tutorialModal.style.display = "none";
+                startGame(); // Iniciar el juego después de cerrar el tutorial
+            }, 300);
+        }
+
+        // Mostrar el tutorial al cargar la página
+        window.addEventListener('load', showTutorial);
+
+        // Manejo del botón de cierre del tutorial
+        closeBtn.addEventListener('click', hideTutorial);
+
+        // Cerrar el tutorial si el usuario hace clic fuera del modal
+        window.addEventListener('click', (event) => {
+            if (event.target === tutorialModal) {
+                hideTutorial();
+            }
+        });
+
+        // Función para iniciar el juego
+        function startGame() {
+            selectNewMolecule();
+            gameActive = true;
+        }
+
+        // Función para seleccionar una nueva molécula
+        function selectNewMolecule() {
+            const availableMolecules = molecules.filter(m => m.difficulty <= level);
+            currentMolecule = availableMolecules[Math.floor(Math.random() * availableMolecules.length)];
+            structureDisplay.textContent = currentMolecule.structure;
+            hintUsed = false;
+            resetPositions();
+            moveComputer();
+
+            // Resetear el botón de pista
+            hintButton.style.opacity = '1';
+            hintButton.style.cursor = 'pointer';
+        }
+
+
+
+        const hintButton = document.getElementById('hintButton');
+        hintButton.addEventListener('click', () => {
+            if (!hintUsed && gameActive) {
+                hintUsed = true;
+                feedback.textContent = 'Pista: ' + currentMolecule.hint;
+                feedback.style.color = '#f1c40f';
+                hintButton.style.opacity = '0.5';
+                hintButton.style.cursor = 'not-allowed';
+            }
+        });
+
+        // Gestión de primera visita
+        function isFirstVisit() {
+            const visited = localStorage.getItem('chemistryraceVisited');
+            return !visited || visited === 'false';
+        }
+
+
+
+        function showTutorial() {
+            tutorialModal.style.display = "block";
+            // Forzar un reflow para que la animación funcione
+            tutorialModal.offsetHeight;
+            tutorialModal.classList.add('visible');
+        }
+
+        function hideTutorial() {
+            tutorialModal.classList.remove('visible');
+            setTimeout(() => {
+                tutorialModal.style.display = "none";
+            }, 300); // Mismo tiempo que la transición CSS
+        }
         function createParticles(x, y, color, count = 10) {
             for (let i = 0; i < count; i++) {
                 const particle = document.createElement('div');
@@ -432,14 +726,6 @@
             computerMolecule.style.left = '0px';
         }
 
-        function selectNewMolecule() {
-            const availableMolecules = molecules.filter(m => m.difficulty <= level);
-            currentMolecule = availableMolecules[Math.floor(Math.random() * availableMolecules.length)];
-            structureDisplay.textContent = currentMolecule.structure;
-            hintUsed = false;
-            resetPositions();
-            moveComputer();
-        }
 
         function updateStats(points) {
             score += points;
@@ -515,16 +801,39 @@
             }
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'h' && !hintUsed && gameActive) {
-                hintUsed = true;
-                feedback.textContent = 'Pista: ' + currentMolecule.hint;
-                feedback.style.color = '#f1c40f';
+        // Gestionar la opción de "No volver a mostrar"
+        const dontShowAgainCheckbox = document.getElementById('dontShowAgain');
+
+        dontShowAgainCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                localStorage.setItem('chemistryraceVisited', 'permanent');
+            } else {
+                localStorage.setItem('chemistryraceVisited', 'true');
             }
         });
 
+        // Mostrar tutorial en primera visita
+        if (isFirstVisit()) {
+            showTutorial();
+        }
+
         // Iniciar el juego
         selectNewMolecule();
+
+        // Tutorial Modal
+
+        tutorialButton.addEventListener('click', showTutorial);
+        closeBtn.addEventListener('click', hideTutorial);
+
+        window.addEventListener('click', (event) => {
+            if (event.target === tutorialModal) {
+                hideTutorial();
+            }
+        });
+
+
+
+
     </script>
 </body>
 
