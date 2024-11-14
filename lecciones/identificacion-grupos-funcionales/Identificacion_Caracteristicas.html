@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    <!-- Particles Container -->
+    <!-- Contenedor de partículas -->
     <div class="particles" id="particles-js"></div>
 
     <header class="text-center py-4">
@@ -22,41 +22,43 @@
     <main class="container text-center">
         <section class="my-5">
             <div class="content-container">
+                <!-- Pregunta actual -->
                 <h2 id="pregunta">¿Cuál es el grupo funcional de esta molécula?</h2>
 
+                <!-- Contenedor de la tarjeta de modelos 3D y 2D -->
                 <div class="flip-card-container">
                     <div class="flip-card-inner">
+                        <!-- Vista 3D -->
                         <div class="flip-card-front">
                             <div id="molecule-viewer" style="width: 300px; height: 300px;"></div>
                         </div>
+                        <!-- Vista 2D -->
                         <div class="flip-card-back">
                             <img id="molecule-viewer-2D" src="" alt="Vista 2D de la molécula" />
                         </div>
                     </div>
                 </div>
 
+                <!-- Leyenda de colores dinámica -->
                 <div id="color-legend" class="color-legend">
                     <h3>Identificación de Átomos</h3>
-                    <ul style="color: white;">
-                        <li><span class="legend-color" style="background-color: red;"></span>Oxígeno</li>
-                        <li><span class="legend-color" style="background-color: gray;"></span>Carbono</li>
-                        <li><span class="legend-color"
-                                style="background-color: white; border: 1px solid #ccc;"></span>Hidrógeno</li>
-                    </ul>
+                    <ul style="color: white;"></ul>
                 </div>
 
+                <!-- Botón para alternar entre vistas 2D y 3D -->
                 <button id="toggle-view-button" class="toggle-view-btn" onclick="alternarVista()">Cambiar a 2D</button>
 
+                <!-- Contenedor de opciones de respuesta -->
                 <div id="opciones" class="options"></div>
+                <!-- Mensaje de retroalimentación -->
                 <div id="feedback" class="mt-4"></div>
 
+                <!-- Botón para avanzar a la siguiente pregunta -->
                 <button id="btnSiguiente" class="next-btn" onclick="siguientePregunta()" disabled>Avanzar a la siguiente
                     pregunta</button>
             </div>
         </section>
     </main>
-
-    
 
     <!-- Cargar JSmol -->
     <script src="../../../js/jsmol/JSmol.min.js"></script>

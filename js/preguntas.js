@@ -6,6 +6,55 @@ let subnivelesMezclados = [];
 let intentos = 0;
 let vistaActual = "3D";
 
+const leyendaColores = {
+    Alcohol: [
+        { color: "red", nombre: "Oxígeno (O)" },
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" }
+    ],
+    Aldehido: [
+        { color: "red", nombre: "Oxígeno (O)" },
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" }
+    ],
+    Cetona: [
+        { color: "red", nombre: "Oxígeno (O)" },
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" }
+    ],
+    AcidoCarboxilico: [
+        { color: "red", nombre: "Oxígeno (O)" },
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" },
+    ],
+    Amida: [
+        { color: "red", nombre: "Oxígeno (O)" },
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" },
+        { color: "blue", nombre: "Nitrógeno (N)" }
+    ],
+    Arilos: [
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" },
+        { color: "yellow", nombre: "Azufre (S)" }, // En compuestos como tiofenos
+        { color: "blue", nombre: "Nitrógeno (N)" }, // En anillos aromáticos con N
+        { color: "green", nombre: "Cloro (Cl)" } // Sustituyentes en el anillo
+    ],
+    Eter: [
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" },
+        { color: "red", nombre: "Oxígeno (O)" }
+    ],
+    Halogenuro: [
+        { color: "green", nombre: "Cloro (Cl)" },
+        { color: "orange", nombre: "Bromo (Br)" },
+        { color: "purple", nombre: "Yodo (I)" },
+        { color: "lightblue", nombre: "Flúor (F)" },
+        { color: "gray", nombre: "Carbono (C)" },
+        { color: "white", nombre: "Hidrógeno (H)" }
+    ]
+};
+
 
 
 // Función para mezclar un array usando Fisher-Yates
@@ -142,6 +191,9 @@ function mostrarPregunta(nivelId) {
         cargarModeloJSmol(modelo3D);
         document.getElementById("molecule-viewer-2D").src = modelo2D;
 
+        actualizarLeyenda(subnivel.nombre);
+
+
         subnivel.opciones.forEach(opcion => {
             const button = document.createElement("button");
             button.className = "btn btn-secondary option";
@@ -208,6 +260,20 @@ function inicializarSubniveles(nivel) {
     subnivelesMezclados = mezclarArray(nivel.subniveles);
     indiceSubnivel = 0;
 }
+function actualizarLeyenda(grupoFuncional) {
+    const leyendaContainer = document.getElementById("color-legend");
+    leyendaContainer.innerHTML = `<h3>Identificación de Átomos</h3><ul style="color: white;"></ul>`;
+
+    const leyenda = leyendaColores[grupoFuncional];
+    if (leyenda) {
+        leyenda.forEach(item => {
+            const li = document.createElement("li");
+            li.innerHTML = `<span class="legend-color" style="background-color: ${item.color};"></span>${item.nombre}`;
+            leyendaContainer.querySelector("ul").appendChild(li);
+        });
+    }
+}
+
 
 // Inicializar con el primer nivel y subnivel
 document.addEventListener("DOMContentLoaded", () => {
