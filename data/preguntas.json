@@ -39,36 +39,66 @@
                         { "texto": "Éster", "explicacion": "Incorrecto, los ésteres contienen un grupo éster (COO) entre dos grupos alquilo o arilo." }
                     ],
                     "respuestaCorrecta": "Cetona"
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "nombre": "Características de Grupos Funcionales",
-            "subniveles": [
-                {
-                    "id": 1,
-                    "nombre": "Alcohol",
-                    "pregunta": "¿Cuál es una característica clave de los alcoholes?",
-                    "opciones": [
-                        { "texto": "Grupo carbonilo", "explicacion": "Incorrecto, el grupo carbonilo se encuentra en cetonas y aldehídos." },
-                        { "texto": "Grupo hidroxilo", "explicacion": "Correcto, los alcoholes contienen un grupo hidroxilo (-OH) unido a un carbono saturado." },
-                        { "texto": "Grupo amino", "explicacion": "Incorrecto, el grupo amino se encuentra en las aminas." },
-                        { "texto": "Grupo carboxilo", "explicacion": "Incorrecto, el grupo carboxilo se encuentra en los ácidos carboxílicos." }
-                    ],
-                    "respuestaCorrecta": "Grupo hidroxilo"
                 },
                 {
-                    "id": 2,
-                    "nombre": "Aldehido",
-                    "pregunta": "¿Qué grupo funcional caracteriza a los aldehídos?",
+                    "id": 4,
+                    "nombre": "AcidoCarboxilico",
+                    "pregunta": "Identifica el grupo funcional de esta molécula:",
                     "opciones": [
-                        { "texto": "Grupo éter", "explicacion": "Incorrecto, los éteres contienen un átomo de oxígeno entre dos grupos alquilo o arilo." },
-                        { "texto": "Grupo amino", "explicacion": "Incorrecto, el grupo amino es característico de las aminas." },
-                        { "texto": "Grupo carbonilo", "explicacion": "Correcto, los aldehídos tienen un grupo carbonilo (C=O) en el extremo de la cadena de carbono." },
-                        { "texto": "Grupo hidroxilo", "explicacion": "Incorrecto, el grupo hidroxilo es característico de los alcoholes." }
+                        { "texto": "Ácido carboxílico", "explicacion": "Correcto, los ácidos carboxílicos tienen un grupo carboxilo (COOH)." },
+                        { "texto": "Amida", "explicacion": "Incorrecto, las amidas contienen un grupo amido (-CONH2)." },
+                        { "texto": "Alcohol", "explicacion": "Incorrecto, los alcoholes contienen un grupo hidroxilo (-OH)." },
+                        { "texto": "Cetona", "explicacion": "Incorrecto, las cetonas contienen un grupo carbonilo (C=O)." }
                     ],
-                    "respuestaCorrecta": "Grupo carbonilo"
+                    "respuestaCorrecta": "Ácido carboxílico"
+                },
+                {
+                    "id": 5,
+                    "nombre": "Amida",
+                    "pregunta": "¿Cuál es el grupo funcional presente en esta molécula?",
+                    "opciones": [
+                        { "texto": "Amida", "explicacion": "Correcto, las amidas contienen un grupo amido (-CONH2)." },
+                        { "texto": "Alcohol", "explicacion": "Incorrecto, los alcoholes contienen un grupo hidroxilo (-OH)." },
+                        { "texto": "Aldehído", "explicacion": "Incorrecto, los aldehídos tienen un grupo carbonilo (C=O) en el extremo." },
+                        { "texto": "Halogenuro", "explicacion": "Incorrecto, los halogenuros contienen un halógeno unido a un carbono." }
+                    ],
+                    "respuestaCorrecta": "Amida"
+                },
+                {
+                    "id": 6,
+                    "nombre": "Arilos",
+                    "pregunta": "¿Qué grupo funcional está presente en esta molécula aromática?",
+                    "opciones": [
+                        { "texto": "Arilos", "explicacion": "Correcto, los arilos contienen un anillo aromático unido a un grupo funcional." },
+                        { "texto": "Éter", "explicacion": "Incorrecto, los éteres contienen un átomo de oxígeno unido a dos grupos alquilo o arilo." },
+                        { "texto": "Cetona", "explicacion": "Incorrecto, las cetonas contienen un grupo carbonilo (C=O) entre átomos de carbono." },
+                        { "texto": "Amina", "explicacion": "Incorrecto, las aminas contienen un grupo amino (-NH2)." }
+                    ],
+                    "respuestaCorrecta": "Arilos"
+                },
+                {
+                    "id": 7,
+                    "nombre": "Eter",
+                    "pregunta": "Identifica el grupo funcional de esta molécula:",
+                    "opciones": [
+                        { "texto": "Éter", "explicacion": "Correcto, los éteres contienen un átomo de oxígeno entre dos grupos alquilo o arilo." },
+                        { "texto": "Alcohol", "explicacion": "Incorrecto, los alcoholes contienen un grupo hidroxilo (-OH)." },
+                        { "texto": "Amida", "explicacion": "Incorrecto, las amidas contienen un grupo amido (-CONH2)." },
+                        { "texto": "Halogenuro", "explicacion": "Incorrecto, los halogenuros contienen un halógeno unido a un carbono." }
+                    ],
+                    "respuestaCorrecta": "Éter"
+                },
+                {
+                    "id": 8,
+                    "nombre": "Halogenuro",
+                    "pregunta": "¿Cuál es el grupo funcional de esta molécula?",
+                    "opciones": [
+                        { "texto": "Halogenuro", "explicacion": "Correcto, los halogenuros contienen un halógeno (Cl, Br, I, F) unido a un carbono." },
+                        { "texto": "Alcohol", "explicacion": "Incorrecto, los alcoholes contienen un grupo hidroxilo (-OH)." },
+                        { "texto": "Aldehído", "explicacion": "Incorrecto, los aldehídos contienen un grupo carbonilo (C=O)." },
+                        { "texto": "Amida", "explicacion": "Incorrecto, las amidas contienen un grupo amido (-CONH2)." }
+                    ],
+                    "respuestaCorrecta": "Halogenuro"
                 }
             ]
         }

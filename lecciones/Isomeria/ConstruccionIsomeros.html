@@ -887,8 +887,9 @@
 
                     const connections = atom.bonds.map(bond => {
                         const neighbor = bond.atom1 === atom ? bond.atom2 : bond.atom1;
-                        return neighbor.type;
-                    }).sort().join('-');
+                        const bondType = bond.bondType === 1 ? '-' : bond.bondType === 2 ? '=' : '#';
+                        return `${bondType}${neighbor.type}`;
+                    }).sort().join('');
 
                     path.push(`${atom.type}(${connections})`);
 
@@ -908,9 +909,11 @@
                     }
                 });
 
-                console.log("Representación simplificada:", representation.sort().join('||'));
-                return representation.sort().join('||');
+                const structureString = representation.sort().join('||');
+                console.log("🔍 Representación simplificada:", structureString);
+                return structureString;
             }
+
 
 
             validateMolecule() {
@@ -920,36 +923,36 @@
                 );
 
                 if (!allAtomsUsed) {
+                    console.log("🚫 No se usaron todos los átomos disponibles.");
                     alert('Debes usar todos los átomos disponibles para esta combinación.');
-                    console.log("Átomos utilizados:", this.counters);
-                    console.log("Combinación esperada:", this.currentCombination);
                     return;
                 }
+                console.log("✅ Todos los átomos han sido utilizados.");
 
-                // Verificar que todos los átomos están conectados correctamente
-                const allConnected = this.atoms.every(atom => {
-                    if (atom.type === 'H') return true; // Los hidrógenos pueden estar al final sin conexiones visibles
-                    return atom.bonds.length > 0;
-                });
-
-                if (!allConnected) {
-                    alert('Algunos átomos no están conectados.');
-                    console.log("Estado de los átomos:", this.atoms.map(atom => ({ type: atom.type, bonds: atom.bonds.length })));
+                // Verificar que todos los átomos tienen el número correcto de enlaces
+                const invalidAtoms = this.atoms.filter(atom => !this.hasValidBonds(atom));
+                if (invalidAtoms.length > 0) {
+                    console.log("🚫 Átomos con enlaces incorrectos:", invalidAtoms);
+                    alert('Algunos átomos no tienen el número correcto de enlaces.');
                     return;
                 }
+                console.log("✅ Todos los átomos tienen el número correcto de enlaces.");
 
                 // Construir una representación simplificada de la estructura
                 const structure = this.buildStructureRepresentation();
 
                 // Verificar si el isómero ya ha sido registrado
-                if (this.isIsomerRegistered(structure)) {
+                if (this.isIsomerRegistered()) {
                     alert("Este isómero ya ha sido registrado. Intenta crear otro diferente.");
                     return;
                 }
 
-                // Registrar el nuevo isómero si pasa todas las validaciones
-                this.registerIsomer(structure);
+                // Registrar el nuevo isómero
+                this.registerIsomer();
+                alert("¡Felicidades! Has creado un isómero válido.");
             }
+
+
 
             registerIsomer(structure) {
                 this.uniqueIsomers.push(structure);
@@ -959,14 +962,35 @@
 
 
             // Verificar si el isómero ya ha sido registrado
-            isIsomerRegistered(structure) {
-                const isRegistered = this.uniqueIsomers.includes(structure);
+            isIsomerRegistered() {
+                const { mainChain, branches } = this.analyzeStructure();
+
+                const mainLength = mainChain.length;
+                const branchSizes = branches.map(branch => branch.length).sort((a, b) => b - a);
+                const bondCounts = this.atoms.map(atom => {
+                    return atom.bonds.reduce((count, bond) => count + bond.bondType, 0);
+                }).sort();
+
+                const representation = { mainLength, branchSizes, bondCounts };
+
+                console.log("🔍 Cadena principal identificada:", mainChain);
+                console.log("🔍 Ramificaciones identificadas:", branches);
+                console.log("📊 Representación simplificada:", representation);
+
+                const isRegistered = this.uniqueIsomers.some(isomer =>
+                    isomer.mainLength === mainLength &&
+                    JSON.stringify(isomer.branchSizes) === JSON.stringify(branchSizes) &&
+                    JSON.stringify(isomer.bondCounts) === JSON.stringify(bondCounts)
+                );
 
                 if (isRegistered) {
-                    console.log("Isómero ya registrado:", structure);
+                    console.log("🚫 Isómero ya registrado:", representation);
                     return true;
                 }
 
+                // Registrar nuevo isómero
+                this.uniqueIsomers.push(representation);
+                console.log("✅ Nuevo isómero registrado:", representation);
                 return false;
             }
 
@@ -974,15 +998,24 @@
 
 
 
+
             hasValidBonds(atom) {
-                const bondCount = atom.bonds.length;
+                let totalBondCount = 0;
+
+                // Contar todos los enlaces, incluyendo dobles y triples
+                atom.bonds.forEach(bond => {
+                    totalBondCount += bond.bondType;
+                });
+
+                // Verificar el máximo de enlaces según el tipo de átomo
                 switch (atom.type) {
-                    case 'C': return bondCount === 4;
-                    case 'O': return bondCount === 2;
-                    case 'H': return bondCount === 1;
+                    case 'C': return totalBondCount === 4; // Carbono puede tener hasta 4 enlaces
+                    case 'O': return totalBondCount === 2; // Oxígeno puede tener hasta 2 enlaces
+                    case 'H': return totalBondCount === 1; // Hidrógeno puede tener 1 enlace
                     default: return false;
                 }
             }
+
 
             clearWorkspace() {
                 // Limpiar el DOM de átomos y enlaces
