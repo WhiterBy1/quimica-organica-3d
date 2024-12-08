@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Química Orgánica Interactiva</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7590683309115850"
+        crossorigin="anonymous"></script>
     <style>
         :root {
             --primary: #4CAF50;
@@ -237,9 +240,11 @@
             0% {
                 box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
             }
+
             70% {
                 box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
             }
@@ -264,12 +269,14 @@
         }
     </style>
 </head>
+
 <body>
     <div id="particles-js"></div>
     <div class="container">
         <header>
             <h1>Química Orgánica Interactiva</h1>
-            <p>Explora y domina los conceptos fundamentales de la química orgánica a través de nuestro sistema interactivo de aprendizaje</p>
+            <p>Explora y domina los conceptos fundamentales de la química orgánica a través de nuestro sistema
+                interactivo de aprendizaje</p>
         </header>
 
         <div class="topic-grid">
@@ -277,7 +284,8 @@
                 <h2>Identificación de Grupos Funcionales</h2>
                 <ul class="subtopic-list">
                     <li><a href="lecciones/identificacion-grupos-funcionales/Estructuras.html">Estructuras</a></li>
-                    <li><a href="lecciones/identificacion-grupos-funcionales/Identificacion_Caracteristicas.html">Características de Identificación</a></li>
+                    <li><a href="lecciones/identificacion-grupos-funcionales/Identificacion_Caracteristicas.html">Características
+                            de Identificación</a></li>
                 </ul>
             </div>
 
@@ -300,7 +308,8 @@
             <div class="topic-card">
                 <h2>Reacciones y Obtención</h2>
                 <ul class="subtopic-list">
-                    <li><a href="/lecciones/Reacciones-Obtencion/MounstroReacciones.html">Monstruo de Reacciones</a></li>
+                    <li><a href="/lecciones/Reacciones-Obtencion/MounstroReacciones.html">Monstruo de Reacciones</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -369,7 +378,7 @@
         // Animaciones con GSAP
         document.addEventListener('DOMContentLoaded', () => {
             const cards = document.querySelectorAll('.topic-card');
-            
+
             // Animación de entrada de las tarjetas
             gsap.to(cards, {
                 opacity: 1,
@@ -384,7 +393,7 @@
                 card.addEventListener('click', () => {
                     const subtopicList = card.querySelector('.subtopic-list');
                     const isActive = subtopicList.classList.contains('active');
-                    
+
                     // Cerrar todas las listas primero
                     document.querySelectorAll('.subtopic-list').forEach(list => {
                         if (list !== subtopicList) {
@@ -459,4 +468,5 @@
         });
     </script>
 </body>
+
 </html>
