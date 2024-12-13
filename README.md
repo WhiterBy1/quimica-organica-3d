@@ -23,10 +23,12 @@ Esta página web es un proyecto final de la asignatura de Química Orgánica, cr
 - **JMOL**: Visualización interactiva de moléculas en 3D.
 
 ## Mini-juegos interactivos
-
-1. **Blaster de Nomenclatura**: Practica la nomenclatura de compuestos eliminando moléculas.
-2. **Carrera Química**: Un juego contrarreloj para identificar nombres de compuestos.
-3. **Monstruo de las Reacciones**: Aprende sobre Reactivos en la quimica alimentando un mounstruo.
+estos minijuegos se clasifican en diversas tematicas para facilitar el aprendizaje de la quimica organica, estas son:
+### Identificacion de grupos funcionales:
+1. **Estructuras**: Practica cuales son las estructuras de los grupos funcionales de manera didactica aprendiendo sus representaciones tales como: `R-O-R` que pertenece al grupo funcional -> `Eter`.
+2. **Blaster de Nomenclatura**: Practica la nomenclatura de compuestos eliminando moléculas.
+3. **Carrera Química**: Un juego contrarreloj para identificar nombres de compuestos.
+4. **Monstruo de las Reacciones**: Aprende sobre Reactivos en la quimica alimentando un mounstruo.
 
 ## Despliegue
 
