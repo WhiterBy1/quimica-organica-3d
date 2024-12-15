@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Prefijo Químico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Space+Mono&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/pages/Numeracion.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+</head>
+
+<body>
+    <header>
+        <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    </header>
+    <div id="particles-js"></div>
+    <div class="game-container">
+        <div class="header">
+            <h1 class="title">El Prefijo Químico</h1>
+        </div>
+
+        <div id="gameMenu">
+            <div id="bestScore" class="best-score" style="display: none;">
+                Mejor Puntuación: <span id="bestScoreValue">0</span>
+            </div>
+
+            <div class="difficulty-buttons">
+                <button class="difficulty-button active" data-difficulty="facil">Novato</button>
+                <button class="difficulty-button" data-difficulty="medio">Experto</button>
+                <button class="difficulty-button" data-difficulty="dificil">Maestro</button>
+            </div>
+
+            <button class="start-button" id="startButton">¡Iniciar Experimento!</button>
+        </div>
+
+        <div id="gameArea" style="display: none;">
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="timeDisplay">10</div>
+                    <div class="stat-label">Tiempo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="scoreDisplay">0</div>
+                    <div class="stat-label">Puntos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="livesDisplay">3</div>
+                    <div class="stat-label">Intentos</div>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="number-display" id="numberDisplay">1</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar"></div>
+                </div>
+                <div class="options-grid" id="optionsGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../js/pages/Numeracion.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <scrtipt src="../../js/particles.js"></scrtipt>
+</body>
+
+</html>

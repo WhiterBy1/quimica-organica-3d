@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Constructor de Isómeros</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/pages/ConstructorIsomeros.css"> 
+</head>
+
+<body>
+    <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    <div class="container">
+        <header class="game-header">
+            <h1 class="game-title">Constructor de Isómeros</h1>
+        </header>
+
+        <div class="game-area">
+            <div class="controls-panel">
+                <div class="mode-toggle">
+                    <button class="button mode-button active" data-mode="move">Modo Mover</button>
+                    <button class="button mode-button" data-mode="connect">Modo Conectar</button>
+                    <button class="button mode-button" data-mode="delete">Eliminar Enlace</button>
+
+                </div>
+
+                <div class="atom-counter">
+                    <div class="counter-item">
+                        <span>Carbono (C)</span>
+                        <span class="counter" id="carbon-counter">0/5</span>
+                    </div>
+                    <div class="counter-item">
+                        <span>Oxígeno (O)</span>
+                        <span class="counter" id="oxygen-counter">0/2</span>
+                    </div>
+                    <div class="counter-item">
+                        <span>Hidrógeno (H)</span>
+                        <span class="counter" id="hydrogen-counter">0/12</span>
+                    </div>
+                </div>
+
+                <button class="button" id="add-carbon">Añadir C</button>
+                <button class="button" id="add-oxygen">Añadir O</button>
+                <button class="button" id="add-hydrogen">Añadir H</button>
+                <button class="button" id="validate">Validar</button>
+                <button class="button" id="clear">Limpiar</button>
+            </div>
+
+            <div class="workspace">
+                <div class="combination-display">
+                    <h3>Combinación Actual:</h3>
+                    <p id="combination-info">C: 0, H: 0, O: 0</p>
+                </div>
+                <svg id="bonds-layer"></svg>
+                <div id="atoms-layer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tutorial-overlay" id="tutorial">
+        <div class="tutorial-content">
+            <h2>Bienvenido al Constructor de Isómeros</h2>
+            <p>Aprende a construir moléculas siguiendo estos pasos:</p>
+            <ul>
+                <li>Usa los botones para añadir átomos de Carbono (C), Oxígeno (O) e Hidrógeno (H)</li>
+                <li>En "Modo Mover", arrastra los átomos para posicionarlos</li>
+                <li>Cambia a "Modo Conectar" para crear enlaces entre átomos</li>
+                <li>Debes usar todos los átomos disponibles para crear un isómero válido</li>
+                <li>Usa el botón "Validar" para comprobar tu molécula</li>
+            </ul>
+            <button onclick="document.getElementById('tutorial').style.display='none'">¡Empezar!</button>
+        </div>
+    </div>
+
+    <script src="../../js/pages/ConstructorIsomeros.js"></script>
+</body>
+
+</html>

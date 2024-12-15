@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chemistry Racer Pro</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/pages/CarreraQuimica.css">
+</head>
+
+<body>
+    <header>
+        <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    </header>
+    <div id="gameContainer">
+        <div class="header">
+            <h1>Chemistry Racer Pro</h1>
+            <div class="header-buttons">
+                <button id="hintButton" class="btn btn-hint">Pista</button>
+                <button id="tutorialButton" class="btn btn-tutorial">Tutorial</button>
+                <div id="levelIndicator">Nivel 1</div>
+            </div>
+        </div>
+        <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="modal">
+            <div class="modal-content">
+                <button class="close-btn">&times;</button>
+                <h2>Tutorial - Nomenclatura IUPAC</h2>
+
+                <div class="tutorial-section">
+                    <h3>Reglas Básicas</h3>
+                    <p>1. Identifica la cadena más larga de carbonos</p>
+                    <p>2. Numera la cadena dando prioridad al grupo funcional principal</p>
+                    <p>3. Nombra los sustituyentes en orden alfabético</p>
+                </div>
+
+                <div class="tutorial-section">
+                    <h3>Grupos Funcionales</h3>
+
+                    <div class="functional-group">
+                        <strong>-ano</strong>
+                        <div>Alcanos (enlaces simples C-C)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-eno</strong>
+                        <div>Alquenos (doble enlace C=C)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ino</strong>
+                        <div>Alquinos (triple enlace C≡C)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ol</strong>
+                        <div>Alcoholes (-OH)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-al</strong>
+                        <div>Aldehídos (-CHO)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ona</strong>
+                        <div>Cetonas (-CO-)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-ácido -oico</strong>
+                        <div>Ácidos carboxílicos (-COOH)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-amina</strong>
+                        <div>Aminas (-NH2)</div>
+                    </div>
+
+                    <div class="functional-group">
+                        <strong>-éter</strong>
+                        <div>Éteres (-O-)</div>
+                    </div>
+                </div>
+                <div class="tutorial-actions">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="dontShowAgain">
+                        <span>No volver a mostrar</span>
+                    </label>
+                </div>
+                <div class="tutorial-section">
+                    <h3>Consejos para el Juego</h3>
+                    <p>• Usa el botón de pista si necesitas ayuda</p>
+                    <p>• Observa cuidadosamente la estructura mostrada</p>
+                    <p>• Identifica primero el grupo funcional principal</p>
+                    <p>• No olvides los acentos en las palabras</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="scoreValue">0</div>
+                <div class="stat-label">Puntuación</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="streakValue">0</div>
+                <div class="stat-label">Racha</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="accuracyValue">0%</div>
+                <div class="stat-label">Precisión</div>
+            </div>
+        </div>
+
+        <div id="raceTrack">
+            <div class="lane-divider" style="top: 33%"></div>
+            <div class="lane-divider" style="top: 66%"></div>
+            <div id="computerMolecule" class="molecule">CPU</div>
+            <div id="playerMolecule" class="molecule">TÚ</div>
+        </div>
+
+        <div class="structure" id="structureDisplay"></div>
+
+        <div id="inputArea">
+            <input type="text" id="userInput" placeholder="Escribe el nombre IUPAC..." autocomplete="off">
+            <div id="feedback"></div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <script src="../../js/pages/CarreraQuimica.js"></script>
+</body>
+
+</html>

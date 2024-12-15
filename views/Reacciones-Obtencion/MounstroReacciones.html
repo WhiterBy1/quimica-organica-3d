@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Química del Monstruo Reactivo</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/pages/MounstroReacciones.css">
+</head>
+
+<body>
+    <header>
+        <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    </header>
+    <div class="game-container">
+        <div class="header">
+            <h1>Química del Monstruo Reactivo</h1>
+            <div class="score">Puntuación: <span id="score">0</span></div>
+        </div>
+
+        <div class="monster" id="monster">👾</div>
+        <div class="message" id="message">¡Alimenta al monstruo con el reactivo correcto!</div>
+
+        <div class="target-molecule">
+            <h3>Reactivo objetivo: <span id="target-name"></span></h3>
+        </div>
+
+        <div class="current-molecule" id="current-molecule">Construye tu reactivo aquí</div>
+
+        <div class="elements-grid" id="elements-grid"></div>
+
+        <div class="controls">
+            <button class="clear-btn" id="clear-btn">Limpiar</button>
+            <button class="check-btn" id="check-btn">Alimentar al monstruo</button>
+        </div>
+
+        <div class="explanation" id="explanation"></div>
+        <div id="feedback-message" class="feedback-message"></div>
+    </div>
+    <script src="../../js/pages/MounstroReacciones.js"></script>
+</body>
+
+</html>

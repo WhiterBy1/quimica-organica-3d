@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Química Orgánica Interactiva</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Space+Mono&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/pages/Estructuras.css">
+</head>
+
+<body>
+    <header>
+        <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+    </header>
+    <div id="particles-js"></div>
+    <div class="container">
+        <div class="header">
+            <h1>Química Orgánica Interactiva</h1>
+            <p>Empareje las estructuras moleculares con sus grupos funcionales correspondientes mediante arrastre o
+                selección.</p>
+        </div>
+        <div class="game-area">
+            <div class="moleculas">
+                <h2>Estructuras Moleculares</h2>
+                <div id="moleculas-container"></div>
+            </div>
+            <div class="grupos">
+                <h2>Grupos Funcionales</h2>
+                <div id="grupos-container"></div>
+            </div>
+        </div>
+        <div id="puntuacion">Puntuación: 0 / 6</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+        <button id="reiniciar">Reiniciar Juego</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <script src="../../js/particles.js"></script>
+    <script src ="../../js/pages/Estructuras.js"> </script>
+</body>
+
+</html>

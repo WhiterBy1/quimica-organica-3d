@@ -36,9 +36,9 @@ const leyendaColores = {
     Arilos: [
         { color: "gray", nombre: "Carbono (C)" },
         { color: "white", nombre: "Hidrógeno (H)" },
-        { color: "yellow", nombre: "Azufre (S)" }, // En compuestos como tiofenos
-        { color: "blue", nombre: "Nitrógeno (N)" }, // En anillos aromáticos con N
-        { color: "green", nombre: "Cloro (Cl)" } // Sustituyentes en el anillo
+        { color: "yellow", nombre: "Azufre (S)" }, 
+        { color: "blue", nombre: "Nitrógeno (N)" }, 
+        { color: "green", nombre: "Cloro (Cl)" } 
     ],
     Eter: [
         { color: "gray", nombre: "Carbono (C)" },
@@ -138,7 +138,7 @@ function alternarVista() {
 // Cargar preguntas desde el archivo JSON
 async function cargarPreguntas() {
     try {
-        const response = await fetch("../../../data/preguntas.json");
+        const response = await fetch("../../../js/data/preguntas.json");
         if (!response.ok) {
             throw new Error(`Error al cargar preguntas.json: ${response.statusText}`);
         }

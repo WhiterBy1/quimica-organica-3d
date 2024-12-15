@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IUPAC Blaster</title>
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/pages/Blaster.css">
+</head>
+
+<body>
+    <div id="startScreen">
+        <div class="screen-content">
+            <h1>IUPAC Blaster</h1>
+            <p>¡Destruye los grupos funcionales seleccionando la terminación IUPAC correcta!</p>
+            <button class="option-button" onclick="startGame()">Iniciar Juego</button>
+        </div>
+    </div>
+
+    <div id="endScreen" style="display: none;">
+        <div class="screen-content">
+            <h1>¡Juego Terminado!</h1>
+            <p>Puntuación Final: <span id="finalScore">0</span></p>
+            <p>Nivel Alcanzado: <span id="finalLevel">1</span></p>
+            <button class="option-button" onclick="restartGame()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="game-header">
+            <a href="/" class="main-button" id="mainPageButton">Main Page</a>
+            <div class="stats">
+                <div class="stat-item">Nivel: <span id="level">1</span></div>
+                <div class="stat-item">Puntos: <span id="score">0</span></div>
+                <div class="stat-item">Vidas: <span id="lives">3</span></div>
+            </div>
+        </div>
+
+        <div class="game-content">
+            <div id="gameArea"></div>
+            <div class="options-container" id="options"></div>
+        </div>
+    </div>
+
+    <script src = "../../js/pages/Blaster.js"></script>
+</body>
+
+</html>
